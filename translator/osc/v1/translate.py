@@ -13,6 +13,7 @@
 """Translate action implementations"""
 
 import logging
+import logging.config
 import os
 import sys
 
@@ -22,11 +23,13 @@ from toscaparser.tosca_template import ToscaTemplate
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
+logging.config.fileConfig('heat_translator_logging.conf')
+
 
 class TranslateTemplate(command.Command):
     """Translate a template"""
 
-    log = logging.getLogger(__name__ + '.TranslateTemplate')
+    log = logging.getLogger('heat-translator' + '.TranslateTemplate')
     auth_required = False
 
     def get_parser(self, prog_name):

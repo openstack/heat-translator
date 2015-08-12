@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import six
 
 from toscaparser.functions import GetAttribute
@@ -90,6 +91,7 @@ TOSCA_TO_HOT_REQUIRES = {'container': 'server', 'host': 'server',
                          'dependency': 'depends_on', "connects": 'depends_on'}
 
 TOSCA_TO_HOT_PROPERTIES = {'properties': 'input'}
+log = logging.getLogger('heat-translator')
 
 
 class TranslateNodeTemplates(object):
@@ -339,9 +341,11 @@ class TranslateNodeTemplates(object):
             if connect_config is not None:
                 config_location = 'source'
             else:
-                raise Exception(_("Template error:  "
-                                  "no configuration found for ConnectsTo "
-                                  "in {1}").format(self.nodetemplate.name))
+                msg = _("Template error:  "
+                        "no configuration found for ConnectsTo "
+                        "in {1}").format(self.nodetemplate.name)
+                log.warning(msg)
+                raise Exception(msg)
         config_name = source_node.name + '_' + target_name + '_connect_config'
         implement = connect_config.get('implementation')
         if config_location == 'target':

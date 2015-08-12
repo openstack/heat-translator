@@ -11,6 +11,8 @@
 #    under the License.
 
 
+import logging
+import logging.config
 import os
 import sys
 
@@ -32,6 +34,9 @@ Takes three user arguments,
 This should be only used for testing purpose. The proper use of
 Heat-Translator tool is via python-heatclient once it made available there.
 """
+
+logging.config.fileConfig('heat_translator_logging.conf')
+log = logging.getLogger("heat-translator")
 
 
 def main():

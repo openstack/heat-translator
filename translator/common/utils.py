@@ -24,6 +24,7 @@ import yaml
 
 YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
 log = logging.getLogger('tosca')
+log = logging.getLogger('heat-translator')
 
 
 class MemoryUnit(object):
@@ -75,6 +76,7 @@ class MemoryUnit(object):
 
             msg = _('Provided unit "{0}" is not valid. The valid units are'
                     ' {1}').format(unit, MemoryUnit.UNIT_SIZE_DICT.keys())
+            log.warning(msg)
             raise ValueError(msg)
 
 
@@ -96,10 +98,13 @@ class CompareUtils(object):
         both_equal = True
         for dict1_item, dict2_item in zip(dict1.items(), dict2.items()):
             if dict1_item != dict2_item:
-                log.warning(CompareUtils.MISMATCH_VALUE2_LABEL,
-                            ": %s \n is not equal to \n",
-                            CompareUtils.MISMATCH_VALUE1_LABEL,
-                            ": %s", dict1_item, dict2_item)
+                msg = (_("%(label1)s: %(item1)s \n is not equal to \n:"
+                         "%(label2)s: %(item2)s")
+                       % {'label1': CompareUtils.MISMATCH_VALUE2_LABEL,
+                          'item1': dict1_item,
+                          'label2': CompareUtils.MISMATCH_VALUE1_LABEL,
+                          'item2': dict2_item})
+                log.warning(msg)
                 both_equal = False
                 break
         return both_equal
