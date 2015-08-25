@@ -14,9 +14,14 @@
 from toscaparser.functions import GetInput
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaBlockStorageAttachment'
+
 
 class ToscaBlockStorageAttachment(HotResource):
     '''Translate TOSCA relationship AttachesTo for Compute and BlockStorage.'''
+
+    toscatype = 'tosca.nodes.BlockStorageAttachment'
 
     def __init__(self, template, nodetemplates, instance_uuid, volume_id):
         super(ToscaBlockStorageAttachment,

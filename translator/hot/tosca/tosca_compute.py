@@ -17,6 +17,10 @@ import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
 log = logging.getLogger('tosca')
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaCompute'
+
+
 # A design issue to be resolved is how to translate the generic TOSCA server
 # properties to OpenStack flavors and images.  At the Atlanta design summit,
 # there was discussion on using Glance to store metadata and Graffiti to

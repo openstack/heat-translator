@@ -13,12 +13,12 @@
 
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaElasticsearch'
+
 
 class ToscaElasticsearch(HotResource):
     '''Translate TOSCA type tosca.nodes.SoftwareComponent.Elasticsearch.'''
-    # TODO(anyone): this is a custom TOSCA type so it should be kept separate
-    # from the TOSCA base types;  need to come up with a scheme so new custom
-    # types can be added by users.
 
     toscatype = 'tosca.nodes.SoftwareComponent.Elasticsearch'
 

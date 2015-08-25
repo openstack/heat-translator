@@ -20,9 +20,14 @@ from translator.hot.syntax.hot_resource import HotResource
 
 log = logging.getLogger("tosca")
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaBlockStorage'
+
 
 class ToscaBlockStorage(HotResource):
     '''Translate TOSCA node type tosca.nodes.BlockStorage.'''
+
+    toscatype = 'tosca.nodes.BlockStorage'
 
     def __init__(self, nodetemplate):
         super(ToscaBlockStorage, self).__init__(nodetemplate,

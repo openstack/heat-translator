@@ -13,6 +13,9 @@
 
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaWebApplication'
+
 
 class ToscaWebApplication(HotResource):
     '''Translate TOSCA node type tosca.nodes.WebApplication.'''

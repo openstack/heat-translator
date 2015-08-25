@@ -11,42 +11,113 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import imp
 import logging
+import os
 import six
 
 from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
 from toscaparser.functions import GetProperty
 from toscaparser.relationship_template import RelationshipTemplate
+from translator.common.exception import ToscaClassAttributeError
+from translator.common.exception import ToscaClassImportError
+from translator.common.exception import ToscaModImportError
+from translator.conf.config import ConfigProvider as translatorConfig
 from translator.hot.syntax.hot_resource import HotResource
-from translator.hot.tosca.custom_types.tosca_collectd import ToscaCollectd
-from translator.hot.tosca.custom_types.tosca_elasticsearch import (
-    ToscaElasticsearch
-    )
-from translator.hot.tosca.custom_types.tosca_kibana import ToscaKibana
-from translator.hot.tosca.custom_types.tosca_logstash import ToscaLogstash
-from translator.hot.tosca.custom_types.tosca_nodejs import ToscaNodejs
-from translator.hot.tosca.custom_types.tosca_paypalpizzastore import (
-    ToscaPaypalPizzaStore
-    )
-from translator.hot.tosca.custom_types.tosca_rsyslog import ToscaRsyslog
-from translator.hot.tosca.custom_types.tosca_wordpress import ToscaWordpress
-from translator.hot.tosca.tosca_block_storage import ToscaBlockStorage
 from translator.hot.tosca.tosca_block_storage_attachment import (
     ToscaBlockStorageAttachment
     )
-from translator.hot.tosca.tosca_compute import ToscaCompute
-from translator.hot.tosca.tosca_database import ToscaDatabase
-from translator.hot.tosca.tosca_dbms import ToscaDbms
-from translator.hot.tosca.tosca_network_network import ToscaNetwork
-from translator.hot.tosca.tosca_network_port import ToscaNetworkPort
-from translator.hot.tosca.tosca_object_storage import ToscaObjectStorage
-from translator.hot.tosca.tosca_software_component import (
-    ToscaSoftwareComponent
-    )
-from translator.hot.tosca.tosca_web_application import ToscaWebApplication
-from translator.hot.tosca.tosca_webserver import ToscaWebserver
 
+###########################
+# Module utility Functions
+# for dynamic class loading
+###########################
+
+
+def _generate_type_map():
+    '''Generate TOSCA translation types map.
+
+    Load user defined classes from location path specified in conf file.
+    Base classes are located within the tosca directory.
+
+    '''
+
+    # Base types directory
+    BASE_PATH = 'translator/hot/tosca'
+
+    # Custom types directory defined in conf file
+    custom_path = translatorConfig.get_value('DEFAULT',
+                                             'custom_types_location')
+
+    # First need to load the parent module, for example 'contrib.hot',
+    # for all of the dynamically loaded classes.
+    _load_custom_mod(custom_path)
+    classes = []
+    _load_classes((BASE_PATH, custom_path), classes)
+    try:
+        types_map = {clazz.toscatype: clazz for clazz in classes}
+    except AttributeError as e:
+        raise ToscaClassAttributeError(message=e.message)
+
+    return types_map
+
+
+def _load_custom_mod(custom_path):
+    '''Dynamically load the parent module for all the custom types.'''
+
+    try:
+        fp, filename, desc = imp.find_module(custom_path)
+        imp.load_module(custom_path.replace('/', '.'),
+                        fp, filename, desc)
+    except ImportError:
+        raise ToscaModImportError(mod_name=custom_path)
+    finally:
+        if fp:
+            fp.close()
+
+
+def _load_classes(locations, classes):
+    '''Dynamically load all the classes from the given locations.'''
+
+    for cls_path in locations:
+        # Grab all the tosca type module files in the given path
+        mod_files = [f for f in os.listdir(cls_path) if f.endswith('.py')
+                     and not f.startswith('__init__')
+                     and f.startswith('tosca_')]
+
+        # For each module, pick out the target translation class
+        for f in mod_files:
+            # NOTE: For some reason the existing code does not use the map to
+            # instantiate ToscaBlockStorageAttachment. Don't add it to the map
+            # here until the dependent code is fixed to use the map.
+            if f == 'tosca_block_storage_attachment.py':
+                continue
+
+            mod_name = cls_path + '/' + f.strip('.py')
+            try:
+                fp, filename, desc = imp.find_module(mod_name)
+                mod = imp.load_module(mod_name.replace('/', '.'),
+                                      fp, filename, desc)
+                target_name = getattr(mod, 'TARGET_CLASS_NAME')
+                clazz = getattr(mod, target_name)
+                classes.append(clazz)
+            except ImportError:
+                raise ToscaModImportError(mod_name=mod_name)
+            except AttributeError:
+                if target_name:
+                    raise ToscaClassImportError(name=target_name,
+                                                mod_name=mod_name)
+                else:
+                    # TARGET_CLASS_NAME is not defined in module.
+                    # Re-raise the exception
+                    raise
+            finally:
+                fp.close()
+
+##################
+# Module constants
+##################
 
 SECTIONS = (TYPE, PROPERTIES, REQUIREMENTS, INTERFACES, LIFECYCLE, INPUT) = \
            ('type', 'properties', 'requirements',
@@ -64,34 +135,14 @@ REQUIRES = (CONTAINER, DEPENDENCY, DATABASE_ENDPOINT, CONNECTION, HOST) = \
 INTERFACES_STATE = (CREATE, START, CONFIGURE, START, DELETE) = \
                    ('create', 'stop', 'configure', 'start', 'delete')
 
-# dict to look up HOT translation class,
-# TODO(replace with function to scan the classes in translator.hot.tosca)
-TOSCA_TO_HOT_TYPE = {'tosca.nodes.Compute': ToscaCompute,
-                     'tosca.nodes.WebServer': ToscaWebserver,
-                     'tosca.nodes.DBMS': ToscaDbms,
-                     'tosca.nodes.Database': ToscaDatabase,
-                     'tosca.nodes.WebApplication': ToscaWebApplication,
-                     'tosca.nodes.WebApplication.WordPress': ToscaWordpress,
-                     'tosca.nodes.BlockStorage': ToscaBlockStorage,
-                     'tosca.nodes.SoftwareComponent': ToscaSoftwareComponent,
-                     'tosca.nodes.SoftwareComponent.Nodejs': ToscaNodejs,
-                     'tosca.nodes.network.Network': ToscaNetwork,
-                     'tosca.nodes.network.Port': ToscaNetworkPort,
-                     'tosca.nodes.ObjectStorage': ToscaObjectStorage,
-                     'tosca.nodes.SoftwareComponent.Collectd': ToscaCollectd,
-                     'tosca.nodes.SoftwareComponent.Rsyslog': ToscaRsyslog,
-                     'tosca.nodes.SoftwareComponent.Kibana': ToscaKibana,
-                     'tosca.nodes.SoftwareComponent.Logstash': ToscaLogstash,
-                     'tosca.nodes.SoftwareComponent.Elasticsearch':
-                     ToscaElasticsearch,
-                     'tosca.nodes.WebApplication.PayPalPizzaStore':
-                     ToscaPaypalPizzaStore}
 
 TOSCA_TO_HOT_REQUIRES = {'container': 'server', 'host': 'server',
                          'dependency': 'depends_on', "connects": 'depends_on'}
 
 TOSCA_TO_HOT_PROPERTIES = {'properties': 'input'}
 log = logging.getLogger('heat-translator')
+
+TOSCA_TO_HOT_TYPE = _generate_type_map()
 
 
 class TranslateNodeTemplates(object):

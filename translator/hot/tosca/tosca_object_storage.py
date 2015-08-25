@@ -14,9 +14,14 @@
 from toscaparser.elements.scalarunit import ScalarUnit_Size
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaObjectStorage'
+
 
 class ToscaObjectStorage(HotResource):
     '''Translate TOSCA node type tosca.nodes.ObjectStorage.'''
+
+    toscatype = 'tosca.nodes.ObjectStorage'
 
     def __init__(self, nodetemplate):
         super(ToscaObjectStorage, self).__init__(nodetemplate,

@@ -14,6 +14,9 @@
 from toscaparser.common.exception import InvalidPropertyValueError
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaNetwork'
+
 
 class ToscaNetwork(HotResource):
     '''Translate TOSCA node type tosca.nodes.network.Network.'''

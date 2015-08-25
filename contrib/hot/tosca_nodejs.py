@@ -13,17 +13,17 @@
 
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaNodejs'
 
-class ToscaLogstash(HotResource):
-    '''Translate TOSCA node type tosca.nodes.SoftwareComponent.Logstash.'''
-    # TODO(anyone): this is a custom TOSCA type so it should be kept separate
-    # from the TOSCA base types;  need to come up with a scheme so new custom
-    # types can be added by users.
 
-    toscatype = 'tosca.nodes.SoftwareComponent.Logstash'
+class ToscaNodejs(HotResource):
+    '''Translate TOSCA node type tosca.nodes.SoftwareComponent.Nodejs.'''
+
+    toscatype = 'tosca.nodes.SoftwareComponent.Nodejs'
 
     def __init__(self, nodetemplate):
-        super(ToscaLogstash, self).__init__(nodetemplate)
+        super(ToscaNodejs, self).__init__(nodetemplate)
         pass
 
     def handle_properties(self):

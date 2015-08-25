@@ -13,17 +13,17 @@
 
 from translator.hot.syntax.hot_resource import HotResource
 
+# Name used to dynamically load appropriate map class.
+TARGET_CLASS_NAME = 'ToscaWordpress'
 
-class ToscaPaypalPizzaStore(HotResource):
-    '''Translate TOSCA type tosca.nodes.WebApplication.PayPalPizzaStore.'''
-    # TODO(anyone): this is a custom TOSCA type so it should be kept separate
-    # from the TOSCA base types;  need to come up with a scheme so new custom
-    # types can be added by users.
 
-    toscatype = 'tosca.nodes.WebApplication.PayPalPizzaStore'
+class ToscaWordpress(HotResource):
+    '''Translate TOSCA node type tosca.nodes.WebApplication.WordPress.'''
+
+    toscatype = 'tosca.nodes.WebApplication.WordPress'
 
     def __init__(self, nodetemplate):
-        super(ToscaPaypalPizzaStore, self).__init__(nodetemplate)
+        super(ToscaWordpress, self).__init__(nodetemplate)
         pass
 
     def handle_properties(self):
