@@ -14,9 +14,9 @@
 import os
 import sys
 
+from toscaparser.tosca_template import ToscaTemplate
+from toscaparser.utils.gettextutils import _
 from translator.hot.tosca_translator import TOSCATranslator
-from translator.toscalib.tosca_template import ToscaTemplate
-from translator.toscalib.utils.gettextutils import _
 
 """
 Test the heat-translator from command line as:
