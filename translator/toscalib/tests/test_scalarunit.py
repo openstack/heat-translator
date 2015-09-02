@@ -10,13 +10,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from translator.toscalib.common import exception
-from translator.toscalib.elements.scalarunit import ScalarUnit_Frequency
-from translator.toscalib.elements.scalarunit import ScalarUnit_Size
-from translator.toscalib.elements.scalarunit import ScalarUnit_Time
-from translator.toscalib.nodetemplate import NodeTemplate
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.utils import yamlparser
+from toscaparser.common import exception
+from toscaparser.elements.scalarunit import ScalarUnit_Frequency
+from toscaparser.elements.scalarunit import ScalarUnit_Size
+from toscaparser.elements.scalarunit import ScalarUnit_Time
+from toscaparser.nodetemplate import NodeTemplate
+from toscaparser.tests.base import TestCase
+from toscaparser.utils import yamlparser
 
 
 class ScalarUnitPositiveTest(TestCase):

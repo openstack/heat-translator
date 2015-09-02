@@ -13,14 +13,14 @@
 import os
 import six
 
-from translator.toscalib.common import exception
-from translator.toscalib.nodetemplate import NodeTemplate
-from translator.toscalib.parameters import Input
-from translator.toscalib.parameters import Output
-from translator.toscalib.relationship_template import RelationshipTemplate
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
-import translator.toscalib.utils.yamlparser
+from toscaparser.common import exception
+from toscaparser.nodetemplate import NodeTemplate
+from toscaparser.parameters import Input
+from toscaparser.parameters import Output
+from toscaparser.relationship_template import RelationshipTemplate
+from toscaparser.tests.base import TestCase
+from toscaparser.tosca_template import ToscaTemplate
+import toscaparser.utils.yamlparser
 
 
 class ToscaTemplateValidationTest(TestCase):
@@ -58,7 +58,7 @@ class ToscaTemplateValidationTest(TestCase):
             constraint:
               - valid_values: [ 1, 2, 4, 8 ]
         '''
-        inputs = (translator.toscalib.utils.yamlparser.
+        inputs = (toscaparser.utils.yamlparser.
                   simple_parse(tpl_snippet)['inputs'])
         name, attrs = list(inputs.items())[0]
         input = Input(name, attrs)
@@ -77,7 +77,7 @@ class ToscaTemplateValidationTest(TestCase):
             description: IP address of server instance.
             values: { get_property: [server, private_address] }
         '''
-        outputs = (translator.toscalib.utils.yamlparser.
+        outputs = (toscaparser.utils.yamlparser.
                    simple_parse(tpl_snippet)['outputs'])
         name, attrs = list(outputs.items())[0]
         output = Output(name, attrs)
@@ -95,7 +95,7 @@ class ToscaTemplateValidationTest(TestCase):
             descriptions: IP address of server instance.
             value: { get_property: [server, private_address] }
         '''
-        outputs = (translator.toscalib.utils.yamlparser.
+        outputs = (toscaparser.utils.yamlparser.
                    simple_parse(tpl_snippet)['outputs'])
         name, attrs = list(outputs.items())[0]
         output = Output(name, attrs)
@@ -113,7 +113,7 @@ class ToscaTemplateValidationTest(TestCase):
         def_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "data/custom_types/wordpress.yaml")
-        custom_type = translator.toscalib.utils.yamlparser.load_yaml(def_file)
+        custom_type = toscaparser.utils.yamlparser.load_yaml(def_file)
         node_types = custom_type['node_types']
         for name in node_types:
             defintion = node_types[name]
@@ -122,7 +122,7 @@ class ToscaTemplateValidationTest(TestCase):
 
     def _single_node_template_content_test(self, tpl_snippet, expectederror,
                                            expectedmessage):
-        nodetemplates = (translator.toscalib.utils.yamlparser.
+        nodetemplates = (toscaparser.utils.yamlparser.
                          simple_ordered_parse(tpl_snippet))['node_templates']
         name = list(nodetemplates.keys())[0]
         try:
@@ -648,7 +648,7 @@ class ToscaTemplateValidationTest(TestCase):
 
     def _single_rel_template_content_test(self, tpl_snippet, expectederror,
                                           expectedmessage):
-        rel_template = (translator.toscalib.utils.yamlparser.
+        rel_template = (toscaparser.utils.yamlparser.
                         simple_parse(tpl_snippet))['relationship_templates']
         name = list(rel_template.keys())[0]
         rel_template = RelationshipTemplate(rel_template[name], name)

@@ -16,12 +16,13 @@ import math
 import numbers
 import os
 import re
-from translator.toscalib.tosca_template import ToscaTemplate
-from translator.toscalib.utils.gettextutils import _
-import translator.toscalib.utils.yamlparser
+from toscaparser.tosca_template import ToscaTemplate
+from toscaparser.utils.gettextutils import _
+import toscaparser.utils.yamlparser
+from translator.hot.tosca_translator import TOSCATranslator as Translator
 import yaml
 
-YAML_ORDER_PARSER = translator.toscalib.utils.yamlparser.simple_ordered_parse
+YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
 log = logging.getLogger('tosca')
 
 
@@ -221,10 +222,9 @@ class TranslationUtils(object):
             os.path.dirname(os.path.abspath(__file__)), hot_file)
 
         tosca = ToscaTemplate(tosca_tpl, params)
-        translate = translator.hot.tosca_translator.TOSCATranslator(tosca,
-                                                                    params)
+        translate = Translator(tosca, params)
         output = translate.translate()
-        output_dict = translator.toscalib.utils.yamlparser.simple_parse(output)
+        output_dict = toscaparser.utils.yamlparser.simple_parse(output)
         expected_output_dict = YamlUtils.get_dict(expected_hot_tpl)
         return CompareUtils.diff_dicts(output_dict, expected_output_dict)
 

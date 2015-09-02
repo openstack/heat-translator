@@ -12,12 +12,12 @@
 
 
 from collections import OrderedDict
+from toscaparser.parameters import Input
+from toscaparser.tests.base import TestCase
+from toscaparser.utils.gettextutils import _
+import toscaparser.utils.yamlparser
 from translator.common.utils import CompareUtils
 from translator.hot.translate_inputs import TranslateInputs
-from translator.toscalib.parameters import Input
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.utils.gettextutils import _
-import translator.toscalib.utils.yamlparser
 
 
 class ToscaTemplateInputValidationTest(TestCase):
@@ -25,7 +25,7 @@ class ToscaTemplateInputValidationTest(TestCase):
     def _translate_input_test(self, tpl_snippet, input_params,
                               expectedmessage=None,
                               expected_hot_params=None):
-        inputs_dict = (translator.toscalib.utils.yamlparser.
+        inputs_dict = (toscaparser.utils.yamlparser.
                        simple_parse(tpl_snippet)['inputs'])
         inputs = []
         for name, attrs in inputs_dict.items():

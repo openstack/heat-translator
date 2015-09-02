@@ -11,8 +11,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from toscaparser.elements.scalarunit import ScalarUnit_Size
 from translator.hot.syntax.hot_resource import HotResource
-from translator.toscalib.elements.scalarunit import ScalarUnit_Size
 
 
 class ToscaObjectStorage(HotResource):

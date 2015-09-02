@@ -12,11 +12,11 @@
 
 import os
 
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.topology_template import TopologyTemplate
-import translator.toscalib.utils.yamlparser
+from toscaparser.tests.base import TestCase
+from toscaparser.topology_template import TopologyTemplate
+import toscaparser.utils.yamlparser
 
-YAML_LOADER = translator.toscalib.utils.yamlparser.load_yaml
+YAML_LOADER = toscaparser.utils.yamlparser.load_yaml
 
 
 class TopologyTemplateTest(TestCase):

@@ -12,6 +12,7 @@
 
 from collections import OrderedDict
 
+from toscaparser.tests.base import TestCase
 from translator.hot.syntax.hot_parameter import CONSTRAINTS
 from translator.hot.syntax.hot_parameter import DEFAULT
 from translator.hot.syntax.hot_parameter import DESCRIPTION
@@ -19,7 +20,6 @@ from translator.hot.syntax.hot_parameter import HIDDEN
 from translator.hot.syntax.hot_parameter import HotParameter
 from translator.hot.syntax.hot_parameter import LABEL
 from translator.hot.syntax.hot_parameter import TYPE
-from translator.toscalib.tests.base import TestCase
 
 TEST_CONSTRAINTS = {'equal': 'allowed_values', 'greater_than': 'range'}
 

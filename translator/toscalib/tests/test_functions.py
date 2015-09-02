@@ -12,10 +12,10 @@
 
 import os
 import six
-from translator.toscalib.common import exception
-from translator.toscalib import functions
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
+from toscaparser.common import exception
+from toscaparser import functions
+from toscaparser.tests.base import TestCase
+from toscaparser.tosca_template import ToscaTemplate
 
 
 class IntrinsicFunctionsTest(TestCase):

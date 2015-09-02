@@ -13,11 +13,11 @@
 import datetime
 import yaml
 
-from translator.toscalib.common import exception
-from translator.toscalib.elements.constraints import Constraint
-from translator.toscalib.elements.constraints import Schema
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.utils import yamlparser
+from toscaparser.common import exception
+from toscaparser.elements.constraints import Constraint
+from toscaparser.elements.constraints import Schema
+from toscaparser.tests.base import TestCase
+from toscaparser.utils import yamlparser
 
 
 class ConstraintTest(TestCase):

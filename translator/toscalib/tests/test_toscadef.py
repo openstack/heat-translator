@@ -10,11 +10,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from translator.toscalib.common import exception
-from translator.toscalib.elements.artifacttype import ArtifactTypeDef
-import translator.toscalib.elements.interfaces as ifaces
-from translator.toscalib.elements.nodetype import NodeType
-from translator.toscalib.tests.base import TestCase
+from toscaparser.common import exception
+from toscaparser.elements.artifacttype import ArtifactTypeDef
+import toscaparser.elements.interfaces as ifaces
+from toscaparser.elements.nodetype import NodeType
+from toscaparser.tests.base import TestCase
 
 compute_type = NodeType('tosca.nodes.Compute')
 component_type = NodeType('tosca.nodes.SoftwareComponent')

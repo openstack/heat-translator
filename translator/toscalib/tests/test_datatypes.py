@@ -13,13 +13,13 @@
 import os
 
 from testtools.testcase import skip
-from translator.toscalib.common import exception
-from translator.toscalib.dataentity import DataEntity
-from translator.toscalib.elements.datatype import DataType
-from translator.toscalib.parameters import Input
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
-from translator.toscalib.utils import yamlparser
+from toscaparser.common import exception
+from toscaparser.dataentity import DataEntity
+from toscaparser.elements.datatype import DataType
+from toscaparser.parameters import Input
+from toscaparser.tests.base import TestCase
+from toscaparser.tosca_template import ToscaTemplate
+from toscaparser.utils import yamlparser
 
 
 class DataTypeTest(TestCase):

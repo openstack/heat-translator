@@ -12,11 +12,11 @@
 # under the License.
 
 import logging
+from toscaparser.common.exception import InvalidPropertyValueError
+from toscaparser.elements.scalarunit import ScalarUnit_Size
+from toscaparser.functions import GetInput
+from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_resource import HotResource
-from translator.toscalib.common.exception import InvalidPropertyValueError
-from translator.toscalib.elements.scalarunit import ScalarUnit_Size
-from translator.toscalib.functions import GetInput
-from translator.toscalib.utils.gettextutils import _
 
 log = logging.getLogger("tosca")
 

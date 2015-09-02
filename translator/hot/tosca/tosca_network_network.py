@@ -11,8 +11,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from toscaparser.common.exception import InvalidPropertyValueError
 from translator.hot.syntax.hot_resource import HotResource
-from translator.toscalib.common.exception import InvalidPropertyValueError
 
 
 class ToscaNetwork(HotResource):

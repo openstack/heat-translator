@@ -10,10 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from translator.toscalib.common.exception import (
+from toscaparser.common.exception import (
     InvalidTOSCAVersionPropertyException)
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.utils.validateutils import TOSCAVersionProperty
+from toscaparser.tests.base import TestCase
+from toscaparser.utils.validateutils import TOSCAVersionProperty
 
 
 class TOSCAVersionPropertyTest(TestCase):

@@ -14,9 +14,9 @@
 from collections import OrderedDict
 import six
 
-from translator.toscalib.functions import GetInput
-from translator.toscalib.nodetemplate import NodeTemplate
-from translator.toscalib.utils.gettextutils import _
+from toscaparser.functions import GetInput
+from toscaparser.nodetemplate import NodeTemplate
+from toscaparser.utils.gettextutils import _
 
 
 SECTIONS = (TYPE, PROPERTIES, MEDADATA, DEPENDS_ON, UPDATE_POLICY,

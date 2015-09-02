@@ -12,9 +12,9 @@
 # under the License.
 
 import logging
-from translator.common.utils import MemoryUnit
+from toscaparser.utils.validateutils import TOSCAVersionProperty
+import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
-from translator.toscalib.utils.validateutils import TOSCAVersionProperty
 log = logging.getLogger('tosca')
 
 # A design issue to be resolved is how to translate the generic TOSCA server
@@ -123,15 +123,15 @@ class ToscaCompute(HotResource):
         # flavors that fit the mem size
         mem = properties.get('mem_size')
         if mem:
-            mem = MemoryUnit.convert_unit_size_to_num(mem,
-                                                      'MB')
+            mem = translator.common.utils.MemoryUnit.convert_unit_size_to_num(
+                mem, 'MB')
         match_cpu_mem = self._match_flavors(match_cpu, FLAVORS,
                                             'mem_size', mem)
         # flavors that fit the disk size
         disk = properties.get('disk_size')
         if disk:
-            disk = MemoryUnit.convert_unit_size_to_num(disk,
-                                                       'GB')
+            disk = translator.common.utils.MemoryUnit.\
+                convert_unit_size_to_num(disk, 'GB')
         match_cpu_mem_disk = self._match_flavors(match_cpu_mem, FLAVORS,
                                                  'disk_size', disk)
         # if multiple match, pick the flavor with the least memory

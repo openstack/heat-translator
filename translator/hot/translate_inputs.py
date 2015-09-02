@@ -12,11 +12,11 @@
 # under the License.
 
 import logging
+from toscaparser.dataentity import DataEntity
+from toscaparser.elements.scalarunit import ScalarUnit_Size
+from toscaparser.utils.gettextutils import _
+from toscaparser.utils.validateutils import TOSCAVersionProperty
 from translator.hot.syntax.hot_parameter import HotParameter
-from translator.toscalib.dataentity import DataEntity
-from translator.toscalib.elements.scalarunit import ScalarUnit_Size
-from translator.toscalib.utils.gettextutils import _
-from translator.toscalib.utils.validateutils import TOSCAVersionProperty
 
 
 INPUT_CONSTRAINTS = (CONSTRAINTS, DESCRIPTION, LENGTH, RANGE,

@@ -11,8 +11,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from toscaparser.functions import GetInput
 from translator.hot.syntax.hot_resource import HotResource
-from translator.toscalib.functions import GetInput
 
 
 class ToscaBlockStorageAttachment(HotResource):

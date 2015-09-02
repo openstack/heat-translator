@@ -13,15 +13,15 @@
 import os
 import six
 
-from translator.toscalib.common import exception
-import translator.toscalib.elements.interfaces as ifaces
-from translator.toscalib.elements.nodetype import NodeType
-from translator.toscalib.functions import GetInput
-from translator.toscalib.functions import GetProperty
-from translator.toscalib.nodetemplate import NodeTemplate
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
-import translator.toscalib.utils.yamlparser
+from toscaparser.common import exception
+import toscaparser.elements.interfaces as ifaces
+from toscaparser.elements.nodetype import NodeType
+from toscaparser.functions import GetInput
+from toscaparser.functions import GetProperty
+from toscaparser.nodetemplate import NodeTemplate
+from toscaparser.tests.base import TestCase
+from toscaparser.tosca_template import ToscaTemplate
+import toscaparser.utils.yamlparser
 
 
 class ToscaTemplateTest(TestCase):
@@ -324,7 +324,7 @@ class ToscaTemplateTest(TestCase):
         self._requirements_not_implemented(tpl_snippet_3, 'my_webserver2')
 
     def _requirements_not_implemented(self, tpl_snippet, tpl_name):
-        nodetemplates = (translator.toscalib.utils.yamlparser.
+        nodetemplates = (toscaparser.utils.yamlparser.
                          simple_parse(tpl_snippet))['node_templates']
         self.assertRaises(
             NotImplementedError,
@@ -355,9 +355,9 @@ class ToscaTemplateTest(TestCase):
               required: no
         '''
         expected_capabilities = ['test_cap']
-        nodetemplates = (translator.toscalib.utils.yamlparser.
+        nodetemplates = (toscaparser.utils.yamlparser.
                          simple_parse(tpl_snippet))['node_templates']
-        custom_def = (translator.toscalib.utils.yamlparser.
+        custom_def = (toscaparser.utils.yamlparser.
                       simple_parse(custom_def))
         name = list(nodetemplates.keys())[0]
         tpl = NodeTemplate(name, nodetemplates, custom_def)
@@ -373,7 +373,7 @@ class ToscaTemplateTest(TestCase):
             test_cap:
                type: tosca.capabilities.TestCapability
         '''
-        custom_def = (translator.toscalib.utils.yamlparser.
+        custom_def = (toscaparser.utils.yamlparser.
                       simple_parse(custom_def))
         tpl = NodeTemplate(name, nodetemplates, custom_def)
         err = self.assertRaises(

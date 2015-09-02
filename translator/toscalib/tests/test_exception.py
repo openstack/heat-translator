@@ -10,8 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from translator.toscalib.common import exception
-from translator.toscalib.tests.base import TestCase
+from toscaparser.common import exception
+from toscaparser.tests.base import TestCase
 
 
 class ExceptionTest(TestCase):

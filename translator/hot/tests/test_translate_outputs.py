@@ -11,10 +11,10 @@
 #    under the License.
 
 import os
+from toscaparser.tests.base import TestCase
+from toscaparser.tosca_template import ToscaTemplate
+import toscaparser.utils.yamlparser
 from translator.hot.tosca_translator import TOSCATranslator
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
-import translator.toscalib.utils.yamlparser
 
 
 class ToscaTemplateOutputTest(TestCase):
@@ -41,7 +41,7 @@ class ToscaTemplateOutputTest(TestCase):
                              ['mongo_server', 'networks', 'private', 0]}}}
 
         hot_translation_dict = \
-            translator.toscalib.utils.yamlparser.simple_parse(hot_translation)
+            toscaparser.utils.yamlparser.simple_parse(hot_translation)
 
         outputs = hot_translation_dict.get('outputs')
         for resource_name in outputs:

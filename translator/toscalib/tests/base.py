@@ -21,7 +21,7 @@ import fixtures
 import testscenarios
 import testtools
 
-from translator.toscalib.tosca_template import ToscaTemplate
+from toscaparser.tosca_template import ToscaTemplate
 
 _TRUE_VALUES = ('True', 'true', '1', 'yes')
 

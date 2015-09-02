@@ -18,9 +18,9 @@ import sys
 
 from cliff import command
 
+from toscaparser.tosca_template import ToscaTemplate
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
-from translator.toscalib.tosca_template import ToscaTemplate
 
 
 class TranslateTemplate(command.Command):

@@ -10,17 +10,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from toscaparser.nodetemplate import NodeTemplate
+from toscaparser.tests.base import TestCase
+from toscaparser.utils.gettextutils import _
+import toscaparser.utils.yamlparser
 from translator.hot.tosca.tosca_compute import ToscaCompute
-from translator.toscalib.nodetemplate import NodeTemplate
-from translator.toscalib.tests.base import TestCase
-from translator.toscalib.utils.gettextutils import _
-import translator.toscalib.utils.yamlparser
 
 
 class ToscaComputeTest(TestCase):
 
     def _tosca_compute_test(self, tpl_snippet, expectedprops):
-        nodetemplates = (translator.toscalib.utils.yamlparser.
+        nodetemplates = (toscaparser.utils.yamlparser.
                          simple_parse(tpl_snippet)['node_templates'])
         name = list(nodetemplates.keys())[0]
         try:

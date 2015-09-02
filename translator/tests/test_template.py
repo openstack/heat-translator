@@ -11,8 +11,8 @@
 #    under the License.
 
 import os
+from toscaparser.tosca_template import ToscaTemplate
 from translator.tests.base import TestCase
-from translator.toscalib.tosca_template import ToscaTemplate
 
 
 class ToscaMongoNodejsTest(TestCase):

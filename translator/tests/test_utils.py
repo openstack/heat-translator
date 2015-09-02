@@ -11,8 +11,8 @@
 #    under the License.
 
 import os
+from toscaparser.tests.base import TestCase
 import translator.common.utils
-from translator.toscalib.tests.base import TestCase
 
 
 class CommonUtilsTest(TestCase):
