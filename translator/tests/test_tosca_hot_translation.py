@@ -11,6 +11,8 @@
 #    under the License.
 
 import json
+import os
+import toscaparser
 from translator.common.utils import TranslationUtils
 from translator.tests.base import TestCase
 
@@ -81,8 +83,9 @@ class ToscaHotTranslationTest(TestCase):
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_nodejs_mongodb_two_instances(self):
-        tosca_file = \
-            '../toscalib/tests/data/tosca_nodejs_mongodb_two_instances.yaml'
+        tosca_file = os.path.join(
+            os.path.dirname(os.path.abspath(toscaparser.__file__)),
+            "tests/data/", "tosca_nodejs_mongodb_two_instances.yaml")
         hot_file = '../toscalib/tests/data/hot_output/' \
                    'hot_nodejs_mongodb_two_instances.yaml'
         params = {'github_url':

@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+import toscaparser
 from toscaparser.tosca_template import ToscaTemplate
 from translator.tests.base import TestCase
 
@@ -22,8 +23,8 @@ class ToscaMongoNodejsTest(TestCase):
 
     '''TOSCA template with nodejs, app and mongodb on 2 servers.'''
     tosca_tpl = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "../toscalib/tests/data/tosca_nodejs_mongodb_two_instances.yaml")
+        os.path.dirname(os.path.abspath(toscaparser.__file__)),
+        "tests/data/", "tosca_nodejs_mongodb_two_instances.yaml")
     tosca = ToscaTemplate(tosca_tpl, parsed_params)
 
     def test_relationship_def(self):
