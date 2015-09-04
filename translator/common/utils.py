@@ -19,7 +19,7 @@ import re
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
-from translator.hot.tosca_translator import TOSCATranslator as Translator
+import translator
 import yaml
 
 YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
@@ -222,7 +222,8 @@ class TranslationUtils(object):
             os.path.dirname(os.path.abspath(__file__)), hot_file)
 
         tosca = ToscaTemplate(tosca_tpl, params)
-        translate = Translator(tosca, params)
+        translate = translator.hot.tosca_translator.TOSCATranslator(tosca,
+                                                                    params)
         output = translate.translate()
         output_dict = toscaparser.utils.yamlparser.simple_parse(output)
         expected_output_dict = YamlUtils.get_dict(expected_hot_tpl)
