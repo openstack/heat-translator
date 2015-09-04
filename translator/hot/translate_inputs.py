@@ -54,7 +54,7 @@ TOSCA_TO_HOT_INPUT_TYPES = {'string': 'string',
                             'null': 'string',
                             'PortDef': 'number'}
 
-log = logging.getLogger('tosca')
+log = logging.getLogger('heat-translator')
 
 
 class TranslateInputs(object):
@@ -83,6 +83,8 @@ class TranslateInputs(object):
             elif input.default is not None:
                 hot_default = input.default
             else:
+                log.warning(_("Need to specify a value "
+                              "for input {0}").format(input.name))
                 raise Exception(_("Need to specify a value "
                                   "for input {0}").format(input.name))
             if input.type == "scalar-unit.size":
@@ -93,6 +95,7 @@ class TranslateInputs(object):
                 hot_default = (ScalarUnit_Size(hot_default).
                                get_num_from_scalar_unit('GiB'))
                 if hot_default == 0:
+                    log.warning(_('Unit value should be > 0.'))
                     raise Exception(_(
                         'Unit value should be > 0.'))
                 elif int(hot_default) < hot_default:
