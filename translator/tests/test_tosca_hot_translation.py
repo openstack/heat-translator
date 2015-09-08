@@ -19,8 +19,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_single_server(self):
         tosca_file = \
-            '../toscalib/tests/data/tosca_single_server.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/hot_single_server.yaml'
+            '../tests/data/tosca_single_server.yaml'
+        hot_file = '../tests/data/hot_output/hot_single_server.yaml'
         params = {'cpus': 1}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,
@@ -30,8 +30,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_wordpress_single_instance(self):
         tosca_file = \
-            '../toscalib/tests/data/tosca_single_instance_wordpress.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+            '../tests/data/tosca_single_instance_wordpress.yaml'
+        hot_file = '../tests/data/hot_output/' \
             'hot_single_instance_wordpress.yaml'
         params = {'db_name': 'wordpress',
                   'db_user': 'wp_user',
@@ -47,8 +47,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_helloworld(self):
         tosca_file = \
-            '../toscalib/tests/data/tosca_helloworld.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+            '../tests/data/tosca_helloworld.yaml'
+        hot_file = '../tests/data/hot_output/' \
             'hot_tosca_helloworld.yaml'
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,
@@ -58,8 +58,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_host_assignment(self):
         tosca_file = \
-            '../toscalib/tests/data/test_host_assignment.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+            '../tests/data/test_host_assignment.yaml'
+        hot_file = '../tests/data/hot_output/' \
             'hot_host_assignment.yaml'
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,
@@ -69,8 +69,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_elk(self):
         tosca_file = \
-            '../toscalib/tests/data/tosca_elk.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/hot_elk.yaml'
+            '../tests/data/tosca_elk.yaml'
+        hot_file = '../tests/data/hot_output/hot_elk.yaml'
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
                   'my_cpus': 4}
@@ -82,8 +82,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_nodejs_mongodb_two_instances(self):
         tosca_file = \
-            '../toscalib/tests/data/tosca_nodejs_mongodb_two_instances.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+            '../tests/data/tosca_nodejs_mongodb_two_instances.yaml'
+        hot_file = '../tests/data/hot_output/' \
                    'hot_nodejs_mongodb_two_instances.yaml'
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
@@ -96,9 +96,9 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_blockstorage_with_attachment(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_blockstorage_with_attachment.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file = '../tests/data/hot_output/storage/' \
                    'hot_blockstorage_with_attachment.yaml'
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
@@ -112,9 +112,9 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_blockstorage_with_custom_relationship_type(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_blockstorage_with_custom_relationship_type.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file = '../tests/data/hot_output/storage/' \
                    'hot_blockstorage_with_custom_relationship_type.yaml'
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
@@ -128,9 +128,9 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_blockstorage_with_relationship_template(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_blockstorage_with_relationship_template.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file = '../tests/data/hot_output/storage/' \
                    'hot_blockstorage_with_relationship_template.yaml'
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
@@ -143,11 +143,11 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_blockstorage_with_attachment_notation1(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_blockstorage_with_attachment_notation1.yaml'
-        hot_file1 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file1 = '../tests/data/hot_output/storage/' \
                     'hot_blockstorage_with_attachment_notation1_alt1.yaml'
-        hot_file2 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file2 = '../tests/data/hot_output/storage/' \
                     'hot_blockstorage_with_attachment_notation1_alt2.yaml'
         params = {'cpus': 1,
                   'storage_location': 'some_folder',
@@ -169,11 +169,11 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_blockstorage_with_attachment_notation2(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_blockstorage_with_attachment_notation2.yaml'
-        hot_file1 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file1 = '../tests/data/hot_output/storage/' \
                     'hot_blockstorage_with_attachment_notation2_alt1.yaml'
-        hot_file2 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file2 = '../tests/data/hot_output/storage/' \
                     'hot_blockstorage_with_attachment_notation2_alt2.yaml'
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
@@ -195,11 +195,11 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_multiple_blockstorage_with_attachment(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/' \
+            '../tests/data/storage/' \
             'tosca_multiple_blockstorage_with_attachment.yaml'
-        hot_file1 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file1 = '../tests/data/hot_output/storage/' \
                     'hot_multiple_blockstorage_with_attachment_alt1.yaml'
-        hot_file2 = '../toscalib/tests/data/hot_output/storage/' \
+        hot_file2 = '../tests/data/hot_output/storage/' \
                     'hot_multiple_blockstorage_with_attachment_alt2.yaml'
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
@@ -221,8 +221,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_single_object_store(self):
         tosca_file = \
-            '../toscalib/tests/data/storage/tosca_single_object_store.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+            '../tests/data/storage/tosca_single_object_store.yaml'
+        hot_file = '../tests/data/hot_output/' \
                    'hot_single_object_store.yaml'
         params = {'objectstore_name': 'myobjstore'}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
@@ -233,8 +233,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_one_server_one_network(self):
         tosca_file = \
-            '../toscalib/tests/data/network/tosca_one_server_one_network.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/network/' \
+            '../tests/data/network/tosca_one_server_one_network.yaml'
+        hot_file = '../tests/data/hot_output/network/' \
                    'hot_one_server_one_network.yaml'
         params = {'network_name': 'private_net'}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
@@ -244,9 +244,9 @@ class ToscaHotTranslationTest(TestCase):
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_server_on_existing_network(self):
-        tosca_file = '../toscalib/tests/data/network/' \
+        tosca_file = '../tests/data/network/' \
                      'tosca_server_on_existing_network.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/network/' \
+        hot_file = '../tests/data/hot_output/network/' \
                    'hot_server_on_existing_network.yaml'
         params = {'network_name': 'private_net'}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
@@ -257,8 +257,8 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_two_servers_one_network(self):
         tosca_file = \
-            '../toscalib/tests/data/network/tosca_two_servers_one_network.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/network/' \
+            '../tests/data/network/tosca_two_servers_one_network.yaml'
+        hot_file = '../tests/data/hot_output/network/' \
                    'hot_two_servers_one_network.yaml'
         params = {'network_name': 'my_private_net',
                   'network_cidr': '10.0.0.0/24',
@@ -271,9 +271,9 @@ class ToscaHotTranslationTest(TestCase):
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_one_server_three_networks(self):
-        tosca_file = '../toscalib/tests/data/network/' \
+        tosca_file = '../tests/data/network/' \
                      'tosca_one_server_three_networks.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/network/' \
+        hot_file = '../tests/data/hot_output/network/' \
                    'hot_one_server_three_networks.yaml'
         params = {}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
@@ -283,8 +283,8 @@ class ToscaHotTranslationTest(TestCase):
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_software_component(self):
-        tosca_file = '../toscalib/tests/data/tosca_software_component.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/' \
+        tosca_file = '../tests/data/tosca_software_component.yaml'
+        hot_file = '../tests/data/hot_output/' \
                    'hot_software_component.yaml'
         params = {'cpus': '1',
                   'download_url': 'http://www.software.com/download'}
@@ -295,8 +295,8 @@ class ToscaHotTranslationTest(TestCase):
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_web_application(self):
-        tosca_file = '../toscalib/tests/data/tosca_web_application.yaml'
-        hot_file = '../toscalib/tests/data/hot_output/hot_web_application.yaml'
+        tosca_file = '../tests/data/tosca_web_application.yaml'
+        hot_file = '../tests/data/hot_output/hot_web_application.yaml'
         params = {'cpus': '2', 'context_root': 'my_web_app'}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,

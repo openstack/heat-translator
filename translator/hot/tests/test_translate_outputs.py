@@ -22,7 +22,7 @@ class ToscaTemplateOutputTest(TestCase):
     def test_translate_output(self):
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "../../toscalib/tests/data/"
+            "../../tests/data/"
             "tosca_nodejs_mongodb_two_instances.yaml")
         tosca = ToscaTemplate(tosca_tpl)
         translate = TOSCATranslator(tosca, [])

@@ -172,7 +172,7 @@ class CommonUtilsTest(TestCase):
     def test_yamlutils_get_dict(self):
         yaml_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '../toscalib/tests/data/custom_types/rsyslog.yaml')
+            '../tests/data/custom_types/rsyslog.yaml')
         dict = \
             {'tosca_definitions_version': 'tosca_simple_yaml_1_0',
              'description':
@@ -190,10 +190,10 @@ class CommonUtilsTest(TestCase):
     def test_yamlutils_compare_yamls(self):
         yaml_file1 = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '../toscalib/tests/data/custom_types/kibana.yaml')
+            '../tests/data/custom_types/kibana.yaml')
         yaml_file2 = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '../toscalib/tests/data/custom_types/collectd.yaml')
+            '../tests/data/custom_types/collectd.yaml')
         self.assertEqual(True,
                          self.yamlUtils.compare_yamls(yaml_file1, yaml_file1))
         self.assertEqual(False,
@@ -202,10 +202,10 @@ class CommonUtilsTest(TestCase):
     def test_yamlutils_compare_yaml_dict(self):
         yaml_file1 = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '../toscalib/tests/data/custom_types/rsyslog.yaml')
+            '../tests/data/custom_types/rsyslog.yaml')
         yaml_file2 = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '../toscalib/tests/data/custom_types/collectd.yaml')
+            '../tests/data/custom_types/collectd.yaml')
         dict = \
             {'tosca_definitions_version': 'tosca_simple_yaml_1_0',
              'description':
