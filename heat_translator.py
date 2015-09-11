@@ -53,7 +53,7 @@ def main():
                 "Please refer to the usage documentation.")
         raise ValueError(msg)
     path = sys.argv[1].split('--template-file=')[1]
-    # e.g. --template_file=translator/toscalib/tests/data/tosca_helloworld.yaml
+    # e.g. --template_file=translator/tests/data/tosca_helloworld.yaml
     template_type = sys.argv[2].split('--template-type=')[1]
     # e.g. --template_type=tosca
     supported_types = ['tosca']

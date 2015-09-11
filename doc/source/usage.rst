@@ -14,11 +14,11 @@ Once installation is complete, Heat-Translator is ready to use. Currently you ca
 
 Translate and get output on command line. For example: ::
 
-    openstack translate template --template-file /home/openstack/heat-translator/translator/toscalib/tests/data/tosca_helloworld.yaml --template-type tosca
+    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca
 
 Translate and save output of translated file to a desired destination. For example: ::
 
-    openstack translate template --template-file /home/openstack/heat-translator/translator/toscalib/tests/data/tosca_helloworld.yaml --template-type tosca --output-file /tmp/hot_hello_world.yaml
+    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca --output-file /tmp/hot_hello_world.yaml
 
 You can learn more about available options by running following help command::
 
@@ -42,7 +42,7 @@ An optional argument can be provided to handle user inputs parameters.
 
 For example, a TOSCA hello world template can be translated by running the following command from the directory where you have cloned the project::
 
-    python heat_translator.py --template-file=translator/toscalib/tests/data/tosca_helloworld.yaml --template-type=tosca
+    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 This should produce a translated Heat Orchestration Template on the command line. In the near future, new options will be added to save the output
 to destination file.
