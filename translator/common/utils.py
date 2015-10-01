@@ -16,11 +16,11 @@ import math
 import numbers
 import os
 import re
-from toscaparser.tosca_template import ToscaTemplate
+from six.moves.urllib.parse import urlparse
+import yaml
+
 from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
-import translator
-import yaml
 
 YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
 log = logging.getLogger('tosca')
@@ -213,7 +213,7 @@ class TranslationUtils(object):
         '''Verify tosca translation against the given hot specification.
 
         inputs:
-        tosca_file: relative path to tosca input
+        tosca_file: relative local path or URL to the tosca input file
         hot_file: relative path to expected hot output
         params: dictionary of parameter name value pairs
 
@@ -221,17 +221,39 @@ class TranslationUtils(object):
         of the given tosca_file and the given hot_file.
         '''
 
+        from toscaparser.tosca_template import ToscaTemplate
+        from translator.hot.tosca_translator import TOSCATranslator
+
         tosca_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), tosca_file)
+        a_file = os.path.isfile(tosca_tpl)
+        if not a_file:
+            tosca_tpl = tosca_file
+
         expected_hot_tpl = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), hot_file)
-        tosca = ToscaTemplate(tosca_tpl, params)
-        translate = translator.hot.tosca_translator.TOSCATranslator(tosca,
-                                                                    params)
+
+        tosca = ToscaTemplate(tosca_tpl, params, a_file)
+        translate = TOSCATranslator(tosca, params)
+
         output = translate.translate()
         output_dict = toscaparser.utils.yamlparser.simple_parse(output)
         expected_output_dict = YamlUtils.get_dict(expected_hot_tpl)
         return CompareUtils.diff_dicts(output_dict, expected_output_dict)
+
+
+class UrlUtils(object):
+
+    @staticmethod
+    def validate_url(path):
+        """Validates whether the given path is a URL or not.
+
+        If the given path includes a scheme (http, https, ftp, ...) and a net
+        location (a domain name such as www.github.com) it is validated as a
+        URL.
+        """
+        parsed = urlparse(path)
+        return bool(parsed.scheme) and bool(parsed.netloc)
 
 
 def str_to_num(value):

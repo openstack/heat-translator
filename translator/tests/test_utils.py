@@ -20,6 +20,7 @@ class CommonUtilsTest(TestCase):
     MemoryUnit = translator.common.utils.MemoryUnit
     cmpUtils = translator.common.utils.CompareUtils
     yamlUtils = translator.common.utils.YamlUtils
+    UrlUtils = translator.common.utils.UrlUtils
 
     def test_convert_unit_size_to_num(self):
         size = '1 TB'
@@ -227,3 +228,12 @@ class CommonUtilsTest(TestCase):
         value = 1
         output = translator.common.utils.str_to_num(value)
         self.assertEqual(value, output)
+
+    def test_urlutils_validate_url(self):
+        self.assertTrue(self.UrlUtils.validate_url("http://www.github.com/"))
+        self.assertTrue(
+            self.UrlUtils.validate_url("https://github.com:81/a/2/a.b"))
+        self.assertTrue(self.UrlUtils.validate_url("ftp://github.com"))
+        self.assertFalse(self.UrlUtils.validate_url("github.com"))
+        self.assertFalse(self.UrlUtils.validate_url("123"))
+        self.assertFalse(self.UrlUtils.validate_url("a/b/c"))
