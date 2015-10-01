@@ -11,13 +11,13 @@
 #    under the License.
 
 
-import logging
 import logging.config
 import os
 import sys
 
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
+from toscaparser.utils.urlutils import UrlUtils
 from translator.hot.tosca_translator import TOSCATranslator
 
 """
@@ -65,12 +65,16 @@ def main():
     parsed_params = {}
     if len(sys.argv) > 3:
         parsed_params = parse_parameters(sys.argv[3])
-    if os.path.isfile(path):
-        heat_tpl = translate(template_type, path, parsed_params)
+
+    a_file = os.path.isfile(path)
+    a_url = UrlUtils.validate_url(path) if not a_file else False
+    if a_file or a_url:
+        heat_tpl = translate(template_type, path, parsed_params, a_file)
         if heat_tpl:
             write_output(heat_tpl)
     else:
-        raise ValueError(_("%(path)s is not a valid file.") % {'path': path})
+        raise ValueError(_("The path %(path)s is not a valid file or URL.") %
+                         {'path': path})
 
 
 def parse_parameters(parameter_list):
@@ -87,10 +91,10 @@ def parse_parameters(parameter_list):
     return parsed_inputs
 
 
-def translate(sourcetype, path, parsed_params):
+def translate(sourcetype, path, parsed_params, a_file):
     output = None
     if sourcetype == "tosca":
-        tosca = ToscaTemplate(path, parsed_params)
+        tosca = ToscaTemplate(path, parsed_params, a_file)
         translator = TOSCATranslator(tosca, parsed_params)
         output = translator.translate()
     return output
