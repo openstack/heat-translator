@@ -63,7 +63,7 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'cpus': '0.3'}
-        expectedmessage = _("invalid literal for int() with base 10: '0.3'")
+        expectedmessage = _('"0.3" is not an integer.')
         self._translate_input_test(tpl_snippet, input_params,
                                    expectedmessage)
 
@@ -148,8 +148,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '3'}
-        expectedmessage = _('num_cpus: 3 is not an valid value'
-                            ' "[1, 2, 4, 8]".')
+        expectedmessage = _('num_cpus: 3 is not a valid value. Expected a '
+                            'value from "[1, 2, 4, 8]".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_in_range(self):

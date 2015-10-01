@@ -186,7 +186,7 @@ resources:
   server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.xlarge
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG

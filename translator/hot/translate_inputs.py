@@ -74,14 +74,11 @@ class TranslateInputs(object):
             hot_input_type = TOSCA_TO_HOT_INPUT_TYPES[input.type]
 
             if input.name in self.parsed_params:
-                input_type = hot_input_type
-                if input.type == "scalar-unit.size":
-                    input_type = input.type
-                DataEntity.validate_datatype(input_type,
-                                             self.parsed_params[input.name])
-                hot_default = self.parsed_params[input.name]
+                hot_default = DataEntity.validate_datatype(
+                    input.type, self.parsed_params[input.name])
             elif input.default is not None:
-                hot_default = input.default
+                hot_default = DataEntity.validate_datatype(input.type,
+                                                           input.default)
             else:
                 log.warning(_("Need to specify a value "
                               "for input {0}").format(input.name))
@@ -111,9 +108,7 @@ class TranslateInputs(object):
             hot_constraints = []
             if input.constraints:
                 for constraint in input.constraints:
-                    constraint.validate(
-                        int(hot_default) if hot_input_type == "number"
-                        else hot_default)
+                    constraint.validate(hot_default)
                     hc, hvalue = self._translate_constraints(
                         constraint.constraint_key, constraint.constraint_value)
                     hot_constraints.append({hc: hvalue})

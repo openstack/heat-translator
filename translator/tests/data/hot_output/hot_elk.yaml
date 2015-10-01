@@ -470,7 +470,7 @@ resources:
   app_server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.large
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG
@@ -478,7 +478,7 @@ resources:
   mongo_server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.large
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG
@@ -486,7 +486,7 @@ resources:
   logstash_server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.large
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG
@@ -494,7 +494,7 @@ resources:
   elasticsearch_server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.large
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG
@@ -502,7 +502,7 @@ resources:
   kibana_server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.medium
+      flavor: m1.large
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG

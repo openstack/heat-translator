@@ -24,7 +24,7 @@ resources:
   server:
     type: OS::Nova::Server
     properties:
-      flavor: m1.small
+      flavor: m1.medium
       image: ubuntu-software-config-os-init
       key_name: userkey
       user_data_format: SOFTWARE_CONFIG
@@ -67,7 +67,7 @@ resources:
       config:
         get_resource: web_app_create_config
       input_values:
-        context_root: app
+        context_root: my_web_app
       server:
         get_resource: server
     depends_on:

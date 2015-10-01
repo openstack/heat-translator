@@ -28,6 +28,26 @@ class ToscaHotTranslationTest(TestCase):
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
+    def test_hot_translate_single_server_with_defaults(self):
+        tosca_file = \
+            '../tests/data/tosca_single_server_with_defaults.yaml'
+        hot_file_with_input = '../tests/data/hot_output/' \
+            'hot_single_server_with_defaults_with_input.yaml'
+        hot_file_without_input = '../tests/data/hot_output/' \
+            'hot_single_server_with_defaults_without_input.yaml'
+
+        params1 = {'cpus': '1'}
+        diff1 = TranslationUtils.compare_tosca_translation_with_hot(
+            tosca_file, hot_file_with_input, params1)
+        self.assertEqual({}, diff1, '<difference> : ' +
+                         json.dumps(diff1, indent=4, separators=(', ', ': ')))
+
+        params2 = {}
+        diff2 = TranslationUtils.compare_tosca_translation_with_hot(
+            tosca_file, hot_file_without_input, params2)
+        self.assertEqual({}, diff2, '<difference> : ' +
+                         json.dumps(diff2, indent=4, separators=(', ', ': ')))
+
     def test_hot_translate_wordpress_single_instance(self):
         tosca_file = \
             '../tests/data/tosca_single_instance_wordpress.yaml'
