@@ -2,8 +2,6 @@
 Heat-Translator
 ===============
 
-Tool to translate non-heat templates to Heat Orchestration Template (HOT).
-
 Overview
 --------
 
@@ -25,11 +23,11 @@ Heat-Translator project is mainly built of two components:
 2. **Generator** - takes an in-memory graph from **Parser**, maps it to Heat resources and software configuration and then produces a HOT.
 
 How To Use
-**********
+----------
 Please refer to `doc/source/usage.rst <https://github.com/openstack/heat-translator/blob/master/doc/source/usage.rst>`_
 
 Directory Structure
-*******************
+-------------------
 
 Three main directories related to the heat-translator are:
 
