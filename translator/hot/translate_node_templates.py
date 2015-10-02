@@ -66,6 +66,7 @@ def _generate_type_map():
 def _load_custom_mod(custom_path):
     '''Dynamically load the parent module for all the custom types.'''
 
+    fp = None
     try:
         fp, filename, desc = imp.find_module(custom_path)
         imp.load_module(custom_path.replace('/', '.'),
@@ -81,8 +82,12 @@ def _load_classes(locations, classes):
     '''Dynamically load all the classes from the given locations.'''
 
     for cls_path in locations:
+        # Use the absolute path of the class path
+        abs_path = os.path.dirname(os.path.abspath(__file__))
+        abs_path = abs_path.replace('translator/hot', cls_path)
+
         # Grab all the tosca type module files in the given path
-        mod_files = [f for f in os.listdir(cls_path) if f.endswith('.py')
+        mod_files = [f for f in os.listdir(abs_path) if f.endswith('.py')
                      and not f.startswith('__init__')
                      and f.startswith('tosca_')]
 
