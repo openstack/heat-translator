@@ -8,7 +8,9 @@ Assuming that OpenStackClient (OSC) is available in your environment, you can ea
 
     git clone https://github.com/openstack/heat-translator
     cd heat-translator
-    python setup.py install
+    sudo python setup.py install
+
+Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 
 Once installation is complete, Heat-Translator is ready to use. Currently you can use it in following two ways.
 
@@ -35,17 +37,22 @@ Heat-Translator can be used without any specific OpenStack environment set up as
 The heat_translator.py test program is at the root level of the project. The program has currently tested with TOSCA templates.
 It requires two arguments::
 
-1. Path to the file that needs to be translated
+1. Path to the file that needs to be translated. The file, flat yaml template or CSAR, can be specified as a local file in your
+system or via URL.
 2. Type of translation (e.g. tosca)
 
 An optional argument can be provided to handle user inputs parameters.
 
-For example, a TOSCA hello world template can be translated by running the following command from the directory where you have cloned the project::
+For example, a TOSCA hello world template can be translated by running the following command from the project location::
 
     python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 This should produce a translated Heat Orchestration Template on the command line. In the near future, new options will be added to save the output
 to destination file.
+
+Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
+In this case, you can simply run translation via CLI entry point::
+    heat-translator --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 When deploy the translated template with Heat, please keep in mind that you have image registered in the Glance. The Heat-Translator
 project sets flavor and image from a pre-defined set of values (as listed in /home/openstack/heat-translator/translator/hot/tosca/tosca_compute.py)
