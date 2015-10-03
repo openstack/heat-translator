@@ -12,7 +12,6 @@
 
 """Translate action implementations"""
 
-import logging
 import logging.config
 import os
 import sys
@@ -20,6 +19,7 @@ import sys
 from cliff import command
 
 from toscaparser.tosca_template import ToscaTemplate
+from translator.common.utils import UrlUtils
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
@@ -71,9 +71,13 @@ class TranslateTemplate(command.Command):
             parsed_params = {}
 
         if parsed_args.template_type == "tosca":
-            tosca = ToscaTemplate(parsed_args.template_file)
-            translator = TOSCATranslator(tosca, parsed_params)
-            output = translator.translate()
+            path = parsed_args.template_file
+            a_file = os.path.isfile(path)
+            a_url = UrlUtils.validate_url(path) if not a_file else False
+            if a_file or a_url:
+                tosca = ToscaTemplate(path, parsed_params, a_file)
+                translator = TOSCATranslator(tosca, parsed_params)
+                output = translator.translate()
 
         if parsed_args.output_file:
             with open(parsed_args.output_file, 'w+') as f:
