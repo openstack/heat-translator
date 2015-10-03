@@ -34,7 +34,6 @@ Takes three user arguments,
 This is an entry point for testing purpose on CLI.
 """
 
-logging.config.fileConfig('heat_translator_logging.conf')
 log = logging.getLogger("heat-translator")
 
 

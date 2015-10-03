@@ -23,8 +23,6 @@ from translator.common.utils import UrlUtils
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
-logging.config.fileConfig('heat_translator_logging.conf')
-
 
 class TranslateTemplate(command.Command):
     """Translate a template"""
