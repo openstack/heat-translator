@@ -59,10 +59,6 @@ class TranslateTemplate(command.Command):
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
 
-        if not os.path.isfile(parsed_args.template_file):
-            sys.stdout.write('Could not find template file.')
-            raise SystemExit
-
         if parsed_args.parameter:
             parsed_params = parsed_args.parameter
         else:
@@ -76,6 +72,9 @@ class TranslateTemplate(command.Command):
                 tosca = ToscaTemplate(path, parsed_params, a_file)
                 translator = TOSCATranslator(tosca, parsed_params)
                 output = translator.translate()
+            else:
+                sys.stdout.write('Could not find template file.')
+                raise SystemExit
 
         if parsed_args.output_file:
             with open(parsed_args.output_file, 'w+') as f:
