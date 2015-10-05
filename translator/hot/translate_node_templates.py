@@ -11,7 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import imp
+import importlib
 import logging
 import os
 import six
@@ -52,7 +52,6 @@ def _generate_type_map():
 
     # First need to load the parent module, for example 'contrib.hot',
     # for all of the dynamically loaded classes.
-    _load_custom_mod(custom_path)
     classes = []
     _load_classes((BASE_PATH, custom_path), classes)
     try:
@@ -61,21 +60,6 @@ def _generate_type_map():
         raise ToscaClassAttributeError(message=e.message)
 
     return types_map
-
-
-def _load_custom_mod(custom_path):
-    '''Dynamically load the parent module for all the custom types.'''
-
-    fp = None
-    try:
-        fp, filename, desc = imp.find_module(custom_path)
-        imp.load_module(custom_path.replace('/', '.'),
-                        fp, filename, desc)
-    except ImportError:
-        raise ToscaModImportError(mod_name=custom_path)
-    finally:
-        if fp:
-            fp.close()
 
 
 def _load_classes(locations, classes):
@@ -100,10 +84,9 @@ def _load_classes(locations, classes):
                 continue
 
             mod_name = cls_path + '/' + f.strip('.py')
+            mod_name = mod_name.replace('/', '.')
             try:
-                fp, filename, desc = imp.find_module(mod_name)
-                mod = imp.load_module(mod_name.replace('/', '.'),
-                                      fp, filename, desc)
+                mod = importlib.import_module(mod_name)
                 target_name = getattr(mod, 'TARGET_CLASS_NAME')
                 clazz = getattr(mod, target_name)
                 classes.append(clazz)
@@ -117,8 +100,6 @@ def _load_classes(locations, classes):
                     # TARGET_CLASS_NAME is not defined in module.
                     # Re-raise the exception
                     raise
-            finally:
-                fp.close()
 
 ##################
 # Module constants
