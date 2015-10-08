@@ -77,15 +77,29 @@ def main():
 
 def parse_parameters(parameter_list):
     parsed_inputs = {}
+
     if parameter_list.startswith('--parameters'):
+        # Parameters are semi-colon separated
         inputs = parameter_list.split('--parameters=')[1].\
             replace('"', '').split(';')
+        # Each parameter should be an assignment
         for param in inputs:
             keyvalue = param.split('=')
-            parsed_inputs[keyvalue[0]] = keyvalue[1]
+            # Validate the parameter has both a name and value
+            if keyvalue.__len__() is 2:
+                # Assure parameter name is not zero-length or whitespace
+                stripped_name = keyvalue[0].strip()
+                if not stripped_name:
+                    raise ValueError(_("'%(param)s' is not a well-formed "
+                                     "parameter.") % {'param': param})
+                # Add the valid parameter to the dictionary
+                parsed_inputs[keyvalue[0]] = keyvalue[1]
+            else:
+                raise ValueError(_("'%(param)s' is not a well-formed "
+                                 "parameter.") % {'param': param})
     else:
-        raise ValueError(_("%(param) is not a valid parameter.")
-                         % parameter_list)
+        raise ValueError(_("'%(list)s' is not a valid parameter list.")
+                         % {'list': parameter_list})
     return parsed_inputs
 
 
