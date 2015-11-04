@@ -16,11 +16,11 @@ format other than TOSCA.
 Architecture
 ------------
 
-Heat-Translator project is mainly built of two components:
-
-1. **Parser** - parser for a particular template format e.g. TOSCA parser
-
-2. **Generator** - takes an in-memory graph from **Parser**, maps it to Heat resources and software configuration and then produces a HOT.
+Heat-Translator project takes a non-Heat template (e.g. TOSCA flat YAML
+template or template embedded in TOSCA Cloud Service Archive (CSAR) format) as
+an input, calls an appropriate Parser (e.g. TOSCA Parser) per the type of input
+template to parse it and create an in-memory graph, maps it to Heat resources
+and then produces a Heat Orchestration Template (HOT) as an output.
 
 How To Use
 ----------
