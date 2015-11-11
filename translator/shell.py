@@ -22,7 +22,7 @@ from translator.hot.tosca_translator import TOSCATranslator
 
 """
 Test the heat-translator from command line as:
-#heat_translator
+#heat-translator
   --template-file=<path to the YAML template>
   --template-type=<type of template e.g. tosca>
   --parameters="purpose=test"
