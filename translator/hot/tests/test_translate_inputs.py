@@ -78,7 +78,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '0'}
-        expectedmessage = _('num_cpus: 0 is not equal to "1".')
+        expectedmessage = _('The value "0" of property "num_cpus" is not '
+                            'equal to "1".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_greater_or_equal(self):
@@ -92,7 +93,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '0'}
-        expectedmessage = _('num_cpus: 0 must be greater or equal to "1".')
+        expectedmessage = _('The value "0" of property "num_cpus" must be '
+                            'greater than or equal to "1".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_greater_than(self):
@@ -106,7 +108,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '0'}
-        expectedmessage = _('num_cpus: 0 must be greater than "1".')
+        expectedmessage = _('The value "0" of property "num_cpus" must be '
+                            'greater than "1".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_less_than(self):
@@ -120,7 +123,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '8'}
-        expectedmessage = _('num_cpus: 8 must be less than "8".')
+        expectedmessage = _('The value "8" of property "num_cpus" must be '
+                            'less than "8".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_less_or_equal(self):
@@ -134,7 +138,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '9'}
-        expectedmessage = _('num_cpus: 9 must be less or equal to "8".')
+        expectedmessage = _('The value "9" of property "num_cpus" must be '
+                            'less than or equal to "8".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_valid_values(self):
@@ -148,8 +153,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '3'}
-        expectedmessage = _('num_cpus: 3 is not a valid value. Expected a '
-                            'value from "[1, 2, 4, 8]".')
+        expectedmessage = _('The value "3" of property "num_cpus" is not '
+                            'valid. Expected a value from "[1, 2, 4, 8]".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_in_range(self):
@@ -163,7 +168,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'num_cpus': '10'}
-        expectedmessage = _('num_cpus: 10 is out of range (min:1, max:8).')
+        expectedmessage = _('The value "10" of property "num_cpus" is out of '
+                            'range "(min:1, max:8)".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_min_length(self):
@@ -177,7 +183,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'user_name': 'abcd'}
-        expectedmessage = _('length of user_name: abcd must be at least "8".')
+        expectedmessage = _('Length of value "abcd" of property "user_name" '
+                            'must be at least "8".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_max_length(self):
@@ -191,8 +198,8 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'user_name': 'abcdefg'}
-        expectedmessage = _('length of user_name: '
-                            'abcdefg must be no greater than "6".')
+        expectedmessage = _('Length of value "abcdefg" of property '
+                            '"user_name" must be no greater than "6".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
     def test_invalid_input_constraints_for_pattern(self):
@@ -206,7 +213,7 @@ class ToscaTemplateInputValidationTest(TestCase):
         '''
 
         input_params = {'user_name': '1-abc'}
-        expectedmessage = _('user_name: "1-abc" does '
+        expectedmessage = _('The value "1-abc" of property "user_name" does '
                             'not match pattern "^\\w+$".')
         self._translate_input_test(tpl_snippet, input_params, expectedmessage)
 
@@ -291,7 +298,7 @@ class ToscaTemplateInputValidationTest(TestCase):
         self._translate_input_test(tpl_snippet, input_params, expectedmsg)
 
         input_params = {'storage_size': '-2 MB'}
-        expectedmsg = _('"-2 MB" is not a valid scalar-unit')
+        expectedmsg = _('"-2 MB" is not a valid scalar-unit.')
         self._translate_input_test(tpl_snippet, input_params, expectedmsg)
 
     def test_invalid_input_type_version(self):

@@ -224,8 +224,8 @@ class TranslationUtils(object):
         from toscaparser.tosca_template import ToscaTemplate
         from translator.hot.tosca_translator import TOSCATranslator
 
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), tosca_file)
+        tosca_tpl = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), tosca_file))
         a_file = os.path.isfile(tosca_tpl)
         if not a_file:
             tosca_tpl = tosca_file

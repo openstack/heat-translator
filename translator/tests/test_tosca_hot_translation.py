@@ -11,9 +11,12 @@
 #    under the License.
 
 import json
+import os
 
+from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import URLException
 from toscaparser.common.exception import ValidationError
+from toscaparser.utils.gettextutils import _
 from translator.common.utils import TranslationUtils
 from translator.tests.base import TestCase
 
@@ -357,16 +360,16 @@ class ToscaHotTranslationTest(TestCase):
                   'db_port': 3366,
                   'cpus': 8}
 
-        err = self.assertRaises(
-            ImportError,
+        self.assertRaises(
+            ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-        self.assertEqual(
-            'Absolute file name /tmp/wordpress.yaml cannot be used for a '
-            'URL-based input https://raw.githubusercontent.com/openstack/'
-            'heat-translator/master/translator/tests/data/tosca_single_'
-            'instance_wordpress_with_local_abspath_import.yaml template.',
-            err.__str__())
+        expected_msg = _('Absolute file name "/tmp/wordpress.yaml" cannot be '
+                         'used in a URL-based input template "https://raw.'
+                         'githubusercontent.com/openstack/heat-translator/'
+                         'master/translator/tests/data/tosca_single_instance_'
+                         'wordpress_with_local_abspath_import.yaml".')
+        ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
 
     def test_hot_translate_template_by_url_with_url_import(self):
         tosca_url = 'https://raw.githubusercontent.com/openstack/' \
@@ -429,78 +432,72 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = ''
         params = {}
 
-        err = self.assertRaises(
+        self.assertRaises(
             ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-
-        err_msg = err.__str__()
-        self.assertIs(True,
-                      err_msg.startswith('The file ') and
-                      err_msg.endswith('../tests/data/csar_not_zip.zip is not '
-                                       'a valid zip file.'))
+        path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), tosca_file))
+        expected_msg = _('"%s" is not a valid zip file.') % path
+        ExceptionCollector.assertExceptionMessage(ValidationError,
+                                                  expected_msg)
 
     def test_translate_csar_metadata_not_yaml(self):
         tosca_file = '../tests/data/csar_metadata_not_yaml.zip'
         hot_file = ''
         params = {}
 
-        err = self.assertRaises(
+        self.assertRaises(
             ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-
-        err_msg = err.__str__()
-        self.assertIs(True,
-                      err_msg.startswith('The file '
-                                         '"TOSCA-Metadata/TOSCA.meta" in ')
-                      and
-                      err_msg.endswith('../tests/data/csar_metadata_not_yaml'
-                                       '.zip does not contain valid YAML '
-                                       'content.'))
+        path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), tosca_file))
+        expected_msg = _('The file "TOSCA-Metadata/TOSCA.meta" in the CSAR '
+                         '"%s" does not contain valid YAML content.') % path
+        ExceptionCollector.assertExceptionMessage(ValidationError,
+                                                  expected_msg)
 
     def test_translate_csar_wrong_metadata_file(self):
         tosca_file = '../tests/data/csar_wrong_metadata_file.zip'
         hot_file = ''
         params = {}
 
-        err = self.assertRaises(
+        self.assertRaises(
             ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-
-        err_msg = err.__str__()
-        self.assertIs(True,
-                      err_msg.startswith('The file ') and
-                      err_msg.endswith('../tests/data/csar_wrong_metadata_file'
-                                       '.zip is not a valid CSAR as it does '
-                                       'not contain the required file '
-                                       '"TOSCA.meta" in the folder '
-                                       '"TOSCA-Metadata".'))
+        path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), tosca_file))
+        expected_msg = _('"%s" is not a valid CSAR as it does not contain the '
+                         'required file "TOSCA.meta" in the folder '
+                         '"TOSCA-Metadata".') % path
+        ExceptionCollector.assertExceptionMessage(ValidationError,
+                                                  expected_msg)
 
     def test_translate_csar_wordpress_invalid_import_path(self):
         tosca_file = '../tests/data/csar_wordpress_invalid_import_path.zip'
         hot_file = ''
         params = {}
 
-        err = self.assertRaises(
-            ImportError,
+        self.assertRaises(
+            ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-        self.assertEqual('Import Definitions/wordpress.yaml is not valid',
-                         err.__str__())
+        expected_msg = _('Import "Definitions/wordpress.yaml" is not valid.')
+        ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
 
     def test_translate_csar_wordpress_invalid_script_url(self):
         tosca_file = '../tests/data/csar_wordpress_invalid_script_url.zip'
         hot_file = ''
         params = {}
 
-        err = self.assertRaises(
-            URLException,
+        self.assertRaises(
+            ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-        self.assertEqual('URLException "The resource at '
-                         'https://raw.githubusercontent.com/openstack/'
+        expected_msg = _('The resource at '
+                         '"https://raw.githubusercontent.com/openstack/'
                          'heat-translator/master/translator/tests/data/'
-                         'custom_types/wordpress1.yaml cannot be accessed".',
-                         err.__str__())
+                         'custom_types/wordpress1.yaml" cannot be accessed.')
+        ExceptionCollector.assertExceptionMessage(URLException, expected_msg)
