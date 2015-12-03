@@ -11,7 +11,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import logging
+import os
+import requests
+
 from toscaparser.utils.validateutils import TOSCAVersionProperty
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
@@ -20,6 +24,8 @@ log = logging.getLogger('tosca')
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaCompute'
 
+# Required environment variables to create novaclient object.
+ENV_VARIABLES = ['OS_AUTH_URL', 'OS_PASSWORD', 'OS_USERNAME', 'OS_TENANT_NAME']
 
 # A design issue to be resolved is how to translate the generic TOSCA server
 # properties to OpenStack flavors and images.  At the Atlanta design summit,
@@ -114,35 +120,92 @@ class ToscaCompute(HotResource):
         # parameter if no match is found.
         return hot_properties
 
+    def _check_for_env_variables(self):
+        return set(ENV_VARIABLES) < set(os.environ.keys())
+
+    def _create_nova_flavor_dict(self):
+        '''Populates and returns the flavors dict using Nova ReST API'''
+
+        tenant_name = os.getenv('OS_TENANT_NAME')
+        username = os.getenv('OS_USERNAME')
+        password = os.getenv('OS_PASSWORD')
+        auth_url = os.getenv('OS_AUTH_URL')
+
+        auth_dict = {
+            "auth": {
+                "tenantName": tenant_name,
+                "passwordCredentials": {
+                    "username": username,
+                    "password": password
+                }
+            }
+        }
+        headers = {'Content-Type': 'application/json'}
+        keystone_response = requests.post(auth_url + '/tokens',
+                                          data=json.dumps(auth_dict),
+                                          headers=headers)
+        if keystone_response.status_code != 200:
+            return None
+        access_dict = json.loads(keystone_response.content)
+        access_token = access_dict['access']['token']['id']
+        service_catalog = access_dict['access']['serviceCatalog']
+        nova_url = ''
+        for service in service_catalog:
+            if service['type'] == 'compute':
+                nova_url = service['endpoints'][0]['publicURL']
+        if not nova_url:
+            return None
+        nova_response = requests.get(nova_url + '/flavors/detail',
+                                     headers={'X-Auth-Token': access_token})
+        if nova_response.status_code != 200:
+            return None
+        flavors = json.loads(nova_response.content)['flavors']
+        flavor_dict = dict()
+        for flavor in flavors:
+            flavor_name = str(flavor['name'])
+            flavor_dict[flavor_name] = {
+                'mem_size': flavor['ram'],
+                'disk_size': flavor['disk'],
+                'num_cpus': flavor['vcpus'],
+            }
+        return flavor_dict
+
     def _best_flavor(self, properties):
+        # Check whether user exported all required environment variables.
+        flavors = FLAVORS
+        if self._check_for_env_variables():
+            resp = self._create_nova_flavor_dict()
+            if resp:
+                flavors = resp
+
         # start with all flavors
-        match_all = FLAVORS.keys()
+        match_all = flavors.keys()
 
         # TODO(anyone): Handle the case where the value contains something like
         # get_input instead of a value.
         # flavors that fit the CPU count
         cpu = properties.get('num_cpus')
-        match_cpu = self._match_flavors(match_all, FLAVORS, 'num_cpus', cpu)
+        match_cpu = self._match_flavors(match_all, flavors, 'num_cpus', cpu)
 
         # flavors that fit the mem size
         mem = properties.get('mem_size')
         if mem:
             mem = translator.common.utils.MemoryUnit.convert_unit_size_to_num(
                 mem, 'MB')
-        match_cpu_mem = self._match_flavors(match_cpu, FLAVORS,
+        match_cpu_mem = self._match_flavors(match_cpu, flavors,
                                             'mem_size', mem)
         # flavors that fit the disk size
         disk = properties.get('disk_size')
         if disk:
             disk = translator.common.utils.MemoryUnit.\
                 convert_unit_size_to_num(disk, 'GB')
-        match_cpu_mem_disk = self._match_flavors(match_cpu_mem, FLAVORS,
+        match_cpu_mem_disk = self._match_flavors(match_cpu_mem, flavors,
                                                  'disk_size', disk)
         # if multiple match, pick the flavor with the least memory
         # the selection can be based on other heuristic, e.g. pick one with the
         # least total resource
         if len(match_cpu_mem_disk) > 1:
-            return self._least_flavor(match_cpu_mem_disk, FLAVORS, 'mem_size')
+            return self._least_flavor(match_cpu_mem_disk, flavors, 'mem_size')
         elif len(match_cpu_mem_disk) == 1:
             return match_cpu_mem_disk[0]
         else:
