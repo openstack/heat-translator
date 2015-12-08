@@ -37,83 +37,94 @@ This is an entry point for testing purpose on CLI.
 log = logging.getLogger("heat-translator")
 
 
-def main():
-    if len(sys.argv) < 3:
-        msg = _("The program requires minimum two arguments. "
-                "Please refer to the usage documentation.")
-        raise ValueError(msg)
-    if "--template-file=" not in sys.argv[1]:
-        msg = _("The program expects --template-file as first argument. "
-                "Please refer to the usage documentation.")
-        raise ValueError(msg)
-    if "--template-type=" not in sys.argv[2]:
-        msg = _("The program expects --template-type as second argument. "
-                "Please refer to the usage documentation.")
-        raise ValueError(msg)
-    path = sys.argv[1].split('--template-file=')[1]
-    # e.g. --template_file=translator/tests/data/tosca_helloworld.yaml
-    template_type = sys.argv[2].split('--template-type=')[1]
-    # e.g. --template_type=tosca
-    supported_types = ['tosca']
-    if not template_type:
-        raise ValueError(_("Template type is needed. For example, 'tosca'"))
-    elif template_type not in supported_types:
-        raise ValueError(_("%(value)s is not a valid template type.")
-                         % {'value': template_type})
-    parsed_params = {}
-    if len(sys.argv) > 3:
-        parsed_params = parse_parameters(sys.argv[3])
+class TranslatorShell(object):
 
-    a_file = os.path.isfile(path)
-    a_url = UrlUtils.validate_url(path) if not a_file else False
-    if a_file or a_url:
-        heat_tpl = translate(template_type, path, parsed_params, a_file)
-        if heat_tpl:
-            write_output(heat_tpl)
-    else:
-        raise ValueError(_("The path %(path)s is not a valid file or URL.") %
-                         {'path': path})
+    SUPPORTED_TYPES = ['tosca']
 
+    def _validate(self, args):
+        if len(args) < 2:
+            msg = _("The program requires minimum two arguments. "
+                    "Please refer to the usage documentation.")
+            raise ValueError(msg)
+        if "--template-file=" not in args[0]:
+            msg = _("The program expects --template-file as first argument. "
+                    "Please refer to the usage documentation.")
+            raise ValueError(msg)
+        if "--template-type=" not in args[1]:
+            msg = _("The program expects --template-type as second argument. "
+                    "Please refer to the usage documentation.")
+            raise ValueError(msg)
 
-def parse_parameters(parameter_list):
-    parsed_inputs = {}
+    def main(self, args):
+        self._validate(args)
+        path = args[0].split('--template-file=')[1]
+        # e.g. --template_file=translator/tests/data/tosca_helloworld.yaml
+        template_type = args[1].split('--template-type=')[1]
+        # e.g. --template_type=tosca
+        if not template_type:
+            raise ValueError(_("Template type is needed. "
+                               "For example, 'tosca'"))
+        elif template_type not in self.SUPPORTED_TYPES:
+            raise ValueError(_("%(value)s is not a valid template type.")
+                             % {'value': template_type})
+        parsed_params = {}
+        if len(args) > 2:
+            parsed_params = self._parse_parameters(args[2])
 
-    if parameter_list.startswith('--parameters'):
-        # Parameters are semi-colon separated
-        inputs = parameter_list.split('--parameters=')[1].\
-            replace('"', '').split(';')
-        # Each parameter should be an assignment
-        for param in inputs:
-            keyvalue = param.split('=')
-            # Validate the parameter has both a name and value
-            if keyvalue.__len__() is 2:
-                # Assure parameter name is not zero-length or whitespace
-                stripped_name = keyvalue[0].strip()
-                if not stripped_name:
+        a_file = os.path.isfile(path)
+        a_url = UrlUtils.validate_url(path) if not a_file else False
+        if a_file or a_url:
+            heat_tpl = self._translate(template_type, path, parsed_params,
+                                       a_file)
+            if heat_tpl:
+                self._write_output(heat_tpl)
+        else:
+            raise ValueError(_("The path %(path)s is not a valid file"
+                               " or URL.") % {'path': path})
+
+    def _parse_parameters(self, parameter_list):
+        parsed_inputs = {}
+        if parameter_list.startswith('--parameters'):
+            # Parameters are semi-colon separated
+            inputs = parameter_list.split('--parameters=')[1].\
+                replace('"', '').split(';')
+            # Each parameter should be an assignment
+            for param in inputs:
+                keyvalue = param.split('=')
+                # Validate the parameter has both a name and value
+                if keyvalue.__len__() is 2:
+                    # Assure parameter name is not zero-length or whitespace
+                    stripped_name = keyvalue[0].strip()
+                    if not stripped_name:
+                        raise ValueError(_("'%(param)s' is not a well-formed "
+                                         "parameter.") % {'param': param})
+                    # Add the valid parameter to the dictionary
+                    parsed_inputs[keyvalue[0]] = keyvalue[1]
+                else:
                     raise ValueError(_("'%(param)s' is not a well-formed "
                                      "parameter.") % {'param': param})
-                # Add the valid parameter to the dictionary
-                parsed_inputs[keyvalue[0]] = keyvalue[1]
-            else:
-                raise ValueError(_("'%(param)s' is not a well-formed "
-                                 "parameter.") % {'param': param})
-    else:
-        raise ValueError(_("'%(list)s' is not a valid parameter list.")
-                         % {'list': parameter_list})
-    return parsed_inputs
+        else:
+            raise ValueError(_("'%(list)s' is not a valid parameter list.")
+                             % {'list': parameter_list})
+        return parsed_inputs
+
+    def _translate(self, sourcetype, path, parsed_params, a_file):
+        output = None
+        if sourcetype == "tosca":
+            tosca = ToscaTemplate(path, parsed_params, a_file)
+            translator = TOSCATranslator(tosca, parsed_params)
+            output = translator.translate()
+        return output
+
+    def _write_output(self, output):
+        print(output)
 
 
-def translate(sourcetype, path, parsed_params, a_file):
-    output = None
-    if sourcetype == "tosca":
-        tosca = ToscaTemplate(path, parsed_params, a_file)
-        translator = TOSCATranslator(tosca, parsed_params)
-        output = translator.translate()
-    return output
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    TranslatorShell().main(args)
 
-
-def write_output(output):
-    print(output)
 
 if __name__ == '__main__':
     main()
