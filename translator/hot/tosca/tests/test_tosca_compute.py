@@ -10,6 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+import mock
+from mock import patch
+
 from toscaparser.nodetemplate import NodeTemplate
 from toscaparser.tests.base import TestCase
 from toscaparser.utils.gettextutils import _
@@ -191,3 +195,59 @@ class ToscaComputeTest(TestCase):
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
+
+    @patch('requests.post')
+    @patch('requests.get')
+    @patch('os.getenv')
+    def test_node_compute_with_nova_flavor(self, mock_os_getenv,
+                                           mock_get, mock_post):
+        tpl_snippet = '''
+        node_templates:
+          server:
+            type: tosca.nodes.Compute
+            capabilities:
+              host:
+                properties:
+                  num_cpus: 1
+                  disk_size: 1 GB
+                  mem_size: 1 GB
+        '''
+        with patch('translator.hot.tosca.tosca_compute.ToscaCompute.'
+                   '_check_for_env_variables') as mock_check_env:
+            mock_check_env.return_value = True
+            mock_os_getenv.side_effect = ['demo', 'demo',
+                                          'demo', 'http://abc.com/5000/']
+            mock_ks_response = mock.MagicMock()
+            mock_ks_response.status_code = 200
+            mock_ks_content = {
+                'access': {
+                    'token': {
+                        'id': 'd1dfa603-3662-47e0-b0b6-3ae7914bdf76'
+                    },
+                    'serviceCatalog': [{
+                        'type': 'compute',
+                        'endpoints': [{
+                            'publicURL': 'http://abc.com'
+                        }]
+                    }]
+                }
+            }
+            mock_ks_response.content = json.dumps(mock_ks_content)
+            mock_nova_response = mock.MagicMock()
+            mock_nova_response.status_code = 200
+            mock_flavor_content = {
+                'flavors': [{
+                    'name': 'm1.mock_flavor',
+                    'ram': 1024,
+                    'disk': 1,
+                    'vcpus': 1
+                }]
+            }
+            mock_nova_response.content = \
+                json.dumps(mock_flavor_content)
+            mock_post.return_value = mock_ks_response
+            mock_get.return_value = mock_nova_response
+            expectedprops = {'flavor': 'm1.mock_flavor'}
+            self._tosca_compute_test(
+                tpl_snippet,
+                expectedprops)
