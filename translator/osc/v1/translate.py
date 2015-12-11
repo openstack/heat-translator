@@ -12,6 +12,7 @@
 
 """Translate action implementations"""
 
+import logging
 import logging.config
 import os
 import sys
@@ -19,15 +20,20 @@ import sys
 from cliff import command
 
 from toscaparser.tosca_template import ToscaTemplate
+from toscaparser.utils.gettextutils import _
 from translator.common.utils import UrlUtils
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
 
+logging.config.fileConfig('heat_translator_logging.conf')
+log = logging.getLogger('heat-translator')
+
+
 class TranslateTemplate(command.Command):
+
     """Translate a template"""
 
-    log = logging.getLogger('heat-translator' + '.TranslateTemplate')
     auth_required = False
 
     def get_parser(self, prog_name):
@@ -62,7 +68,8 @@ class TranslateTemplate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('take_action(%s)', parsed_args)
+        log.debug(_('Translating the template with input parameters'
+                    '(%s).'), parsed_args)
         output = None
 
         if parsed_args.parameter:
@@ -83,7 +90,9 @@ class TranslateTemplate(command.Command):
                     translator = TOSCATranslator(tosca, parsed_params)
                     output = translator.translate()
             else:
-                sys.stdout.write('Could not find template file.')
+                msg = _('Could not find template file.')
+                log.error(msg)
+                sys.stdout.write(msg)
                 raise SystemExit
 
         if output:

@@ -11,13 +11,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+
+from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_output import HotOutput
+
+log = logging.getLogger('heat-translator')
 
 
 class TranslateOutputs(object):
     '''Translate TOSCA Outputs to Heat Outputs.'''
 
     def __init__(self, outputs, node_translator):
+        log.debug(_('Translating TOSCA outputs to HOT outputs.'))
         self.outputs = outputs
         self.nodes = node_translator
 

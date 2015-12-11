@@ -20,6 +20,7 @@ from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
 from toscaparser.functions import GetProperty
 from toscaparser.relationship_template import RelationshipTemplate
+from toscaparser.utils.gettextutils import _
 from translator.common.exception import ToscaClassAttributeError
 from translator.common.exception import ToscaClassImportError
 from translator.common.exception import ToscaModImportError
@@ -141,6 +142,7 @@ class TranslateNodeTemplates(object):
         # list of all HOT resources generated
         self.hot_resources = []
         # mapping between TOSCA nodetemplate and HOT resource
+        log.debug(_('Mapping between TOSCA nodetemplate and HOT resource.'))
         self.hot_lookup = {}
 
     def translate(self):
@@ -159,6 +161,7 @@ class TranslateNodeTemplates(object):
 
     def _translate_nodetemplates(self):
 
+        log.debug(_('Translating the node templates.'))
         suffix = 0
         # Copy the TOSCA graph: nodetemplate
         for node in self.nodetemplates:
@@ -381,7 +384,7 @@ class TranslateNodeTemplates(object):
                 msg = _("Template error:  "
                         "no configuration found for ConnectsTo "
                         "in {1}").format(self.nodetemplate.name)
-                log.warning(msg)
+                log.error(msg)
                 raise Exception(msg)
         config_name = source_node.name + '_' + target_name + '_connect_config'
         implement = connect_config.get('implementation')

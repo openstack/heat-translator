@@ -12,16 +12,17 @@
 # under the License.
 
 import logging
+from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_template import HotTemplate
 from translator.hot.translate_inputs import TranslateInputs
 from translator.hot.translate_node_templates import TranslateNodeTemplates
 from translator.hot.translate_outputs import TranslateOutputs
 
+log = logging.getLogger('heat-translator')
+
 
 class TOSCATranslator(object):
     '''Invokes translation methods.'''
-
-    log = logging.getLogger('heat-translator')
 
     def __init__(self, tosca, parsed_params):
         super(TOSCATranslator, self).__init__()
@@ -29,6 +30,7 @@ class TOSCATranslator(object):
         self.hot_template = HotTemplate()
         self.parsed_params = parsed_params
         self.node_translator = None
+        log.info(_('Initialized parmaters for translation.'))
 
     def translate(self):
         self._resolve_input()
@@ -58,7 +60,7 @@ class TOSCATranslator(object):
                         self.parsed_params[node_prop.value['get_input']]
                     except Exception:
                         msg = (_('Must specify all input values in \
-                                TOSCA template, missing %s') %
+                                TOSCA template, missing %s.') %
                                node_prop.value['get_input'])
-                        self.log.warning(msg)
+                        log.error(msg)
                         raise ValueError(msg)

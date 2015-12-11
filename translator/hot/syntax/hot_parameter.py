@@ -12,9 +12,13 @@
 # under the License.
 
 from collections import OrderedDict
+import logging
+from toscaparser.utils.gettextutils import _
 
 KEYS = (TYPE, DESCRIPTION, DEFAULT, CONSTRAINTS, HIDDEN, LABEL) = \
        ('type', 'description', 'default', 'constraints', 'hidden', 'label')
+
+log = logging.getLogger('heat-translator')
 
 
 class HotParameter(object):
@@ -29,6 +33,7 @@ class HotParameter(object):
         self.default = default
         self.hidden = hidden
         self.constraints = constraints
+        log.info(_('Initialized the input parameters.'))
 
     def get_dict_output(self):
         param_sections = OrderedDict()

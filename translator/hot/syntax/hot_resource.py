@@ -12,6 +12,7 @@
 # under the License.
 
 from collections import OrderedDict
+import logging
 import six
 
 from toscaparser.functions import GetInput
@@ -23,6 +24,7 @@ SECTIONS = (TYPE, PROPERTIES, MEDADATA, DEPENDS_ON, UPDATE_POLICY,
             DELETION_POLICY) = \
            ('type', 'properties', 'metadata',
             'depends_on', 'update_policy', 'deletion_policy')
+log = logging.getLogger('heat-translator')
 
 
 class HotResource(object):
@@ -31,6 +33,7 @@ class HotResource(object):
     def __init__(self, nodetemplate, name=None, type=None, properties=None,
                  metadata=None, depends_on=None,
                  update_policy=None, deletion_policy=None):
+        log.debug(_('Translating TOSCA node type to HOT resource type.'))
         self.nodetemplate = nodetemplate
         if name:
             self.name = name
