@@ -12,6 +12,7 @@
 
 import os
 
+from toscaparser.common import exception
 from toscaparser.utils.gettextutils import _
 import translator.shell as shell
 from translator.tests.base import TestCase
@@ -23,6 +24,7 @@ class ShellTest(TestCase):
         "data/tosca_helloworld.yaml")
     template_file = '--template-file=' + tosca_helloworld
     template_type = '--template-type=tosca'
+    template_validation = "--validate-only=true"
 
     def test_missing_arg(self):
         error = self.assertRaises(ValueError, shell.main, '')
@@ -80,3 +82,18 @@ class ShellTest(TestCase):
             shell.main([template, self.template_type, parameters])
         except Exception:
             self.fail(_('The program raised an exception unexpectedly.'))
+
+    def test_validate_only(self):
+        try:
+            shell.main([self.template_file, self.template_type,
+                        self.template_validation])
+        except Exception:
+            self.fail(_('The program raised an exception unexpectedly.'))
+
+        template = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "data/tosca_helloworld_invalid.yaml")
+        invalid_template = '--template-file=' + template
+        self.assertRaises(exception.ValidationError, shell.main,
+                          [invalid_template, self.template_type,
+                           self.template_validation])

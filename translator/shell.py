@@ -21,7 +21,7 @@ from toscaparser.utils.urlutils import UrlUtils
 from translator.hot.tosca_translator import TOSCATranslator
 
 """
-Test the heat-translator from command line as:
+Test the heat-translator translation from command line as:
 #heat-translator
   --template-file=<path to the YAML template>
   --template-type=<type of template e.g. tosca>
@@ -31,7 +31,10 @@ Takes three user arguments,
 2. Path to the file that needs to be translated (required)
 3. Input parameters (optional)
 
-This is an entry point for testing purpose on CLI.
+In order to use heat-translator to only validate template,
+without actual translation, pass --validate-only=true along with
+other required arguments.
+
 """
 
 log = logging.getLogger("heat-translator")
@@ -68,16 +71,31 @@ class TranslatorShell(object):
             raise ValueError(_("%(value)s is not a valid template type.")
                              % {'value': template_type})
         parsed_params = {}
+        validate_only = None
         if len(args) > 2:
-            parsed_params = self._parse_parameters(args[2])
-
+            parameters = None
+            for arg in args:
+                if "--validate-only=" in arg:
+                    validate_only = arg
+                if "--parameters=" in arg:
+                    parameters = arg
+            if parameters:
+                parsed_params = self._parse_parameters(parameters)
         a_file = os.path.isfile(path)
         a_url = UrlUtils.validate_url(path) if not a_file else False
         if a_file or a_url:
-            heat_tpl = self._translate(template_type, path, parsed_params,
-                                       a_file)
-            if heat_tpl:
-                self._write_output(heat_tpl)
+            run_only_validation = False
+            if validate_only:
+                value = validate_only.split('-validate-only=')[1].lower()
+                if template_type == 'tosca' and value == 'true':
+                    run_only_validation = True
+            if run_only_validation:
+                ToscaTemplate(path, parsed_params, a_file)
+            else:
+                heat_tpl = self._translate(template_type, path, parsed_params,
+                                           a_file)
+                if heat_tpl:
+                    self._write_output(heat_tpl)
         else:
             raise ValueError(_("The path %(path)s is not a valid file"
                                " or URL.") % {'path': path})

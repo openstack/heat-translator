@@ -1,0 +1,23 @@
+tosca_definitions: tosca_simple_yaml_1_0
+
+description: Template with invalid version and topology_template section.
+
+topology_template:
+  node_temp:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        # Host container properties
+        host:
+         properties:
+           num_cpus: 2
+           disk_size: 10 GB
+           mem_size: 512 MB
+        # Guest Operating System properties
+        os:
+          properties:
+            # host Operating System image properties
+            architecture: x86_64
+            type: Linux
+            distribution: RHEL
+            version: 6.5
