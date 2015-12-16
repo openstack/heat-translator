@@ -54,10 +54,16 @@ class TranslateTemplate(command.Command):
             help='Set a property for this template '
                  '(repeat option to set multiple properties)',
         )
+        parser.add_argument(
+            '--validate-only',
+            metavar='<true or false>',
+            help='Set to true to only validate a template file.',
+            default='false')
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('take_action(%s)', parsed_args)
+        output = None
 
         if parsed_args.parameter:
             parsed_params = parsed_args.parameter
@@ -69,15 +75,20 @@ class TranslateTemplate(command.Command):
             a_file = os.path.isfile(path)
             a_url = UrlUtils.validate_url(path) if not a_file else False
             if a_file or a_url:
-                tosca = ToscaTemplate(path, parsed_params, a_file)
-                translator = TOSCATranslator(tosca, parsed_params)
-                output = translator.translate()
+                validate = parsed_args.validate_only
+                if validate and validate.lower() == "true":
+                    ToscaTemplate(path, parsed_params, a_file)
+                else:
+                    tosca = ToscaTemplate(path, parsed_params, a_file)
+                    translator = TOSCATranslator(tosca, parsed_params)
+                    output = translator.translate()
             else:
                 sys.stdout.write('Could not find template file.')
                 raise SystemExit
 
-        if parsed_args.output_file:
-            with open(parsed_args.output_file, 'w+') as f:
-                f.write(output)
-        else:
-            print(output)
+        if output:
+            if parsed_args.output_file:
+                with open(parsed_args.output_file, 'w+') as f:
+                    f.write(output)
+            else:
+                print(output)
