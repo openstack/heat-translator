@@ -11,6 +11,8 @@
 #    under the License.
 
 import os
+import shutil
+import tempfile
 
 from toscaparser.common import exception
 from toscaparser.utils.gettextutils import _
@@ -25,6 +27,7 @@ class ShellTest(TestCase):
     template_file = '--template-file=' + tosca_helloworld
     template_type = '--template-type=tosca'
     template_validation = "--validate-only=true"
+    failure_msg = _('The program raised an exception unexpectedly.')
 
     def test_missing_arg(self):
         error = self.assertRaises(ValueError, shell.main, '')
@@ -69,7 +72,7 @@ class ShellTest(TestCase):
         try:
             shell.main([self.template_file, self.template_type])
         except Exception:
-            self.fail(_('The program raised an exception unexpectedly.'))
+            self.fail(self.failure_msg)
 
     def test_valid_template_with_parameters(self):
         tosca_single_instance_wordpress = os.path.join(
@@ -81,14 +84,14 @@ class ShellTest(TestCase):
         try:
             shell.main([template, self.template_type, parameters])
         except Exception:
-            self.fail(_('The program raised an exception unexpectedly.'))
+            self.fail(self.failure_msg)
 
     def test_validate_only(self):
         try:
             shell.main([self.template_file, self.template_type,
                         self.template_validation])
         except Exception:
-            self.fail(_('The program raised an exception unexpectedly.'))
+            self.fail(self.failure_msg)
 
         template = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -97,3 +100,17 @@ class ShellTest(TestCase):
         self.assertRaises(exception.ValidationError, shell.main,
                           [invalid_template, self.template_type,
                            self.template_validation])
+
+    def test_output_file(self):
+        temp_dir = tempfile.mkdtemp()
+        temp_file = "/test_translation_output.txt"
+        output_file = "--output-file=" + temp_dir + temp_file
+        try:
+            shell.main([self.template_file, self.template_type, output_file])
+        except Exception:
+            self.fail(self.failure_msg)
+        finally:
+            if temp_dir:
+                shutil.rmtree(temp_dir)
+                self.assertTrue(temp_dir is None or
+                                not os.path.exists(temp_dir))
