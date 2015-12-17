@@ -47,8 +47,10 @@ For example, a TOSCA hello world template can be translated by running the follo
 
     python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
-This should produce a translated Heat Orchestration Template on the command line. In the near future, new options will be added to save the output
-to destination file.
+This should produce a translated Heat Orchestration Template on the command line. The translated content can be saved to a desired file by setting --output-file=<path>.
+For example: ::
+
+    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca --output-file=/tmp/hot_helloworld.yaml
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 In this case, you can simply run translation via CLI entry point::

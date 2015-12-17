@@ -72,6 +72,7 @@ class TranslatorShell(object):
                              % {'value': template_type})
         parsed_params = {}
         validate_only = None
+        output_file = None
         if len(args) > 2:
             parameters = None
             for arg in args:
@@ -79,6 +80,9 @@ class TranslatorShell(object):
                     validate_only = arg
                 if "--parameters=" in arg:
                     parameters = arg
+                if "--output-file=" in arg:
+                    output = arg
+                    output_file = output.split('--output-file=')[1]
             if parameters:
                 parsed_params = self._parse_parameters(parameters)
         a_file = os.path.isfile(path)
@@ -95,7 +99,7 @@ class TranslatorShell(object):
                 heat_tpl = self._translate(template_type, path, parsed_params,
                                            a_file)
                 if heat_tpl:
-                    self._write_output(heat_tpl)
+                    self._write_output(heat_tpl, output_file)
         else:
             raise ValueError(_("The path %(path)s is not a valid file"
                                " or URL.") % {'path': path})
@@ -134,8 +138,13 @@ class TranslatorShell(object):
             output = translator.translate()
         return output
 
-    def _write_output(self, output):
-        print(output)
+    def _write_output(self, output, output_file=None):
+        if output:
+            if output_file:
+                with open(output_file, 'w+') as f:
+                    f.write(output)
+            else:
+                print(output)
 
 
 def main(args=None):
