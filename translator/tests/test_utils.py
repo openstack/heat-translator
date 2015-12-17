@@ -168,7 +168,7 @@ class CommonUtilsTest(TestCase):
             self.cmpUtils.diff_dicts(expected, provided))
 
     def test_yamlutils_get_dict_missing_file(self):
-        self.assertEqual(None, self.yamlUtils.get_dict('./no_file.yaml'))
+        self.assertIsNone(self.yamlUtils.get_dict('./no_file.yaml'))
 
     def test_yamlutils_get_dict(self):
         yaml_file = os.path.join(
