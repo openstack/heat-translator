@@ -12,7 +12,7 @@ Assuming that OpenStackClient (OSC) is available in your environment, you can ea
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 
-Once installation is complete, Heat-Translator is ready to use. Currently you can use it in following two ways.
+Once installation is complete, Heat-Translator is ready to use. Currently you can use it in following three ways.
 
 Translate and get output on command line. For example: ::
 
@@ -21,6 +21,10 @@ Translate and get output on command line. For example: ::
 Translate and save output of translated file to a desired destination. For example: ::
 
     openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca --output-file /tmp/hot_hello_world.yaml
+
+Do not translate but only validate template file. For example: ::
+
+    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca --validate-only=true
 
 You can learn more about available options by running following help command::
 
@@ -41,14 +45,17 @@ It requires two arguments::
 system or via URL.
 2. Type of translation (e.g. tosca)
 
-An optional argument can be provided to handle user inputs parameters.
-
 For example, a TOSCA hello world template can be translated by running the following command from the project location::
 
     python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 This should produce a translated Heat Orchestration Template on the command line. In the near future, new options will be added to save the output
 to destination file.
+
+An optional argument can be provided to handle user inputs parameters. Also, a template file can only be validated instead of translation by using --validate-only=true
+optional argument. The command below shows an example usage::
+
+    python heat_translator.py --template-file==<path to the YAML template> --template-type=<type of template e.g. tosca> --validate-only=true
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 In this case, you can simply run translation via CLI entry point::
