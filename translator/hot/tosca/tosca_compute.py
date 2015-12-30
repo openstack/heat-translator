@@ -16,10 +16,12 @@ import logging
 import os
 import requests
 
+from toscaparser.utils.gettextutils import _
 from toscaparser.utils.validateutils import TOSCAVersionProperty
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
-log = logging.getLogger('tosca')
+log = logging.getLogger('heat-translator')
+
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaCompute'
@@ -171,6 +173,7 @@ class ToscaCompute(HotResource):
         return flavor_dict
 
     def _best_flavor(self, properties):
+        log.info(_('Choosing the best flavor for given attributes.'))
         # Check whether user exported all required environment variables.
         flavors = FLAVORS
         if self._check_for_env_variables():
@@ -239,6 +242,7 @@ class ToscaCompute(HotResource):
             if isinstance(size, int):
                 if this_dict[flavor][attr] >= size:
                     matching_flavors.append(flavor)
+        log.debug(_('Returning list of flavors matching the attribute size.'))
         return matching_flavors
 
     def _least_flavor(self, this_list, this_dict, attr):
@@ -267,6 +271,8 @@ class ToscaCompute(HotResource):
         # Note: We treat private and public IP  addresses equally, but
         # this will change in the future when TOSCA starts to support
         # multiple private/public IP addresses.
+        log.debug(_('Converting TOSCA attribute for a nodetemplate to a HOT \
+                  attriute.'))
         if attribute == 'private_address' or \
            attribute == 'public_address':
                 attr['get_attr'] = [self.name, 'networks', 'private', 0]

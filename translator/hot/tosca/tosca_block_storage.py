@@ -18,7 +18,7 @@ from toscaparser.functions import GetInput
 from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_resource import HotResource
 
-log = logging.getLogger("tosca")
+log = logging.getLogger('heat-translator')
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaBlockStorage'
@@ -45,8 +45,10 @@ class ToscaBlockStorage(HotResource):
                                   get_num_from_scalar_unit('GiB'))
                     if size_value == 0:
                         # OpenStack Heat expects size in GB
+                        msg = _('Cinder Volume Size unit should be in GB.')
+                        log.error(msg)
                         raise InvalidPropertyValueError(
-                            what=_('Cinder Volume Size unit should be in GBs'))
+                            what=msg)
                     elif int(size_value) < size_value:
                         size_value = int(size_value) + 1
                         log.warning(_("Cinder unit value should be in "

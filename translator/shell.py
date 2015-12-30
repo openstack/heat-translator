@@ -11,6 +11,7 @@
 #    under the License.
 
 
+import logging
 import logging.config
 import os
 import sys
@@ -37,6 +38,7 @@ other required arguments.
 
 """
 
+logging.config.fileConfig('heat_translator_logging.conf')
 log = logging.getLogger("heat-translator")
 
 
@@ -48,14 +50,17 @@ class TranslatorShell(object):
         if len(args) < 2:
             msg = _("The program requires minimum two arguments. "
                     "Please refer to the usage documentation.")
+            log.error(msg)
             raise ValueError(msg)
         if "--template-file=" not in args[0]:
             msg = _("The program expects --template-file as first argument. "
                     "Please refer to the usage documentation.")
+            log.error(msg)
             raise ValueError(msg)
         if "--template-type=" not in args[1]:
             msg = _("The program expects --template-type as second argument. "
                     "Please refer to the usage documentation.")
+            log.error(msg)
             raise ValueError(msg)
 
     def main(self, args):
@@ -65,11 +70,14 @@ class TranslatorShell(object):
         template_type = args[1].split('--template-type=')[1]
         # e.g. --template_type=tosca
         if not template_type:
-            raise ValueError(_("Template type is needed. "
-                               "For example, 'tosca'"))
+            msg = _("Template type is needed. For example, 'tosca'")
+            log.error(msg)
+            raise ValueError(msg)
         elif template_type not in self.SUPPORTED_TYPES:
-            raise ValueError(_("%(value)s is not a valid template type.")
-                             % {'value': template_type})
+            msg = _("%(value)s is not a valid template type.") % {
+                'value': template_type}
+            log.error(msg)
+            raise ValueError(msg)
         parsed_params = {}
         validate_only = None
         output_file = None
@@ -96,13 +104,17 @@ class TranslatorShell(object):
             if run_only_validation:
                 ToscaTemplate(path, parsed_params, a_file)
             else:
+                log.info(
+                    _('Checked whether template path is a file or url path.'))
                 heat_tpl = self._translate(template_type, path, parsed_params,
                                            a_file)
                 if heat_tpl:
                     self._write_output(heat_tpl, output_file)
         else:
-            raise ValueError(_("The path %(path)s is not a valid file"
-                               " or URL.") % {'path': path})
+            msg = _("The path %(path)s is not a valid file or URL.") % {
+                'path': path}
+            log.error(msg)
+            raise ValueError(msg)
 
     def _parse_parameters(self, parameter_list):
         parsed_inputs = {}
@@ -114,27 +126,33 @@ class TranslatorShell(object):
             for param in inputs:
                 keyvalue = param.split('=')
                 # Validate the parameter has both a name and value
+                msg = _("'%(param)s' is not a well-formed parameter.") % {
+                    'param': param}
                 if keyvalue.__len__() is 2:
                     # Assure parameter name is not zero-length or whitespace
                     stripped_name = keyvalue[0].strip()
                     if not stripped_name:
-                        raise ValueError(_("'%(param)s' is not a well-formed "
-                                         "parameter.") % {'param': param})
+                        log.error(msg)
+                        raise ValueError(msg)
                     # Add the valid parameter to the dictionary
                     parsed_inputs[keyvalue[0]] = keyvalue[1]
                 else:
-                    raise ValueError(_("'%(param)s' is not a well-formed "
-                                     "parameter.") % {'param': param})
+                    log.error(msg)
+                    raise ValueError(msg)
         else:
-            raise ValueError(_("'%(list)s' is not a valid parameter list.")
-                             % {'list': parameter_list})
+            msg = _("'%(list)s' is not a valid parameter list.") % {
+                'list': parameter_list}
+            log.error(msg)
+            raise ValueError(msg)
         return parsed_inputs
 
     def _translate(self, sourcetype, path, parsed_params, a_file):
         output = None
         if sourcetype == "tosca":
+            log.debug(_('Loading the tosca template.'))
             tosca = ToscaTemplate(path, parsed_params, a_file)
             translator = TOSCATranslator(tosca, parsed_params)
+            log.debug(_('Translating the tosca template.'))
             output = translator.translate()
         return output
 

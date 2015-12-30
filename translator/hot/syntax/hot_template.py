@@ -12,8 +12,12 @@
 # under the License.
 
 from collections import OrderedDict
+import logging
 import textwrap
+from toscaparser.utils.gettextutils import _
 import yaml
+
+log = logging.getLogger('heat-translator')
 
 
 class HotTemplate(object):
@@ -41,6 +45,7 @@ class HotTemplate(object):
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
 
     def output_to_yaml(self):
+        log.debug(_('Converting translated output to yaml format.'))
         dict_output = OrderedDict()
         # Version
         version_string = self.VERSION + ": " + self.LATEST + "\n\n"

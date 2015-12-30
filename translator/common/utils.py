@@ -23,7 +23,6 @@ from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
 
 YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
-log = logging.getLogger('tosca')
 log = logging.getLogger('heat-translator')
 
 
@@ -49,7 +48,7 @@ class MemoryUnit(object):
         else:
             unit = MemoryUnit.UNIT_SIZE_DEFAULT
             log.info(_('A memory unit is not provided for size; using the '
-                       'default unit %(default)s') % {'default': 'B'})
+                       'default unit %(default)s.') % {'default': 'B'})
         regex = re.compile('(\d*)\s*(\w*)')
         result = regex.match(str(size)).groups()
         if result[1]:
@@ -59,7 +58,7 @@ class MemoryUnit(object):
                             * math.pow(MemoryUnit.UNIT_SIZE_DICT
                                        [unit], -1))
             log.info(_('Given size %(size)s is converted to %(num)s '
-                       '%(unit)s') % {'size': size,
+                       '%(unit)s.') % {'size': size,
                      'num': converted, 'unit': unit})
         else:
             converted = (str_to_num(result[0]))
@@ -76,7 +75,7 @@ class MemoryUnit(object):
 
             msg = _('Provided unit "{0}" is not valid. The valid units are'
                     ' {1}').format(unit, MemoryUnit.UNIT_SIZE_DICT.keys())
-            log.warning(msg)
+            log.error(msg)
             raise ValueError(msg)
 
 

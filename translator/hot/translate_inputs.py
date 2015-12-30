@@ -58,6 +58,7 @@ log = logging.getLogger('heat-translator')
 
 
 class TranslateInputs(object):
+
     '''Translate TOSCA Inputs to Heat Parameters.'''
 
     def __init__(self, inputs, parsed_params):
@@ -70,6 +71,7 @@ class TranslateInputs(object):
     def _translate_inputs(self):
         hot_inputs = []
         hot_default = None
+        log.info(_('Translating TOSCA input type to HOT input type.'))
         for input in self.inputs:
             hot_input_type = TOSCA_TO_HOT_INPUT_TYPES[input.type]
 
@@ -80,10 +82,10 @@ class TranslateInputs(object):
                 hot_default = DataEntity.validate_datatype(input.type,
                                                            input.default)
             else:
-                log.warning(_("Need to specify a value "
-                              "for input {0}").format(input.name))
-                raise Exception(_("Need to specify a value "
-                                  "for input {0}").format(input.name))
+                msg = _("Need to specify a value "
+                        "for input {0}.").format(input.name)
+                log.error(msg)
+                raise Exception(msg)
             if input.type == "scalar-unit.size":
                 # Assumption here is to use this scalar-unit.size for size of
                 # cinder volume in heat templates and will be in GB.
@@ -92,9 +94,9 @@ class TranslateInputs(object):
                 hot_default = (ScalarUnit_Size(hot_default).
                                get_num_from_scalar_unit('GiB'))
                 if hot_default == 0:
-                    log.warning(_('Unit value should be > 0.'))
-                    raise Exception(_(
-                        'Unit value should be > 0.'))
+                    msg = _('Unit value should be > 0.')
+                    log.error(msg)
+                    raise Exception(msg)
                 elif int(hot_default) < hot_default:
                     hot_default = int(hot_default) + 1
                     log.warning(_("Cinder unit value should be in multiples"
