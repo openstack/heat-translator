@@ -195,10 +195,8 @@ class CommonUtilsTest(TestCase):
         yaml_file2 = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             '../tests/data/custom_types/collectd.yaml')
-        self.assertEqual(True,
-                         self.yamlUtils.compare_yamls(yaml_file1, yaml_file1))
-        self.assertEqual(False,
-                         self.yamlUtils.compare_yamls(yaml_file1, yaml_file2))
+        self.assertTrue(self.yamlUtils.compare_yamls(yaml_file1, yaml_file1))
+        self.assertFalse(self.yamlUtils.compare_yamls(yaml_file1, yaml_file2))
 
     def test_yamlutils_compare_yaml_dict(self):
         yaml_file1 = os.path.join(
@@ -221,8 +219,7 @@ class CommonUtilsTest(TestCase):
                   'relationship': 'tosca.relationships.ConnectsTo'}}]}}}
         self.assertEqual({}, self.cmpUtils.diff_dicts(
             self.yamlUtils.get_dict(yaml_file1), dict))
-        self.assertEqual(False,
-                         self.yamlUtils.compare_yaml_dict(yaml_file2, dict))
+        self.assertFalse(self.yamlUtils.compare_yaml_dict(yaml_file2, dict))
 
     def test_assert_value_is_num(self):
         value = 1
