@@ -511,3 +511,25 @@ class ToscaHotTranslationTest(TestCase):
                                                                    {})
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_custom_type(self):
+        tosca_file = '../tests/data/test_tosca_custom_type.yaml'
+        hot_file = '../tests/data/hot_output/' \
+            'hot_custom_type.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_custom_type_with_override(self):
+        tosca_file = '../tests/data/test_tosca_custom_type_with_override.yaml'
+        hot_file = '../tests/data/hot_output/' \
+            'hot_custom_type_with_override.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
