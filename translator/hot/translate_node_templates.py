@@ -165,13 +165,14 @@ class TranslateNodeTemplates(object):
         suffix = 0
         # Copy the TOSCA graph: nodetemplate
         for node in self.nodetemplates:
-            hot_node = TOSCA_TO_HOT_TYPE[node.type](node)
+            base_type = HotResource.get_base_type(node.type_definition)
+            hot_node = TOSCA_TO_HOT_TYPE[base_type.type](node)
             self.hot_resources.append(hot_node)
             self.hot_lookup[node] = hot_node
 
             # BlockStorage Attachment is a special case,
             # which doesn't match to Heat Resources 1 to 1.
-            if node.type == "tosca.nodes.Compute":
+            if base_type.type == "tosca.nodes.Compute":
                 volume_name = None
                 requirements = node.requirements
                 if requirements:

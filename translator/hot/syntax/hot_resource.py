@@ -290,7 +290,8 @@ class HotResource(object):
         # capability is a list of dict
         # For now just check if it's type tosca.nodes.Compute
         # TODO(anyone): match up requirement and capability
-        if node.type == 'tosca.nodes.Compute':
+        base_type = HotResource.get_base_type(node.type_definition)
+        if base_type.type == 'tosca.nodes.Compute':
             return True
         else:
             return False
@@ -309,3 +310,13 @@ class HotResource(object):
             else:
                 tosca_props[prop.name] = prop.value
         return tosca_props
+
+    @staticmethod
+    def get_base_type(node_type):
+        if node_type.parent_type is not None:
+            if node_type.parent_type.type.endswith('.Root'):
+                return node_type
+            else:
+                return HotResource.get_base_type(node_type.parent_type)
+        else:
+            return node_type
