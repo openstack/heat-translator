@@ -46,7 +46,8 @@ resources:
       config:
         get_resource: paypal_pizzastore_configure_config
       input_values:
-        github_url: http://github.com/paypal/rest-api-sample-app-nodejs.git
+        github_url:
+          get_param: github_url
         mongodb_ip:
           get_attr:
           - mongo_server

@@ -100,8 +100,7 @@ class ToscaCompute(HotResource):
             self.nodetemplate.get_capability('host'),
             self.nodetemplate.get_capability('os'))
         self.properties['user_data_format'] = 'SOFTWARE_CONFIG'
-        tosca_props = self._get_tosca_props(
-            self.nodetemplate.get_properties_objects())
+        tosca_props = self.get_tosca_props()
         for key, value in tosca_props.items():
             self.properties[key] = value
 

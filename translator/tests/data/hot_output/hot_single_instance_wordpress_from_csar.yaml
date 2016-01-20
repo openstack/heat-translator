@@ -82,7 +82,8 @@ resources:
       config:
         get_resource: mysql_dbms_configure_config
       input_values:
-        root_password: passw0rd
+        db_root_password:
+          get_param: db_root_pwd
       server:
         get_resource: server
     depends_on:
@@ -101,10 +102,14 @@ resources:
       config:
         get_resource: mysql_database_configure_config
       input_values:
-        db_name: wordpress
-        db_password: wp_pass
-        db_root_password: passw0rd
-        db_user: wp_user
+        db_name:
+          get_param: db_name
+        db_password:
+          get_param: db_pwd
+        db_root_password:
+          get_param: db_root_pwd
+        db_user:
+          get_param: db_user
       server:
         get_resource: server
     depends_on:
@@ -173,9 +178,12 @@ resources:
       config:
         get_resource: wordpress_configure_config
       input_values:
-        wp_db_name: wordpress
-        wp_db_password: wp_pass
-        wp_db_user: wp_user
+        wp_db_name:
+          get_param: db_name
+        wp_db_password:
+          get_param: db_pwd
+        wp_db_user:
+          get_param: db_user
       server:
         get_resource: server
     depends_on:

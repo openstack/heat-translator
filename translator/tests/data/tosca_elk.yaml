@@ -51,7 +51,7 @@ topology_template:
            configure:
              implementation: nodejs/config.sh
              inputs:
-               github_url: http://github.com/paypal/rest-api-sample-app-nodejs.git
+               github_url:  { get_property: [ SELF, github_url ] }
                mongodb_ip: { get_attribute: [mongo_server, private_address] }
            start: nodejs/start.sh
     nodejs:

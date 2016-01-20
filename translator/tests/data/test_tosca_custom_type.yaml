@@ -5,18 +5,31 @@ description: TOSCA template to test custom type with an interface defined on it
 node_types:
   tosca.nodes.CustomWebServer:
     derived_from: tosca.nodes.WebServer
+    properties:
+      custom_install_path:
+        type: string
+        default: /home/custom/custom
     interfaces:
       Standard:
         create:
           implementation: install.sh
+          inputs:
+            path: { get_property: [ SELF, custom_install_path ] }
 
 topology_template:
+  inputs:
+    install_path:
+      type: string
+      default: /home/custom/other
+
   node_templates:
 
     customwebserver:
       type: tosca.nodes.CustomWebServer
       requirements:
         - host: server
+      properties:
+        custom_install_path : { get_input: install_path }
 
     server:
       type: tosca.nodes.Compute

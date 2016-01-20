@@ -29,8 +29,7 @@ class ToscaObjectStorage(HotResource):
         pass
 
     def handle_properties(self):
-        tosca_props = self._get_tosca_props(
-            self.nodetemplate.get_properties_objects())
+        tosca_props = self.get_tosca_props()
         objectstore_props = {}
         container_quota = {}
         skip_check = False

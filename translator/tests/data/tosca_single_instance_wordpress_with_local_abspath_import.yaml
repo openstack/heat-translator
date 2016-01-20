@@ -51,9 +51,9 @@ topology_template:
           configure:
             implementation: wordpress/wordpress_configure.sh
             inputs:
-              wp_db_name: wordpress
-              wp_db_user: wp_user
-              wp_db_password: wp_pass
+              wp_db_name: { get_input: db_name }
+              wp_db_user: { get_input: db_user }
+              wp_db_password: { get_input: db_pwd }
 
     mysql_database:
       type: tosca.nodes.Database
@@ -73,10 +73,10 @@ topology_template:
           configure:
             implementation: mysql/mysql_database_configure.sh
             inputs:
-              db_name: wordpress
-              db_user: wp_user
-              db_password: wp_pass
-              db_root_password: passw0rd
+              db_name: { get_input: db_name }
+              db_user: { get_input: db_user }
+              db_password: { get_input: db_pwd }
+              db_root_password: { get_input: db_root_pwd }
     mysql_dbms:
       type: tosca.nodes.DBMS
       properties:

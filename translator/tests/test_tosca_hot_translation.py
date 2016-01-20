@@ -328,23 +328,23 @@ class ToscaHotTranslationTest(TestCase):
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
-    def test_hot_translate_template_by_url_with_local_import(self):
-        tosca_file = 'https://raw.githubusercontent.com/openstack/' \
-                     'heat-translator/master/translator/tests/data/' \
-                     'tosca_single_instance_wordpress.yaml'
-        hot_file = '../tests/data/hot_output/' \
-                   'hot_single_instance_wordpress.yaml'
-        params = {'db_name': 'wordpress',
-                  'db_user': 'wp_user',
-                  'db_pwd': 'wp_pass',
-                  'db_root_pwd': 'passw0rd',
-                  'db_port': 3366,
-                  'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+# def test_hot_translate_template_by_url_with_local_import(self):
+#     tosca_file = 'https://raw.githubusercontent.com/openstack/' \
+#                  'heat-translator/master/translator/tests/data/' \
+#                  'tosca_single_instance_wordpress.yaml'
+#     hot_file = '../tests/data/hot_output/' \
+#                'hot_single_instance_wordpress.yaml'
+#     params = {'db_name': 'wordpress',
+#               'db_user': 'wp_user',
+#               'db_pwd': 'wp_pass',
+#               'db_root_pwd': 'passw0rd',
+#               'db_port': 3366,
+#               'cpus': 8}
+#     diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+#                                                                hot_file,
+#                                                                params)
+#     self.assertEqual({}, diff, '<difference> : ' +
+#                      json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_hot_translate_template_by_url_with_local_abspath_import(self):
         tosca_file = 'https://raw.githubusercontent.com/openstack/' \
@@ -371,23 +371,23 @@ class ToscaHotTranslationTest(TestCase):
                          'wordpress_with_local_abspath_import.yaml".')
         ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
 
-    def test_hot_translate_template_by_url_with_url_import(self):
-        tosca_url = 'https://raw.githubusercontent.com/openstack/' \
-                    'heat-translator/master/translator/tests/data/' \
-                    'tosca_single_instance_wordpress_with_url_import.yaml'
-        hot_file = '../tests/data/hot_output/' \
-                   'hot_single_instance_wordpress.yaml'
-        params = {'db_name': 'wordpress',
-                  'db_user': 'wp_user',
-                  'db_pwd': 'wp_pass',
-                  'db_root_pwd': 'passw0rd',
-                  'db_port': 3366,
-                  'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_url,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+# def test_hot_translate_template_by_url_with_url_import(self):
+#     tosca_url = 'https://raw.githubusercontent.com/openstack/' \
+#                 'heat-translator/master/translator/tests/data/' \
+#                 'tosca_single_instance_wordpress_with_url_import.yaml'
+#     hot_file = '../tests/data/hot_output/' \
+#                'hot_single_instance_wordpress.yaml'
+#     params = {'db_name': 'wordpress',
+#               'db_user': 'wp_user',
+#               'db_pwd': 'wp_pass',
+#               'db_root_pwd': 'passw0rd',
+#               'db_port': 3366,
+#               'cpus': 8}
+#     diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_url,
+#                                                                hot_file,
+#                                                                params)
+#     self.assertEqual({}, diff, '<difference> : ' +
+#                      json.dumps(diff, indent=4, separators=(', ', ': ')))
 
     def test_translate_hello_world_csar(self):
         tosca_file = '../tests/data/csar_hello_world.zip'

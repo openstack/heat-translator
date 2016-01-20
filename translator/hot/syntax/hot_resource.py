@@ -303,7 +303,7 @@ class HotResource(object):
         raise Exception(_("No translation in TOSCA type {0} for attribute "
                           "{1}").format(self.nodetemplate.type, attribute))
 
-    def _get_tosca_props(self, properties):
+    def get_tosca_props(self):
         tosca_props = {}
         for prop in self.nodetemplate.get_properties_objects():
             if isinstance(prop.value, GetInput):

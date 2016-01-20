@@ -286,35 +286,49 @@ class TranslateNodeTemplates(object):
             inputs = resource.properties.get('input_values')
             if inputs:
                 for name, value in six.iteritems(inputs):
-                    if isinstance(value, GetAttribute):
-                        # for the attribute
-                        # get the proper target type to perform the translation
-                        args = value.result()
-                        target = args[0]
-                        hot_target = self.find_hot_resource(target)
-
-                        inputs[name] = hot_target.get_hot_attribute(args[1],
-                                                                    args)
-                    elif isinstance(value, GetProperty) \
-                        or isinstance(value, GetInput):
-                        inputs[name] = value.result()
-                    # most of artifacts logic should move to the parser
-                    elif isinstance(value, dict) and 'get_artifact' in value:
-                        get_artifact_args = value['get_artifact']
-
-                        hot_target = self._find_hot_resource_for_tosca(
-                            get_artifact_args[0], resource)
-                        artifacts = TranslateNodeTemplates.get_all_artifacts(
-                            hot_target.nodetemplate)
-
-                        if get_artifact_args[1] in artifacts:
-                            artifact = artifacts[get_artifact_args[1]]
-                            if artifact.get('type', None) \
-                                == 'tosca.artifacts.File':
-                                inputs[name] = {'get_file':
-                                                artifact.get('file')}
+                    inputs[name] = self._translate_input(value, resource)
 
         return self.hot_resources
+
+    def _translate_input(self, input_value, resource):
+        get_property_args = None
+        if isinstance(input_value, GetProperty):
+            get_property_args = input_value.args
+        # to remove when the parser is fixed to return GetProperty
+        if isinstance(input_value, dict) and 'get_property' in input_value:
+            get_property_args = input_value['get_property']
+        if get_property_args is not None:
+            hot_target = self._find_hot_resource_for_tosca(
+                get_property_args[0], resource)
+            if hot_target:
+                props = hot_target.get_tosca_props()
+                prop_name = get_property_args[1]
+                if prop_name in props:
+                    return props[prop_name]
+        elif isinstance(input_value, GetAttribute):
+            # for the attribute
+            # get the proper target type to perform the translation
+            args = input_value.result()
+            hot_target = self._find_hot_resource_for_tosca(args[0], resource)
+
+            return hot_target.get_hot_attribute(args[1], args)
+        # most of artifacts logic should move to the parser
+        elif isinstance(input_value, dict) and 'get_artifact' in input_value:
+            get_artifact_args = input_value['get_artifact']
+
+            hot_target = self._find_hot_resource_for_tosca(
+                get_artifact_args[0], resource)
+            artifacts = TranslateNodeTemplates.get_all_artifacts(
+                hot_target.nodetemplate)
+
+            if get_artifact_args[1] in artifacts:
+                artifact = artifacts[get_artifact_args[1]]
+                if artifact.get('type', None) == 'tosca.artifacts.File':
+                    return {'get_file': artifact.get('file')}
+        elif isinstance(input_value, GetInput):
+            return input_value.result()
+
+        return input_value
 
     @staticmethod
     def get_all_artifacts(nodetemplate):
