@@ -112,14 +112,16 @@ class ToscaCompute(HotResource):
             for prop in host_capability.get_properties_objects():
                 host_cap_props[prop.name] = prop.value
             flavor = self._best_flavor(host_cap_props)
+        else:
+            flavor = self.nodetemplate.get_property_value("flavor") or None
         if os_capability:
             for prop in os_capability.get_properties_objects():
                 os_cap_props[prop.name] = prop.value
             image = self._best_image(os_cap_props)
+        else:
+            image = self.nodetemplate.get_property_value("image") or None
         hot_properties['flavor'] = flavor
         hot_properties['image'] = image
-        # TODO(anyone): consider adding the flavor or image as a template
-        # parameter if no match is found.
         return hot_properties
 
     def _check_for_env_variables(self):

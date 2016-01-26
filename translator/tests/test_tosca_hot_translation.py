@@ -501,3 +501,12 @@ class ToscaHotTranslationTest(TestCase):
                          'heat-translator/master/translator/tests/data/'
                          'custom_types/wordpress1.yaml" cannot be accessed.')
         ExceptionCollector.assertExceptionMessage(URLException, expected_msg)
+
+    def test_hot_translate_flavor_image(self):
+        tosca_file = '../tests/data/test_tosca_flavor_and_image.yaml'
+        hot_file = '../tests/data/hot_output/hot_flavor_and_image.yaml'
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   {})
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))

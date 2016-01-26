@@ -1,0 +1,20 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template for deploying a server with custom properties for image and flavor.
+
+node_types:
+  tosca.nodes.nfv.VDU:
+    derived_from: tosca.nodes.Compute
+    properties:
+      image:
+        type: string
+      flavor:
+        type: string
+
+topology_template:
+  node_templates:
+    my_server:
+      type: tosca.nodes.nfv.VDU
+      properties:
+        flavor: m1.medium
+        image: rhel-6.5-test-image
