@@ -576,3 +576,37 @@ class ToscaHotTranslationTest(TestCase):
                                                                    params)
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_custom_networks_nodes_inline(self):
+        tosca_file = '../tests/data/network/' \
+                     'test_tosca_custom_network_nodes_inline.yaml'
+        hot_file = '../tests/data/hot_output/network/' \
+                   'hot_custom_network_nodes.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_custom_networks_nodes_imports(self):
+        tosca_file = '../tests/data/network/' \
+                     'test_tosca_custom_network_nodes_imports.yaml'
+        hot_file = '../tests/data/hot_output/network/' \
+                   'hot_custom_network_nodes.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_nfv_sample(self):
+        tosca_file = '../tests/data/test_tosca_nfv_sample.yaml'
+        hot_file = '../tests/data/hot_output/hot_nfv_sample.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))

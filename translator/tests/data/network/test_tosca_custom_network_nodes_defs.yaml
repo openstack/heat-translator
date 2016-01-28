@@ -1,0 +1,41 @@
+node_types:
+  tosca.nodes.vendor.VDU:
+    derived_from: tosca.nodes.Compute
+    capabilities:
+      virtualbinding:
+        type: tosca.capabilities.vendor.VendorBindable
+
+  tosca.nodes.vendor.CP:
+    derived_from: tosca.nodes.network.Port
+    requirements:
+      - virtualLink:
+          capability: tosca.capabilities.VendorLinkable
+          relationship: tosca.relationships.vendor.VendorLinksTo
+          node: tosca.nodes.vendor.VL
+      - virtualBinding:
+          capability: tosca.capabilities.vendor.VendorBindable
+          node: tosca.nodes.vendor.VDU
+          relationship: tosca.relationships.vendor.VendorBindsTo
+
+  tosca.nodes.vendor.VL:
+    derived_from: tosca.nodes.network.Network
+    capabilities:
+      virtual_linkable:
+        type: tosca.capabilities.vendor.VendorLinkable
+
+relationship_types:
+  tosca.relationships.vendor.VendorLinksTo:
+    derived_from: tosca.relationships.network.LinksTo
+    valid_target_types: [ tosca.capabilities.vendor.VendorLinkable ]
+
+  tosca.relationships.vendor.VendorBindsTo:
+    derived_from: tosca.relationships.network.BindsTo
+    valid_target_types: [ tosca.capabilities.vendor.VendorBindable ]
+
+capability_types:
+  tosca.capabilities.vendor.VendorLinkable:
+    derived_from: tosca.capabilities.network.Linkable
+
+  tosca.capabilities.vendor.VendorBindable:
+    derived_from: tosca.capabilities.network.Bindable
+

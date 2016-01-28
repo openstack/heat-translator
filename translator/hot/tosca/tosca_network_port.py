@@ -15,6 +15,8 @@ from translator.hot.syntax.hot_resource import HotResource
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaNetworkPort'
+TOSCA_LINKS_TO = 'tosca.relationships.network.LinksTo'
+TOSCA_BINDS_TO = 'tosca.relationships.network.BindsTo'
 
 
 class ToscaNetworkPort(HotResource):
@@ -69,48 +71,45 @@ class ToscaNetworkPort(HotResource):
             else:
                 port_props[key] = value
 
-        # Get the nodetype relationships
-        relationships = {relation.type: node for relation, node in
-                         self.nodetemplate.relationships.items()}
-
-        # Check for LinksTo relations. If found add a network property with
-        # the network name into the port
         links_to = None
-        if 'tosca.relationships.network.LinksTo' in relationships:
-            links_to = relationships['tosca.relationships.network.LinksTo']
-
-            network_resource = None
-            for hot_resource in self.depends_on_nodes:
-                if links_to.name == hot_resource.name:
-                    network_resource = hot_resource
-                    self.depends_on.remove(hot_resource)
-                    break
-
-            if network_resource.existing_resource_id:
-                port_props['network'] =\
-                    str(network_resource.existing_resource_id)
-            else:
-                port_props['network'] = '{ get_resource: %s }'\
-                    % (links_to.name)
-
-        # Check for BindsTo relationship. If found add network to the networks
-        # property of the corresponding compute resource
         binds_to = None
-        if 'tosca.relationships.network.BindsTo' in relationships:
-            binds_to = relationships['tosca.relationships.network.BindsTo']
-            compute_resource = None
-            for hot_resource in self.depends_on_nodes:
-                if binds_to.name == hot_resource.name:
-                    compute_resource = hot_resource
-                    self.depends_on.remove(hot_resource)
-                    break
-            if compute_resource:
-                port_resources = compute_resource.assoc_port_resources
-                self._insert_sorted_resource(port_resources, self)
-                # TODO(sdmonov): Using generate networks every time we add a
-                # network is not the fastest way to do the things. We should
-                # do this only once at the end.
-                networks = self._generate_networks_for_compute(port_resources)
-                compute_resource.properties['networks'] = networks
+        for rel, node in self.nodetemplate.relationships.items():
+            # Check for LinksTo relations. If found add a network property with
+            # the network name into the port
+            if not links_to and rel.is_derived_from(TOSCA_LINKS_TO):
+                links_to = node
+
+                network_resource = None
+                for hot_resource in self.depends_on_nodes:
+                    if links_to.name == hot_resource.name:
+                        network_resource = hot_resource
+                        self.depends_on.remove(hot_resource)
+                        break
+
+                if network_resource.existing_resource_id:
+                    port_props['network'] =\
+                        str(network_resource.existing_resource_id)
+                else:
+                    port_props['network'] = '{ get_resource: %s }'\
+                        % (links_to.name)
+
+            # Check for BindsTo relationship. If found add network to the
+            # network property of the corresponding compute resource
+            elif not binds_to and rel.is_derived_from(TOSCA_BINDS_TO):
+                binds_to = node
+                compute_resource = None
+                for hot_resource in self.depends_on_nodes:
+                    if binds_to.name == hot_resource.name:
+                        compute_resource = hot_resource
+                        self.depends_on.remove(hot_resource)
+                        break
+                if compute_resource:
+                    port_rsrcs = compute_resource.assoc_port_resources
+                    self._insert_sorted_resource(port_rsrcs, self)
+                    # TODO(sdmonov): Using generate networks every time we add
+                    # a network is not the fastest way to do the things. We
+                    # should do this only once at the end.
+                    networks = self._generate_networks_for_compute(port_rsrcs)
+                    compute_resource.properties['networks'] = networks
 
         self.properties = port_props

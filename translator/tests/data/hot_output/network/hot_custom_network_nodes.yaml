@@ -1,0 +1,33 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template for deploying a single server with predefined properties.
+
+parameters: {}
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      image: rhel-6.5-test-image
+      networks:
+      - port: { get_resource: CP1 }
+      user_data_format: SOFTWARE_CONFIG
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: VL1 }
+  VL1:
+    type: OS::Neutron::Net
+  VL1_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      ip_version: 4
+      allocation_pools:
+      - end: 192.168.0.200
+        start: 192.168.0.50
+      gateway_ip: 192.168.0.1
+      cidr: 192.168.0.0/24
+      network: { get_resource: VL1 }
+outputs: {}
+
