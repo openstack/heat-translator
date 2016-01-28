@@ -251,3 +251,35 @@ class ToscaComputeTest(TestCase):
             self._tosca_compute_test(
                 tpl_snippet,
                 expectedprops)
+
+    @patch('requests.post')
+    @patch('requests.get')
+    @patch('os.getenv')
+    def test_node_compute_without_nova_flavor(self, mock_os_getenv,
+                                              mock_get, mock_post):
+        tpl_snippet = '''
+        node_templates:
+          server:
+            type: tosca.nodes.Compute
+            capabilities:
+              host:
+                properties:
+                  num_cpus: 1
+                  disk_size: 1 GB
+                  mem_size: 1 GB
+        '''
+        with patch('translator.hot.tosca.tosca_compute.ToscaCompute.'
+                   '_check_for_env_variables') as mock_check_env:
+            mock_check_env.return_value = True
+            mock_os_getenv.side_effect = ['demo', 'demo',
+                                          'demo', 'http://abc.com/5000/']
+            mock_ks_response = mock.MagicMock()
+            mock_ks_content = {}
+            mock_ks_response.content = json.dumps(mock_ks_content)
+            expectedprops = {'key_name': 'userkey',
+                             'flavor': 'm1.small',
+                             'user_data_format': 'SOFTWARE_CONFIG',
+                             'image': None}
+            self._tosca_compute_test(
+                tpl_snippet,
+                expectedprops)

@@ -20,6 +20,7 @@ from toscaparser.utils.gettextutils import _
 from toscaparser.utils.validateutils import TOSCAVersionProperty
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
+
 log = logging.getLogger('heat-translator')
 
 
@@ -145,33 +146,40 @@ class ToscaCompute(HotResource):
             }
         }
         headers = {'Content-Type': 'application/json'}
-        keystone_response = requests.post(auth_url + '/tokens',
-                                          data=json.dumps(auth_dict),
-                                          headers=headers)
-        if keystone_response.status_code != 200:
+        try:
+            keystone_response = requests.post(auth_url + '/tokens',
+                                              data=json.dumps(auth_dict),
+                                              headers=headers)
+            if keystone_response.status_code != 200:
+                return None
+            access_dict = json.loads(keystone_response.content)
+            access_token = access_dict['access']['token']['id']
+            service_catalog = access_dict['access']['serviceCatalog']
+            nova_url = ''
+            for service in service_catalog:
+                if service['type'] == 'compute':
+                    nova_url = service['endpoints'][0]['publicURL']
+            if not nova_url:
+                return None
+            nova_response = requests.get(nova_url + '/flavors/detail',
+                                         headers={'X-Auth-Token':
+                                                  access_token})
+            if nova_response.status_code != 200:
+                return None
+            flavors = json.loads(nova_response.content)['flavors']
+            flavor_dict = dict()
+            for flavor in flavors:
+                flavor_name = str(flavor['name'])
+                flavor_dict[flavor_name] = {
+                    'mem_size': flavor['ram'],
+                    'disk_size': flavor['disk'],
+                    'num_cpus': flavor['vcpus'],
+                }
+        except Exception as e:
+            # Handles any exception coming from openstack
+            log.warn(_('Choosing predefined flavors since received '
+                       'Openstack Exception: %s') % str(e))
             return None
-        access_dict = json.loads(keystone_response.content)
-        access_token = access_dict['access']['token']['id']
-        service_catalog = access_dict['access']['serviceCatalog']
-        nova_url = ''
-        for service in service_catalog:
-            if service['type'] == 'compute':
-                nova_url = service['endpoints'][0]['publicURL']
-        if not nova_url:
-            return None
-        nova_response = requests.get(nova_url + '/flavors/detail',
-                                     headers={'X-Auth-Token': access_token})
-        if nova_response.status_code != 200:
-            return None
-        flavors = json.loads(nova_response.content)['flavors']
-        flavor_dict = dict()
-        for flavor in flavors:
-            flavor_name = str(flavor['name'])
-            flavor_dict[flavor_name] = {
-                'mem_size': flavor['ram'],
-                'disk_size': flavor['disk'],
-                'num_cpus': flavor['vcpus'],
-            }
         return flavor_dict
 
     def _best_flavor(self, properties):
