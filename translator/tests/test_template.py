@@ -27,15 +27,15 @@ class ToscaMongoNodejsTest(TestCase):
     tosca = ToscaTemplate(tosca_tpl, parsed_params)
 
     def test_relationship_def(self):
-        expected_relationship = ['tosca.relationships.HostedOn']
-        expected_capabilities_names = ['node']
+        expected_relationship = 'tosca.relationships.HostedOn'
+        expected_capabilities_names = 'node'
         for tpl in self.tosca.nodetemplates:
             if tpl.name == 'nodejs':
                 def_keys = tpl.type_definition.relationship.keys()
-                self.assertEqual(
+                self.assertIn(
                     expected_relationship,
                     sorted([x.type for x in def_keys]))
-                self.assertEqual(
+                self.assertIn(
                     expected_capabilities_names,
                     sorted([x.capability_name for x in def_keys]))
 

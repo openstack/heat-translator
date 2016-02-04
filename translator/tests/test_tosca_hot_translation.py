@@ -484,7 +484,8 @@ class ToscaHotTranslationTest(TestCase):
             ValidationError,
             TranslationUtils.compare_tosca_translation_with_hot,
             tosca_file, hot_file, params)
-        expected_msg = _('Import "Definitions/wordpress.yaml" is not valid.')
+        expected_msg = _('Import '
+                         '"Invalid_import_path/wordpress.yaml" is not valid.')
         ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
 
     def test_translate_csar_wordpress_invalid_script_url(self):
