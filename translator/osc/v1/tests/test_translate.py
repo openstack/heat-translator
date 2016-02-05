@@ -70,7 +70,7 @@ class TestTranslateTemplate(testtools.TestCase):
         parsed_args.parameter = params
         self.cmd.take_action(parsed_args)
         expected_output = YamlUtils.get_dict(hot_file)
-        mock_stdout_yaml = "\n".join(mock_stdout.getvalue().split("\n")[1:])
+        mock_stdout_yaml = "\n".join(mock_stdout.getvalue().split("\n"))
         actual_output = toscaparser.utils.yamlparser.simple_parse(
             mock_stdout_yaml)
         self.assertEqual({}, CompareUtils.diff_dicts(
@@ -431,7 +431,8 @@ class TestTranslateTemplate(testtools.TestCase):
         tosca_file = utils.get_template_path(
             "csar_wordpress_invalid_import_path.zip")
         hot_file = ''
-        expected_msg = _('Import "Definitions/wordpress.yaml" is not valid.')
+        expected_msg = _('Import '
+                         '"Invalid_import_path/wordpress.yaml" is not valid.')
         self._check_error(tosca_file, hot_file, {}, ValidationError,
                           expected_msg, ImportError)
 
