@@ -64,6 +64,9 @@ class TranslatorShell(object):
             raise ValueError(msg)
 
     def main(self, args):
+        # TODO(spzala): set self.deploy based on passed args once support for
+        # --deploy argument is enabled.
+        self.deploy = False
         self._validate(args)
         path = args[0].split('--template-file=')[1]
         # e.g. --template_file=translator/tests/data/tosca_helloworld.yaml
@@ -151,7 +154,7 @@ class TranslatorShell(object):
         if sourcetype == "tosca":
             log.debug(_('Loading the tosca template.'))
             tosca = ToscaTemplate(path, parsed_params, a_file)
-            translator = TOSCATranslator(tosca, parsed_params)
+            translator = TOSCATranslator(tosca, parsed_params, self.deploy)
             log.debug(_('Translating the tosca template.'))
             output = translator.translate()
         return output

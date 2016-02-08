@@ -61,18 +61,19 @@ class TranslateInputs(object):
 
     '''Translate TOSCA Inputs to Heat Parameters.'''
 
-    def __init__(self, inputs, parsed_params):
+    def __init__(self, inputs, parsed_params, deploy=None):
         self.inputs = inputs
         self.parsed_params = parsed_params
+        self.deploy = deploy
 
     def translate(self):
         return self._translate_inputs()
 
     def _translate_inputs(self):
         hot_inputs = []
-        hot_default = None
         log.info(_('Translating TOSCA input type to HOT input type.'))
         for input in self.inputs:
+            hot_default = None
             hot_input_type = TOSCA_TO_HOT_INPUT_TYPES[input.type]
 
             if input.name in self.parsed_params:
@@ -82,10 +83,11 @@ class TranslateInputs(object):
                 hot_default = DataEntity.validate_datatype(input.type,
                                                            input.default)
             else:
-                msg = _("Need to specify a value "
-                        "for input {0}.").format(input.name)
-                log.error(msg)
-                raise Exception(msg)
+                if self.deploy:
+                    msg = _("Need to specify a value "
+                            "for input {0}.").format(input.name)
+                    log.error(msg)
+                    raise Exception(msg)
             if input.type == "scalar-unit.size":
                 # Assumption here is to use this scalar-unit.size for size of
                 # cinder volume in heat templates and will be in GB.
@@ -110,7 +112,8 @@ class TranslateInputs(object):
             hot_constraints = []
             if input.constraints:
                 for constraint in input.constraints:
-                    constraint.validate(hot_default)
+                    if hot_default:
+                        constraint.validate(hot_default)
                     hc, hvalue = self._translate_constraints(
                         constraint.constraint_key, constraint.constraint_value)
                     hot_constraints.append({hc: hvalue})
