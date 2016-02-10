@@ -1,0 +1,28 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template for deploying a single server with predefined properties.
+
+parameters:
+  receiver_port:
+    type: string
+    description: Port to be used for receiving messages.
+    default: 1
+resources:
+  my_server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      image: rhel-6.5-test-image
+      key_name: userkey
+      scheduler_hints:
+        group:
+          get_resource: my_compute_placement_policy
+      user_data_format: SOFTWARE_CONFIG
+  my_compute_placement_policy:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: my_compute_placement_policy
+      policies:
+      - affinity
+outputs: {}

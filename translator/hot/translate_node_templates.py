@@ -145,6 +145,7 @@ class TranslateNodeTemplates(object):
         # mapping between TOSCA nodetemplate and HOT resource
         log.debug(_('Mapping between TOSCA nodetemplate and HOT resource.'))
         self.hot_lookup = {}
+        self.policies = self.tosca.topology_template.policies
 
     def translate(self):
         return self._translate_nodetemplates()
@@ -158,7 +159,10 @@ class TranslateNodeTemplates(object):
         for depend_on in resource.depends_on_nodes:
             self._recursive_handle_properties(depend_on)
 
-        resource.handle_properties()
+        if resource.type == "OS::Nova::ServerGroup":
+            resource.handle_properties(self.hot_resources)
+        else:
+            resource.handle_properties()
 
     def _translate_nodetemplates(self):
 
@@ -205,6 +209,11 @@ class TranslateNodeTemplates(object):
                         value = {"get_param": "key_name"}
                         prop = Property(i.name, value, schema)
                         node._properties.append(prop)
+
+        for policy in self.policies:
+            policy_type = policy.type_definition
+            policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
+            self.hot_resources.append(policy_node)
 
         # Handle life cycle operations: this may expand each node
         # into multiple HOT resources and may change their name
