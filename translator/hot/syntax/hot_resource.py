@@ -15,6 +15,7 @@ from collections import OrderedDict
 import logging
 import six
 
+from toscaparser.elements.interfaces import InterfacesDef
 from toscaparser.functions import GetInput
 from toscaparser.nodetemplate import NodeTemplate
 from toscaparser.utils.gettextutils import _
@@ -81,23 +82,23 @@ class HotResource(object):
         deploy_lookup = {}
         # TODO(anyone):  sequence for life cycle needs to cover different
         # scenarios and cannot be fixed or hard coded here
-        interfaces_deploy_sequence = ['create', 'configure', 'start']
+        operations_deploy_sequence = ['create', 'configure', 'start']
 
-        # create HotResource for each interface used for deployment:
+        operations = HotResource._get_all_operations(self.nodetemplate)
+
+        # create HotResource for each operation used for deployment:
         # create, start, configure
-        # ignore the other interfaces
+        # ignore the other operations
         # observe the order:  create, start, configure
-        # use the current HotResource for the first interface in this order
+        # use the current HotResource for the first operation in this order
 
         # hold the original name since it will be changed during
         # the transformation
         node_name = self.name
         reserve_current = 'NONE'
-        interfaces_actual = []
-        for interface in self.nodetemplate.interfaces:
-            interfaces_actual.append(interface.name)
-        for operation in interfaces_deploy_sequence:
-            if operation in interfaces_actual:
+
+        for operation in operations_deploy_sequence:
+            if operation in operations.keys():
                 reserve_current = operation
                 break
 
@@ -106,28 +107,28 @@ class HotResource(object):
         hosting_server = None
         if self.nodetemplate.requirements is not None:
             hosting_server = self._get_hosting_server()
-        for interface in self.nodetemplate.interfaces:
-            if interface.name in interfaces_deploy_sequence:
-                config_name = node_name + '_' + interface.name + '_config'
-                deploy_name = node_name + '_' + interface.name + '_deploy'
+        for operation in operations.values():
+            if operation.name in operations_deploy_sequence:
+                config_name = node_name + '_' + operation.name + '_config'
+                deploy_name = node_name + '_' + operation.name + '_deploy'
                 hot_resources.append(
                     HotResource(self.nodetemplate,
                                 config_name,
                                 'OS::Heat::SoftwareConfig',
                                 {'config':
-                                    {'get_file': interface.implementation}}))
+                                    {'get_file': operation.implementation}}))
 
                 # hosting_server is None if requirements is None
                 hosting_on_server = (hosting_server.name if
                                      hosting_server else None)
-                if interface.name == reserve_current:
+                if operation.name == reserve_current:
                     deploy_resource = self
                     self.name = deploy_name
                     self.type = 'OS::Heat::SoftwareDeployment'
                     self.properties = {'config': {'get_resource': config_name},
                                        'server': {'get_resource':
                                                   hosting_on_server}}
-                    deploy_lookup[interface.name] = self
+                    deploy_lookup[operation.name] = self
                 else:
                     sd_config = {'config': {'get_resource': config_name},
                                  'server': {'get_resource':
@@ -138,21 +139,21 @@ class HotResource(object):
                                     'OS::Heat::SoftwareDeployment',
                                     sd_config)
                     hot_resources.append(deploy_resource)
-                    deploy_lookup[interface.name] = deploy_resource
-                lifecycle_inputs = self._get_lifecycle_inputs(interface)
+                    deploy_lookup[operation.name] = deploy_resource
+                lifecycle_inputs = self._get_lifecycle_inputs(operation)
                 if lifecycle_inputs:
                     deploy_resource.properties['input_values'] = \
                         lifecycle_inputs
 
         # Add dependencies for the set of HOT resources in the sequence defined
-        # in interfaces_deploy_sequence
+        # in operations_deploy_sequence
         # TODO(anyone): find some better way to encode this implicit sequence
         group = {}
         for op, hot in deploy_lookup.items():
             # position to determine potential preceding nodes
-            op_index = interfaces_deploy_sequence.index(op)
+            op_index = operations_deploy_sequence.index(op)
             for preceding_op in \
-                    reversed(interfaces_deploy_sequence[:op_index]):
+                    reversed(operations_deploy_sequence[:op_index]):
                 preceding_hot = deploy_lookup.get(preceding_op)
                 if preceding_hot:
                     hot.depends_on.append(preceding_hot)
@@ -239,15 +240,15 @@ class HotResource(object):
 
         return {self.name: resource_sections}
 
-    def _get_lifecycle_inputs(self, interface):
+    def _get_lifecycle_inputs(self, operation):
         # check if this lifecycle operation has input values specified
         # extract and convert to HOT format
-        if isinstance(interface.value, six.string_types):
-            # the interface has a static string
+        if isinstance(operation.value, six.string_types):
+            # the operation has a static string
             return {}
         else:
-            # the interface is a dict {'implemenation': xxx, 'input': yyy}
-            inputs = interface.value.get('inputs')
+            # the operation is a dict {'implemenation': xxx, 'input': yyy}
+            inputs = operation.value.get('inputs')
             deploy_inputs = {}
             if inputs:
                 for name, value in six.iteritems(inputs):
@@ -310,6 +311,39 @@ class HotResource(object):
             else:
                 tosca_props[prop.name] = prop.value
         return tosca_props
+
+    @staticmethod
+    def _get_all_operations(node):
+        operations = {}
+        for operation in node.interfaces:
+            operations[operation.name] = operation
+
+        node_type = node.type_definition
+
+        while True:
+            type_operations = HotResource._get_interface_operations_from_type(
+                node_type, node, 'Standard')
+            type_operations.update(operations)
+            operations = type_operations
+
+            if node_type.parent_type is not None:
+                node_type = node_type.parent_type
+            else:
+                return operations
+
+    @staticmethod
+    def _get_interface_operations_from_type(node_type, node, lifecycle_name):
+        operations = {}
+        if node_type.interfaces and lifecycle_name in node_type.interfaces:
+            for name, elems in node_type.interfaces[lifecycle_name].items():
+                # ignore empty operations (only type)
+                # ignore global interface inputs,
+                # concrete inputs are on the operations themselves
+                if name != 'type' and name != 'inputs':
+                    operations[name] = InterfacesDef(node_type,
+                                                     lifecycle_name,
+                                                     node, name, elems)
+        return operations
 
     @staticmethod
     def get_base_type(node_type):

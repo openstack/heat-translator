@@ -1,0 +1,34 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: TOSCA template to test custom type with an interface defined on it
+
+node_types:
+  tosca.nodes.CustomWebServer:
+    derived_from: tosca.nodes.WebServer
+    interfaces:
+      Standard:
+        create:
+          implementation: install.sh
+
+topology_template:
+  node_templates:
+
+    customwebserver:
+      type: tosca.nodes.CustomWebServer
+      requirements:
+        - host: server
+
+    server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 1
+           mem_size: 1 GB
+        os:
+          properties:
+            type: Linux
+            distribution: Ubuntu
+            version: 12.04
+            architecture: x86_64
+
