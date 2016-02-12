@@ -287,12 +287,38 @@ class TranslateNodeTemplates(object):
 
                         inputs[name] = hot_target.get_hot_attribute(args[1],
                                                                     args)
-                    else:
-                        if isinstance(value, GetProperty) or \
-                                isinstance(value, GetInput):
-                            inputs[name] = value.result()
+                    elif isinstance(value, GetProperty) \
+                        or isinstance(value, GetInput):
+                        inputs[name] = value.result()
+                    # most of artifacts logic should move to the parser
+                    elif isinstance(value, dict) and 'get_artifact' in value:
+                        get_artifact_args = value['get_artifact']
+
+                        hot_target = self._find_hot_resource_for_tosca(
+                            get_artifact_args[0], resource)
+                        artifacts = TranslateNodeTemplates.get_all_artifacts(
+                            hot_target.nodetemplate)
+
+                        if get_artifact_args[1] in artifacts:
+                            artifact = artifacts[get_artifact_args[1]]
+                            if artifact.get('type', None) \
+                                == 'tosca.artifacts.File':
+                                inputs[name] = {'get_file':
+                                                artifact.get('file')}
 
         return self.hot_resources
+
+    @staticmethod
+    def get_all_artifacts(nodetemplate):
+        artifacts = nodetemplate.type_definition.get_value('artifacts',
+                                                           parent=True)
+        if not artifacts:
+            artifacts = {}
+        tpl_artifacts = nodetemplate.entity_tpl.get('artifacts')
+        if tpl_artifacts:
+            artifacts.update(tpl_artifacts)
+
+        return artifacts
 
     def _get_attachment_node(self, node, suffix, volume_name):
         attach = False
@@ -354,10 +380,20 @@ class TranslateNodeTemplates(object):
             if node.name == tosca_name:
                 return node
 
-    def _find_hot_resource_for_tosca(self, tosca_name):
+    def _find_hot_resource_for_tosca(self, tosca_name,
+                                     current_hot_resource=None):
+        if tosca_name == 'SELF':
+            return current_hot_resource
+        if tosca_name == 'HOST' and current_hot_resource is not None:
+            for req in current_hot_resource.nodetemplate.requirements:
+                if 'host' in req:
+                    return self._find_hot_resource_for_tosca(req['host'])
+
         for node in self.nodetemplates:
             if node.name == tosca_name:
                 return self.hot_lookup[node]
+
+        return None
 
     def _create_connect_configs(self, source_node, target_name,
                                 connect_interfaces):
