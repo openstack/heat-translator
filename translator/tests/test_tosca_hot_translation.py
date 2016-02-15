@@ -544,3 +544,15 @@ class ToscaHotTranslationTest(TestCase):
                                                                    params)
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_without_tosca_os_version(self):
+        tosca_file = '../tests/data/' \
+            'test_single_server_without_optional_version_prop.yaml'
+        hot_file = '../tests/data/hot_output/' \
+            'hot_single_server_without_tosca_os_version.yaml'
+        params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))

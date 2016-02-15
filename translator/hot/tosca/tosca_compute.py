@@ -17,7 +17,6 @@ import os
 import requests
 
 from toscaparser.utils.gettextutils import _
-from toscaparser.utils.validateutils import TOSCAVersionProperty
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
 
@@ -236,7 +235,6 @@ class ToscaCompute(HotResource):
                                                 'distribution',
                                                 distribution)
         version = properties.get('version')
-        version = TOSCAVersionProperty(version).get_version()
         match_version = self._match_images(match_distribution, IMAGES,
                                            'version', version)
 

@@ -1,0 +1,18 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA simple profile that just defines a single compute instance and selects a
+  flavor and host Operating System for the Compute node. Note, this is just a test
+  template showing Compute without optional 'version' property of OS capability.
+  In general, you should have version to narrow down your image selection.
+
+parameters: {}
+resources:
+  my_server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      image: rhel-6.5-test-image
+      key_name: userkey
+      user_data_format: SOFTWARE_CONFIG
+outputs: {}
