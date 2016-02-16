@@ -11,14 +11,21 @@
 #    under the License.
 
 
+import ast
+import json
 import logging
 import logging.config
 import os
+import prettytable
+import requests
 import sys
+import uuid
+import yaml
 
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 from toscaparser.utils.urlutils import UrlUtils
+from translator.common import utils
 from translator.hot.tosca_translator import TOSCATranslator
 
 """
@@ -94,6 +101,8 @@ class TranslatorShell(object):
                 if "--output-file=" in arg:
                     output = arg
                     output_file = output.split('--output-file=')[1]
+                if "--deploy" in arg:
+                    self.deploy = True
             if parameters:
                 parsed_params = self._parse_parameters(parameters)
         a_file = os.path.isfile(path)
@@ -115,6 +124,12 @@ class TranslatorShell(object):
                 heat_tpl = self._translate(template_type, path, parsed_params,
                                            a_file)
                 if heat_tpl:
+                    if utils.check_for_env_variables() and self.deploy:
+                        try:
+                            heatclient(heat_tpl, parsed_params)
+                        except Exception:
+                            log.error(_("Unable to launch the heat stack"))
+
                     self._write_output(heat_tpl, output_file)
         else:
             msg = _("The path %(path)s is not a valid file or URL.") % {
@@ -169,6 +184,48 @@ class TranslatorShell(object):
                     f.write(output)
             else:
                 print(output)
+
+
+def heatclient(output, params):
+    try:
+        access_dict = utils.get_ks_access_dict()
+        endpoint = utils.get_url_for(access_dict, 'orchestration')
+        token = utils.get_token_id(access_dict)
+    except Exception as e:
+        log.error(e)
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Auth-Token': token
+    }
+    heat_stack_name = "heat_" + str(uuid.uuid4()).split("-")[0]
+    output = yaml.load(output)
+    output['heat_template_version'] = str(output['heat_template_version'])
+    data = {
+        'stack_name': heat_stack_name,
+        'template': output,
+        'parameters': params
+    }
+    response = requests.post(endpoint + '/stacks',
+                             data=json.dumps(data),
+                             headers=headers)
+    content = ast.literal_eval(response._content)
+    if response.status_code == 201:
+        stack_id = content["stack"]["id"]
+        get_url = endpoint + '/stacks/' + heat_stack_name + '/' + stack_id
+        get_stack_response = requests.get(get_url,
+                                          headers=headers)
+        stack_details = json.loads(get_stack_response.content)["stack"]
+        col_names = ["id", "stack_name", "stack_status", "creation_time",
+                     "updated_time"]
+        pt = prettytable.PrettyTable(col_names)
+        stack_list = []
+        for col in col_names:
+            stack_list.append(stack_details[col])
+        pt.add_row(stack_list)
+        print(pt)
+    else:
+        err_msg = content["error"]["message"]
+        log(_("Unable to deploy to Heat\n%s\n") % err_msg)
 
 
 def main(args=None):

@@ -13,7 +13,6 @@
 
 import json
 import logging
-import os
 import requests
 
 from toscaparser.utils.gettextutils import _
@@ -25,9 +24,6 @@ log = logging.getLogger('heat-translator')
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaCompute'
-
-# Required environment variables to create novaclient object.
-ENV_VARIABLES = ['OS_AUTH_URL', 'OS_PASSWORD', 'OS_USERNAME', 'OS_TENANT_NAME']
 
 # A design issue to be resolved is how to translate the generic TOSCA server
 # properties to OpenStack flavors and images.  At the Atlanta design summit,
@@ -125,41 +121,15 @@ class ToscaCompute(HotResource):
         hot_properties['image'] = image
         return hot_properties
 
-    def _check_for_env_variables(self):
-        return set(ENV_VARIABLES) < set(os.environ.keys())
-
     def _create_nova_flavor_dict(self):
         '''Populates and returns the flavors dict using Nova ReST API'''
-
-        tenant_name = os.getenv('OS_TENANT_NAME')
-        username = os.getenv('OS_USERNAME')
-        password = os.getenv('OS_PASSWORD')
-        auth_url = os.getenv('OS_AUTH_URL')
-
-        auth_dict = {
-            "auth": {
-                "tenantName": tenant_name,
-                "passwordCredentials": {
-                    "username": username,
-                    "password": password
-                }
-            }
-        }
-        headers = {'Content-Type': 'application/json'}
         try:
-            keystone_response = requests.post(auth_url + '/tokens',
-                                              data=json.dumps(auth_dict),
-                                              headers=headers)
-            if keystone_response.status_code != 200:
+            access_dict = translator.common.utils.get_ks_access_dict()
+            access_token = translator.common.utils.get_token_id(access_dict)
+            if access_token is None:
                 return None
-            access_dict = json.loads(keystone_response.content)
-            access_token = access_dict['access']['token']['id']
-            service_catalog = access_dict['access']['serviceCatalog']
-            nova_url = ''
-            for service in service_catalog:
-                if service['type'] == 'compute':
-                    nova_url = service['endpoints'][0]['publicURL']
-                    break
+            nova_url = translator.common.utils.get_url_for(access_dict,
+                                                           'compute')
             if not nova_url:
                 return None
             nova_response = requests.get(nova_url + '/flavors/detail',
@@ -187,7 +157,7 @@ class ToscaCompute(HotResource):
         log.info(_('Choosing the best flavor for given attributes.'))
         # Check whether user exported all required environment variables.
         flavors = FLAVORS
-        if self._check_for_env_variables():
+        if translator.common.utils.check_for_env_variables():
             resp = self._create_nova_flavor_dict()
             if resp:
                 flavors = resp

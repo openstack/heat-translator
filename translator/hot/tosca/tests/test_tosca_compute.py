@@ -212,10 +212,12 @@ class ToscaComputeTest(TestCase):
                   disk_size: 1 GB
                   mem_size: 1 GB
         '''
-        with patch('translator.hot.tosca.tosca_compute.ToscaCompute.'
-                   '_check_for_env_variables') as mock_check_env:
+        with patch('translator.common.utils.'
+                   'check_for_env_variables') as mock_check_env:
             mock_check_env.return_value = True
             mock_os_getenv.side_effect = ['demo', 'demo',
+                                          'demo', 'http://abc.com/5000/',
+                                          'demo', 'demo',
                                           'demo', 'http://abc.com/5000/']
             mock_ks_response = mock.MagicMock()
             mock_ks_response.status_code = 200
@@ -268,8 +270,8 @@ class ToscaComputeTest(TestCase):
                   disk_size: 1 GB
                   mem_size: 1 GB
         '''
-        with patch('translator.hot.tosca.tosca_compute.ToscaCompute.'
-                   '_check_for_env_variables') as mock_check_env:
+        with patch('translator.common.utils.'
+                   'check_for_env_variables') as mock_check_env:
             mock_check_env.return_value = True
             mock_os_getenv.side_effect = ['demo', 'demo',
                                           'demo', 'http://abc.com/5000/']

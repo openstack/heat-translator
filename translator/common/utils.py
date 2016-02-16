@@ -11,11 +11,13 @@
 #    under the License.
 
 
+import json
 import logging
 import math
 import numbers
 import os
 import re
+import requests
 from six.moves.urllib.parse import urlparse
 import yaml
 
@@ -24,6 +26,9 @@ import toscaparser.utils.yamlparser
 
 YAML_ORDER_PARSER = toscaparser.utils.yamlparser.simple_ordered_parse
 log = logging.getLogger('heat-translator')
+
+# Required environment variables to create openstackclient object.
+ENV_VARIABLES = ['OS_AUTH_URL', 'OS_PASSWORD', 'OS_USERNAME', 'OS_TENANT_NAME']
 
 
 class MemoryUnit(object):
@@ -263,3 +268,52 @@ def str_to_num(value):
         return int(value)
     except ValueError:
         return float(value)
+
+
+def check_for_env_variables():
+    return set(ENV_VARIABLES) < set(os.environ.keys())
+
+
+def get_ks_access_dict():
+    tenant_name = os.getenv('OS_TENANT_NAME')
+    username = os.getenv('OS_USERNAME')
+    password = os.getenv('OS_PASSWORD')
+    auth_url = os.getenv('OS_AUTH_URL')
+
+    auth_dict = {
+        "auth": {
+            "tenantName": tenant_name,
+            "passwordCredentials": {
+                "username": username,
+                "password": password
+            }
+        }
+    }
+    headers = {'Content-Type': 'application/json'}
+    try:
+        keystone_response = requests.post(auth_url + '/tokens',
+                                          data=json.dumps(auth_dict),
+                                          headers=headers)
+        if keystone_response.status_code != 200:
+            return None
+        return json.loads(keystone_response.content)
+    except Exception:
+        return None
+
+
+def get_url_for(access_dict, service_type):
+    if access_dict is None:
+        return None
+    service_catalog = access_dict['access']['serviceCatalog']
+    service_url = ''
+    for service in service_catalog:
+        if service['type'] == service_type:
+            service_url = service['endpoints'][0]['publicURL']
+            break
+    return service_url
+
+
+def get_token_id(access_dict):
+    if access_dict is None:
+        return None
+    return access_dict['access']['token']['id']
