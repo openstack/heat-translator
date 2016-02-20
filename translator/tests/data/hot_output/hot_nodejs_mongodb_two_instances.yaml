@@ -157,7 +157,6 @@ resources:
     properties:
       flavor: m1.medium
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
   app_server:
@@ -165,7 +164,6 @@ resources:
     properties:
       flavor: m1.medium
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
 outputs:

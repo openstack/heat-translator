@@ -15,7 +15,6 @@ resources:
     properties:
       flavor: m1.small
       image: cirros-0.3.2-x86_64-uec
-      key_name: userkey
       networks:
       - port: { get_resource: my_port }
       user_data_format: SOFTWARE_CONFIG

@@ -23,7 +23,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-12.04-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
 outputs:

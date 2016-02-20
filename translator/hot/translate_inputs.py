@@ -14,6 +14,7 @@
 import logging
 from toscaparser.dataentity import DataEntity
 from toscaparser.elements.scalarunit import ScalarUnit_Size
+from toscaparser.parameters import Input
 from toscaparser.utils.gettextutils import _
 from toscaparser.utils.validateutils import TOSCAVersionProperty
 from translator.hot.syntax.hot_parameter import HotParameter
@@ -71,6 +72,14 @@ class TranslateInputs(object):
 
     def _translate_inputs(self):
         hot_inputs = []
+        if 'key_name' in self.parsed_params and 'key_name' not in self.inputs:
+            name = 'key_name'
+            type = 'string'
+            default = self.parsed_params[name]
+            schema_dict = {'type': type, 'default': default}
+            input = Input(name, schema_dict)
+            self.inputs.append(input)
+
         log.info(_('Translating TOSCA input type to HOT input type.'))
         for input in self.inputs:
             hot_default = None

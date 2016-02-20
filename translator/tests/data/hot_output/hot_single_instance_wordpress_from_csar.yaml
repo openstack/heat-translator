@@ -186,7 +186,6 @@ resources:
     properties:
       flavor: m1.xlarge
       image: fedora-amd64-heat-config
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
 outputs:

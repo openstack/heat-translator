@@ -19,6 +19,7 @@ import six
 from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
 from toscaparser.functions import GetProperty
+from toscaparser.properties import Property
 from toscaparser.relationship_template import RelationshipTemplate
 from toscaparser.utils.gettextutils import _
 from translator.common.exception import ToscaClassAttributeError
@@ -197,6 +198,13 @@ class TranslateNodeTemplates(object):
                                                                 volume_name)
                     if attachment_node:
                         self.hot_resources.append(attachment_node)
+                for i in self.tosca.inputs:
+                    if (i.name == 'key_name' and
+                            node.get_property_value('key_name') is None):
+                        schema = {'type': i.type, 'default': i.default}
+                        value = {"get_param": "key_name"}
+                        prop = Property(i.name, value, schema)
+                        node._properties.append(prop)
 
         # Handle life cycle operations: this may expand each node
         # into multiple HOT resources and may change their name

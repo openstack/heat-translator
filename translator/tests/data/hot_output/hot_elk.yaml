@@ -472,7 +472,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
   mongo_server:
@@ -480,7 +479,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
   logstash_server:
@@ -488,7 +486,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
   elasticsearch_server:
@@ -496,7 +493,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
   kibana_server:
@@ -504,7 +500,6 @@ resources:
     properties:
       flavor: m1.large
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
 outputs:

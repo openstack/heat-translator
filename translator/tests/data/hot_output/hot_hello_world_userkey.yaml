@@ -3,12 +3,17 @@ heat_template_version: 2013-05-23
 description: >
   Template for deploying a single server with predefined properties.
 
-parameters: {}
+parameters:
+  key_name:
+    type: string
+    default: userkey
+
 resources:
   my_server:
     type: OS::Nova::Server
     properties:
       flavor: m1.medium
       image: rhel-6.5-test-image
+      key_name: { get_param: key_name }
       user_data_format: SOFTWARE_CONFIG
 outputs: {}

@@ -276,8 +276,7 @@ class ToscaComputeTest(TestCase):
             mock_ks_response = mock.MagicMock()
             mock_ks_content = {}
             mock_ks_response.content = json.dumps(mock_ks_content)
-            expectedprops = {'key_name': 'userkey',
-                             'flavor': 'm1.small',
+            expectedprops = {'flavor': 'm1.small',
                              'user_data_format': 'SOFTWARE_CONFIG',
                              'image': None}
             self._tosca_compute_test(

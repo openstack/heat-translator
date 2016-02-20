@@ -512,6 +512,16 @@ class ToscaHotTranslationTest(TestCase):
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
+    def test_hot_translate_flavor_image_params(self):
+        tosca_file = '../tests/data/test_tosca_flavor_and_image.yaml'
+        hot_file = '../tests/data/hot_output/hot_flavor_and_image_params.yaml'
+        params = {'key_name': 'paramkey'}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+
     def test_hot_translate_custom_type(self):
         tosca_file = '../tests/data/test_tosca_custom_type.yaml'
         hot_file = '../tests/data/hot_output/' \
@@ -551,6 +561,16 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/' \
             'hot_single_server_without_tosca_os_version.yaml'
         params = {}
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_file,
+                                                                   params)
+        self.assertEqual({}, diff, '<difference> : ' +
+                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+
+    def test_hot_translate_helloworld_with_userkey(self):
+        tosca_file = '../tests/data/tosca_helloworld.yaml'
+        hot_file = '../tests/data/hot_output/hot_hello_world_userkey.yaml'
+        params = {'key_name': 'userkey'}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,
                                                                    params)

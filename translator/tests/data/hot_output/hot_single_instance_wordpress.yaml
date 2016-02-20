@@ -188,7 +188,6 @@ resources:
     properties:
       flavor: m1.xlarge
       image: ubuntu-software-config-os-init
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
 
 outputs:

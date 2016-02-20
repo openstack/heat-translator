@@ -33,7 +33,6 @@ resources:
     properties:
       flavor: m1.medium
       image: fedora-amd64-heat-config
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
     depends_on:
     - my_storage
@@ -61,7 +60,6 @@ resources:
     properties:
       flavor: m1.medium
       image: fedora-amd64-heat-config
-      key_name: userkey
       user_data_format: SOFTWARE_CONFIG
     depends_on:
     - my_storage2
