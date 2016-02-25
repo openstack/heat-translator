@@ -106,6 +106,9 @@ class TranslatorShell(object):
                     run_only_validation = True
             if run_only_validation:
                 ToscaTemplate(path, parsed_params, a_file)
+                msg = (_('The input "%(path)s" successfully passed '
+                         'validation.') % {'path': path})
+                print(msg)
             else:
                 log.info(
                     _('Checked whether template path is a file or url path.'))
