@@ -318,20 +318,20 @@ class TestTranslateTemplate(testtools.TestCase):
                   'cpus': 8}
         self._check_success(tosca_file, hot_file, params)
 
-# def test_osc_translate_template_by_url_with_local_import(self):
-#     tosca_file = ("https://raw.githubusercontent.com/openstack/" +
-#                   "heat-translator/master/translator/tests/data/" +
-#                   "tosca_single_instance_wordpress.yaml")
-#     hot_file = utils.get_template_path(
-#         "hot_output/" +
-#         "hot_single_instance_wordpress.yaml")
-#     params = {'db_name': 'wordpress',
-#               'db_user': 'wp_user',
-#               'db_pwd': 'wp_pass',
-#               'db_root_pwd': 'passw0rd',
-#               'db_port': 3366,
-#               'cpus': 8}
-#     self._check_success(tosca_file, hot_file, params)
+    def test_osc_translate_template_by_url_with_local_import(self):
+        tosca_file = ("https://raw.githubusercontent.com/openstack/" +
+                      "heat-translator/master/translator/tests/data/" +
+                      "tosca_single_instance_wordpress.yaml")
+        hot_file = utils.get_template_path(
+            "hot_output/" +
+            "hot_single_instance_wordpress.yaml")
+        params = {'db_name': 'wordpress',
+                  'db_user': 'wp_user',
+                  'db_pwd': 'wp_pass',
+                  'db_root_pwd': 'passw0rd',
+                  'db_port': 3366,
+                  'cpus': 8}
+        self._check_success(tosca_file, hot_file, params)
 
     def test_osc_translate_template_by_url_with_local_abspath_import(self):
         tosca_file = ("https://raw.githubusercontent.com/openstack/" +
@@ -356,20 +356,20 @@ class TestTranslateTemplate(testtools.TestCase):
         self._check_error(tosca_file, hot_file, params, ValidationError,
                           expected_msg, ImportError)
 
-# def test_osc_translate_template_by_url_with_url_import(self):
-#     tosca_url = ("https://raw.githubusercontent.com/openstack/" +
-#                  "heat-translator/master/translator/tests/data/" +
-#                  "tosca_single_instance_wordpress_with_url_import.yaml")
-#     hot_file = utils.get_template_path(
-#         "hot_output/" +
-#         "hot_single_instance_wordpress.yaml")
-#     params = {'db_name': 'wordpress',
-#               'db_user': 'wp_user',
-#               'db_pwd': 'wp_pass',
-#               'db_root_pwd': 'passw0rd',
-#               'db_port': 3366,
-#               'cpus': 8}
-#     self._check_success(tosca_url, hot_file, params)
+    def test_osc_translate_template_by_url_with_url_import(self):
+        tosca_url = ("https://raw.githubusercontent.com/openstack/" +
+                     "heat-translator/master/translator/tests/data/" +
+                     "tosca_single_instance_wordpress_with_url_import.yaml")
+        hot_file = utils.get_template_path(
+            "hot_output/" +
+            "hot_single_instance_wordpress.yaml")
+        params = {'db_name': 'wordpress',
+                  'db_user': 'wp_user',
+                  'db_pwd': 'wp_pass',
+                  'db_root_pwd': 'passw0rd',
+                  'db_port': 3366,
+                  'cpus': 8}
+        self._check_success(tosca_url, hot_file, params)
 
     def test_osc_translate_hello_world_csar(self):
         tosca_file = utils.get_template_path("csar_hello_world.zip")
