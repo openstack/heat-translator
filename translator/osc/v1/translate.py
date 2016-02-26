@@ -85,6 +85,9 @@ class TranslateTemplate(command.Command):
                 validate = parsed_args.validate_only
                 if validate and validate.lower() == "true":
                     ToscaTemplate(path, parsed_params, a_file)
+                    msg = (_('The input "%(path)s" successfully passed '
+                             'validation.') % {'path': path})
+                    print(msg)
                 else:
                     tosca = ToscaTemplate(path, parsed_params, a_file)
                     translator = TOSCATranslator(tosca, parsed_params)
