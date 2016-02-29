@@ -326,7 +326,11 @@ class TranslateNodeTemplates(object):
                 if artifact.get('type', None) == 'tosca.artifacts.File':
                     return {'get_file': artifact.get('file')}
         elif isinstance(input_value, GetInput):
-            return input_value.result()
+            if isinstance(input_value.args, list) \
+                    and len(input_value.args) == 1:
+                return {'get_param': input_value.args[0]}
+            else:
+                return {'get_param': input_value.args}
 
         return input_value
 

@@ -13,8 +13,12 @@ node_types:
           implementation: install.sh
 
 topology_template:
-  node_templates:
+  inputs:
+    install_path:
+      type: string
+      default: /home/custom/other
 
+  node_templates:
     customwebserver:
       type: tosca.nodes.CustomWebServer
       requirements:
@@ -23,6 +27,8 @@ topology_template:
         Standard:
           create:
             implementation: install_override.sh
+            inputs:
+              path: { get_input: install_path }
 
     server:
       type: tosca.nodes.Compute
@@ -37,4 +43,3 @@ topology_template:
             distribution: Ubuntu
             version: 12.04
             architecture: x86_64
-

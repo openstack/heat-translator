@@ -7,7 +7,7 @@ description: >
 parameters:
   install_path:
     type: string
-    default: /home/custom/other
+    default: /home/custom/from/cli
 resources:
   customwebserver_create_deploy:
     type: OS::Heat::SoftwareDeployment

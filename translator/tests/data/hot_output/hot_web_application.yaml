@@ -66,7 +66,8 @@ resources:
       config:
         get_resource: web_app_create_config
       input_values:
-        context_root: my_web_app
+        context_root:
+          get_param: context_root
       server:
         get_resource: server
     depends_on:
