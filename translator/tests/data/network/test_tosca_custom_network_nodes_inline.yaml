@@ -1,0 +1,82 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template for deploying a single server with predefined properties.
+
+
+node_types:
+  tosca.nodes.vendor.VDU:
+    derived_from: tosca.nodes.Compute
+    capabilities:
+      virtualbinding:
+        type: tosca.capabilities.vendor.VendorBindable
+
+  tosca.nodes.vendor.CP:
+    derived_from: tosca.nodes.network.Port
+    requirements:
+      - virtualLink:
+          capability: tosca.capabilities.VendorLinkable
+          relationship: tosca.relationships.vendor.VendorLinksTo
+          node: tosca.nodes.vendor.VL
+      - virtualBinding:
+          capability: tosca.capabilities.vendor.VendorBindable
+          node: tosca.nodes.vendor.VDU
+          relationship: tosca.relationships.vendor.VendorBindsTo
+
+  tosca.nodes.vendor.VL:
+    derived_from: tosca.nodes.network.Network
+    capabilities:
+      virtual_linkable:
+        type: tosca.capabilities.vendor.VendorLinkable
+
+relationship_types:
+  tosca.relationships.vendor.VendorLinksTo:
+    derived_from: tosca.relationships.network.LinksTo
+    valid_target_types: [ tosca.capabilities.vendor.VendorLinkable ]
+
+  tosca.relationships.vendor.VendorBindsTo:
+    derived_from: tosca.relationships.network.BindsTo
+    valid_target_types: [ tosca.capabilities.vendor.VendorBindable ]
+
+capability_types:
+  tosca.capabilities.vendor.VendorLinkable:
+    derived_from: tosca.capabilities.network.Linkable
+
+  tosca.capabilities.vendor.VendorBindable:
+    derived_from: tosca.capabilities.network.Bindable
+
+topology_template:
+  node_templates:
+
+    VDU1:
+      type: tosca.nodes.vendor.VDU
+      capabilities:
+        host:
+         properties:
+           num_cpus: 2
+           disk_size: 10 GB
+           mem_size: 512 MB
+        # Guest Operating System properties
+        os:
+          properties:
+           # host Operating System image properties
+            architecture: x86_64
+            type: Linux
+            distribution: RHEL
+            version: 6.5
+    CP1:
+      type: tosca.nodes.vendor.CP
+      requirements:
+        - virtualLink:
+            node: VL1
+            relationship: tosca.relationships.vendor.VendorLinksTo
+        - virtualBinding:
+            node: VDU1
+            relationship: tosca.relationships.vendor.VendorBindsTo
+
+    VL1:
+      type: tosca.nodes.vendor.VL
+      properties:
+        cidr: '192.168.0.0/24'
+        start_ip: '192.168.0.50'
+        end_ip: '192.168.0.200'
+        gateway_ip: '192.168.0.1'
