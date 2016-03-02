@@ -319,6 +319,9 @@ class HotResource(object):
             operations[operation.name] = operation
 
         node_type = node.type_definition
+        if isinstance(node_type, str) or \
+            node_type.type == "tosca.policies.Placement":
+                return operations
 
         while True:
             type_operations = HotResource._get_interface_operations_from_type(
@@ -334,6 +337,9 @@ class HotResource(object):
     @staticmethod
     def _get_interface_operations_from_type(node_type, node, lifecycle_name):
         operations = {}
+        if isinstance(node_type, str) or \
+            node_type.type == "tosca.policies.Placement":
+                return operations
         if node_type.interfaces and lifecycle_name in node_type.interfaces:
             for name, elems in node_type.interfaces[lifecycle_name].items():
                 # ignore empty operations (only type)
