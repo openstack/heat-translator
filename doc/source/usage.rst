@@ -72,6 +72,10 @@ Things To Consider
 * The ``key_name`` property of Nova server is irrelevant to the TOSCA specification and can not be used in TOSCA template. In order to use it in
   the translated templates, the user must provide it via parameters, and the heat-translator will set it to all resources of ``OS::Nova::Server`` type.
 * Since properties of TOSCA Compute OS and HOST capabilities are optional, the user should make sure that either they set these properties correctly
-  in the TOSCA template or provide them via CLI parameters in order to find best match of flavor and image.  
-
+  in the TOSCA template or provide them via CLI parameters in order to find best match of flavor and image.
+* The ``flavor`` and ``image`` properties of ``OS::Nova::Server`` resource is irrelevant to the TOSCA specification and can not be used in the TOSCA
+  template as such. Heat-Translator sets these properties in the translated template based on constraints defined per TOSCA Compute OS and HOST
+  capabilities. However, user may required to use these properties in template in certain circumstances, so in that case, TOSCA Compute can be extended
+  with these properties and later used in the node template. For a good example, refer to the ``translator/tests/data/test_tosca_flavor_and_image.yaml`` test
+  template.
 
