@@ -159,6 +159,7 @@ class ToscaCompute(HotResource):
             for service in service_catalog:
                 if service['type'] == 'compute':
                     nova_url = service['endpoints'][0]['publicURL']
+                    break
             if not nova_url:
                 return None
             nova_response = requests.get(nova_url + '/flavors/detail',
