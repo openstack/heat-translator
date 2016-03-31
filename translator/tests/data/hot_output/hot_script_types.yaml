@@ -1,0 +1,101 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA template to test usage of different script types like Ansible and Puppet
+  one.
+
+parameters: {}
+resources:
+  customwebserver2_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver2_create_config
+      server:
+        get_resource: server
+  customwebserver_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver_create_config
+      server:
+        get_resource: server
+  server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-12.04-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+  customwebserver2_start_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: start.sh
+      group: script
+  customwebserver2_start_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver2_start_config
+      server:
+        get_resource: server
+    depends_on:
+    - customwebserver2_configure_deploy
+  customwebserver2_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: install.sh
+      group: script
+  customwebserver2_configure_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: configure.py
+      group: script
+  customwebserver2_configure_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver2_configure_config
+      server:
+        get_resource: server
+    depends_on:
+    - customwebserver2_create_deploy
+  customwebserver_start_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: start.pp
+      group: puppet
+  customwebserver_start_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver_start_config
+      server:
+        get_resource: server
+    depends_on:
+    - customwebserver_configure_deploy
+  customwebserver_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: install.yaml
+      group: ansible
+  customwebserver_configure_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: configure.yml
+      group: ansible
+  customwebserver_configure_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: customwebserver_configure_config
+      server:
+        get_resource: server
+    depends_on:
+    - customwebserver_create_deploy
+outputs: {}

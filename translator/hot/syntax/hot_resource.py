@@ -13,6 +13,7 @@
 
 from collections import OrderedDict
 import logging
+import os
 import six
 
 from toscaparser.elements.interfaces import InterfacesDef
@@ -44,7 +45,26 @@ class HotResource(object):
         self.properties = properties or {}
         # special case for HOT softwareconfig
         if type == 'OS::Heat::SoftwareConfig':
-            self.properties['group'] = 'script'
+            config = self.properties.get('config')
+            if config:
+                implementation_artifact = config.get('get_file')
+                if implementation_artifact:
+                    filename, file_extension = os.path.splitext(
+                        implementation_artifact)
+                    file_extension = file_extension.lower()
+                    # artifact_types should be read to find the exact script
+                    # type, unfortunately artifact_types doesn't seem to be
+                    # supported by the parser
+                    if file_extension == '.ansible' \
+                            or file_extension == '.yaml' \
+                            or file_extension == '.yml':
+                        self.properties['group'] = 'ansible'
+                    if file_extension == '.pp':
+                        self.properties['group'] = 'puppet'
+
+            if self.properties.get('group') is None:
+                self.properties['group'] = 'script'
+
         self.metadata = metadata
 
         # The difference between depends_on and depends_on_nodes is
