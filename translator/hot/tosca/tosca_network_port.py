@@ -55,9 +55,8 @@ class ToscaNetworkPort(HotResource):
         port_props = {}
         for key, value in tosca_props.items():
             if key == 'ip_address':
-                fixed_ip = []
+                fixed_ip = {}
                 fixed_ip['ip_address'] = value
-                fixed_ip['subnet'] = ''
                 port_props['fixed_ips'] = [fixed_ip]
             elif key == 'order':
                 self.order = value

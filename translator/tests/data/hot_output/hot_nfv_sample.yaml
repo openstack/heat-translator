@@ -16,6 +16,8 @@ resources:
   CP1:
     type: OS::Neutron::Port
     properties:
+      fixed_ips:
+        - ip_address: '192.168.0.55'
       network: { get_resource: VL1 }
   VL1:
     type: OS::Neutron::Net

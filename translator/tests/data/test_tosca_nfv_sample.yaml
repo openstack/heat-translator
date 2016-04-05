@@ -23,6 +23,8 @@ topology_template:
             version: 6.5
     CP1:
       type: tosca.nodes.nfv.CP
+      properties:
+        ip_address: 192.168.0.55
       requirements:
         - virtualLink:
             node: VL1
