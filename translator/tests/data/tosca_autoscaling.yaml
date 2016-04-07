@@ -1,0 +1,40 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: >
+  Template for deploying servers based on policies.
+
+topology_template:
+  node_templates:
+    my_server_1:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 2
+           disk_size: 10 GB
+           mem_size: 512 MB
+        os:
+         properties:
+            # host Operating System image properties
+            architecture: x86_64
+            type: Linux
+            distribution: RHEL
+            version: 6.5
+  policies:
+    - asg:
+        type: tosca.policies.Scaling
+        description: Simple node autoscaling
+        targets: [my_server_1]
+        triggers:
+          resize_compute:
+            description: trigger
+            condition:
+              constraint: utilization greater_than 50%
+              period: 60
+              evaluations: 1
+              method: average
+        properties:
+          min_instances: 2
+          max_instances: 10
+          default_instances: 3
+          increment: 1

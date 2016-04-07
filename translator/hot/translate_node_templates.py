@@ -169,11 +169,12 @@ class TranslateNodeTemplates(object):
 
         if resource.type == "OS::Nova::ServerGroup":
             resource.handle_properties(self.hot_resources)
+        elif resource.type == "OS::Heat::ScalingPolicy":
+            self.hot_resources = resource.handle_properties(self.hot_resources)
         else:
             resource.handle_properties()
 
     def _translate_nodetemplates(self):
-
         log.debug(_('Translating the node templates.'))
         suffix = 0
         # Copy the TOSCA graph: nodetemplate
@@ -205,9 +206,8 @@ class TranslateNodeTemplates(object):
                                         break
 
                     suffix = suffix + 1
-                    attachment_node = self._get_attachment_node(node,
-                                                                suffix,
-                                                                volume_name)
+                    attachment_node = self._get_attachment_node(
+                        node, suffix, volume_name)
                     if attachment_node:
                         self.hot_resources.append(attachment_node)
                 for i in self.tosca.inputs:
@@ -299,7 +299,8 @@ class TranslateNodeTemplates(object):
         # dependent nodes in correct order
         self.processed_resources = []
         for resource in self.hot_resources:
-            self._recursive_handle_properties(resource)
+            if resource.type != "OS::Heat::AutoScalingGroup":
+                self._recursive_handle_properties(resource)
 
         # handle resources that need to expand to more than one HOT resource
         expansion_resources = []
