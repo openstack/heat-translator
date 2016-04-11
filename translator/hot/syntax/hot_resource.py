@@ -141,14 +141,22 @@ class HotResource(object):
                 # hosting_server is None if requirements is None
                 hosting_on_server = (hosting_server.name if
                                      hosting_server else None)
-                if operation.name == reserve_current:
+                base_type = HotResource.get_base_type(
+                    self.nodetemplate.type_definition).type
+                # handle interfaces directly defined on a compute
+                if hosting_on_server is None \
+                    and base_type == 'tosca.nodes.Compute':
+                    hosting_on_server = self.name
+
+                if operation.name == reserve_current and \
+                    base_type != 'tosca.nodes.Compute':
                     deploy_resource = self
                     self.name = deploy_name
                     self.type = 'OS::Heat::SoftwareDeployment'
                     self.properties = {'config': {'get_resource': config_name},
                                        'server': {'get_resource':
                                                   hosting_on_server}}
-                    deploy_lookup[operation.name] = self
+                    deploy_lookup[operation] = self
                 else:
                     sd_config = {'config': {'get_resource': config_name},
                                  'server': {'get_resource':
@@ -159,7 +167,7 @@ class HotResource(object):
                                     'OS::Heat::SoftwareDeployment',
                                     sd_config)
                     hot_resources.append(deploy_resource)
-                    deploy_lookup[operation.name] = deploy_resource
+                    deploy_lookup[operation] = deploy_resource
                 lifecycle_inputs = self._get_lifecycle_inputs(operation)
                 if lifecycle_inputs:
                     deploy_resource.properties['input_values'] = \
@@ -169,24 +177,34 @@ class HotResource(object):
         # in operations_deploy_sequence
         # TODO(anyone): find some better way to encode this implicit sequence
         group = {}
+        op_index_max = -1
         for op, hot in deploy_lookup.items():
             # position to determine potential preceding nodes
-            op_index = operations_deploy_sequence.index(op)
-            for preceding_op in \
+            op_index = operations_deploy_sequence.index(op.name)
+            if op_index > op_index_max:
+                op_index_max = op_index
+            for preceding_op_name in \
                     reversed(operations_deploy_sequence[:op_index]):
-                preceding_hot = deploy_lookup.get(preceding_op)
+                preceding_hot = deploy_lookup.get(
+                    operations.get(preceding_op_name))
                 if preceding_hot:
                     hot.depends_on.append(preceding_hot)
                     hot.depends_on_nodes.append(preceding_hot)
                     group[preceding_hot] = hot
                     break
 
+        if op_index_max >= 0:
+            last_deploy = deploy_lookup.get(operations.get(
+                operations_deploy_sequence[op_index_max]))
+        else:
+            last_deploy = None
+
         # save this dependency chain in the set of HOT resources
         self.group_dependencies.update(group)
         for hot in hot_resources:
             hot.group_dependencies.update(group)
 
-        return hot_resources
+        return hot_resources, deploy_lookup, last_deploy
 
     def handle_connectsto(self, tosca_source, tosca_target, hot_source,
                           hot_target, config_location, operation):

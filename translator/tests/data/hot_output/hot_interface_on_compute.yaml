@@ -1,0 +1,44 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA template to test Compute node with interface
+
+parameters: {}
+resources:
+  softwarecomponent_depending_on_customcompute_install_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: softwarecomponent_depending_on_customcompute_install_create_config
+      server:
+        get_resource: server
+    depends_on:
+    - server_create_deploy
+  server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-12.04-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+  softwarecomponent_depending_on_customcompute_install_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: post_install.sh
+      group: script
+  server_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: install.sh
+      group: script
+  server_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: server_create_config
+      input_values:
+        install_path: /opt
+      server:
+        get_resource: server
+outputs: {}

@@ -146,6 +146,9 @@ class TranslateNodeTemplates(object):
         log.debug(_('Mapping between TOSCA nodetemplate and HOT resource.'))
         self.hot_lookup = {}
         self.policies = self.tosca.topology_template.policies
+        # stores the last deploy of generated behavior for a resource
+        # useful to satisfy underlying dependencies between interfaces
+        self.last_deploy_map = {}
 
     def translate(self):
         return self._translate_nodetemplates()
@@ -219,9 +222,14 @@ class TranslateNodeTemplates(object):
         # into multiple HOT resources and may change their name
         lifecycle_resources = []
         for resource in self.hot_resources:
-            expanded = resource.handle_life_cycle()
-            if expanded:
-                lifecycle_resources += expanded
+            expanded_resources, deploy_lookup, last_deploy = resource.\
+                handle_life_cycle()
+            if expanded_resources:
+                lifecycle_resources += expanded_resources
+            if deploy_lookup:
+                self.hot_lookup.update(deploy_lookup)
+            if last_deploy:
+                self.last_deploy_map[resource] = last_deploy
         self.hot_resources += lifecycle_resources
 
         # Handle configuration from ConnectsTo relationship in the TOSCA node:
@@ -253,7 +261,9 @@ class TranslateNodeTemplates(object):
                 # if the source of dependency is a server and the
                 # relationship type is 'tosca.relationships.HostedOn',
                 # add dependency as properties.server
-                if node_depend.type == 'tosca.nodes.Compute' and \
+                base_type = HotResource.get_base_type(
+                    node_depend.type_definition)
+                if base_type.type == 'tosca.nodes.Compute' and \
                    node.related[node_depend].type == \
                    node.type_definition.HOSTEDON:
                     self.hot_lookup[node].properties['server'] = \
@@ -265,6 +275,13 @@ class TranslateNodeTemplates(object):
 
                 self.hot_lookup[node].depends_on_nodes.append(
                     self.hot_lookup[node_depend].top_of_chain())
+
+                last_deploy = self.last_deploy_map.get(
+                    self.hot_lookup[node_depend])
+                if last_deploy and \
+                    last_deploy not in self.hot_lookup[node].depends_on:
+                    self.hot_lookup[node].depends_on.append(last_deploy)
+                    self.hot_lookup[node].depends_on_nodes.append(last_deploy)
 
         # handle hosting relationship
         for resource in self.hot_resources:
@@ -296,6 +313,17 @@ class TranslateNodeTemplates(object):
             if inputs:
                 for name, value in six.iteritems(inputs):
                     inputs[name] = self._translate_input(value, resource)
+
+        # remove resources without type defined
+        # for example a SoftwareComponent without interfaces
+        # would fall in this case
+        to_remove = []
+        for resource in self.hot_resources:
+            if resource.type is None:
+                to_remove.append(resource)
+
+        for resource in to_remove:
+            self.hot_resources.remove(resource)
 
         return self.hot_resources
 

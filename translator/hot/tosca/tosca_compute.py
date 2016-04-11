@@ -84,6 +84,14 @@ class ToscaCompute(HotResource):
                       ('architecture', 'distribution', 'type', 'version')
     toscatype = 'tosca.nodes.Compute'
 
+    ALLOWED_NOVA_SERVER_PROPS = \
+        ('admin_pass', 'availability_zone', 'block_device_mapping',
+         'block_device_mapping_v2', 'config_drive', 'diskConfig', 'flavor',
+         'flavor_update_policy', 'image', 'image_update_policy', 'key_name',
+         'metadata', 'name', 'networks', 'personality', 'reservation_id',
+         'scheduler_hints', 'security_groups', 'software_config_transport',
+         'user_data', 'user_data_format', 'user_data_update_policy')
+
     def __init__(self, nodetemplate):
         super(ToscaCompute, self).__init__(nodetemplate,
                                            type='OS::Nova::Server')
@@ -98,7 +106,8 @@ class ToscaCompute(HotResource):
         self.properties['user_data_format'] = 'SOFTWARE_CONFIG'
         tosca_props = self.get_tosca_props()
         for key, value in tosca_props.items():
-            self.properties[key] = value
+            if key in self.ALLOWED_NOVA_SERVER_PROPS:
+                self.properties[key] = value
 
     # To be reorganized later based on new development in Glance and Graffiti
     def translate_compute_flavor_and_image(self,
