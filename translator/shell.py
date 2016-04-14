@@ -26,6 +26,7 @@ from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 from toscaparser.utils.urlutils import UrlUtils
 from translator.common import utils
+from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 
 """
@@ -44,8 +45,8 @@ without actual translation, pass --validate-only=true along with
 other required arguments.
 
 """
-
-logging.config.fileConfig('heat_translator_logging.conf')
+conf_file = ConfigProvider.get_translator_logging_file()
+logging.config.fileConfig(conf_file)
 log = logging.getLogger("heat-translator")
 
 

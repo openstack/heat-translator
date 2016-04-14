@@ -22,11 +22,12 @@ from cliff import command
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 from translator.common.utils import UrlUtils
+from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
-
-logging.config.fileConfig('heat_translator_logging.conf')
+conf_file = ConfigProvider.get_translator_logging_file()
+logging.config.fileConfig(conf_file)
 log = logging.getLogger('heat-translator')
 
 

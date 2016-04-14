@@ -12,6 +12,7 @@
 # under the License.
 
 ''' Provide a global configuration for the TOSCA translator'''
+import os
 
 from six.moves import configparser
 
@@ -65,3 +66,11 @@ class ConfigProvider(object):
                 raise exception.ConfSectionNotDefined(section=section)
 
         return values
+
+    @classmethod
+    def get_translator_logging_file(cls):
+        conf_file = ''
+        CONF_FILENAME = 'heat_translator_logging.conf'
+        conf_path = os.path.dirname(os.path.abspath(__file__))
+        conf_file = os.path.join(conf_path, CONF_FILENAME)
+        return conf_file
