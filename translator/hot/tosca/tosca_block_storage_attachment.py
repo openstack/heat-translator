@@ -44,5 +44,10 @@ class ToscaBlockStorageAttachment(HotResource):
         if 'location' in self.properties:
             self.properties['mountpoint'] = self.properties.pop('location')
 
+        # TOSCA type can have a device name specified,
+        # this is unsupported by Heat
+        if 'device' in self.properties:
+            self.properties.pop('device')
+
     def handle_life_cycle(self):
         pass
