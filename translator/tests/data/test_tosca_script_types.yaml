@@ -1,0 +1,48 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: >
+  TOSCA template to test usage of different script types like
+  Ansible and Puppet one.
+
+topology_template:
+
+  node_templates:
+    customwebserver:
+      type: tosca.nodes.WebServer
+      requirements:
+        - host: server
+      interfaces:
+        Standard:
+          create:
+            implementation: install.yaml
+          configure:
+            implementation: configure.yml
+          start:
+            implementation: start.pp
+
+    customwebserver2:
+      type: tosca.nodes.WebServer
+      requirements:
+        - host: server
+      interfaces:
+        Standard:
+          create:
+            implementation: install.sh
+          configure:
+            implementation: configure.py
+          start:
+            implementation: start.sh
+
+    server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 1
+           mem_size: 1 GB
+        os:
+          properties:
+            type: Linux
+            distribution: Ubuntu
+            version: 12.04
+            architecture: x86_64
