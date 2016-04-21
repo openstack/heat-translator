@@ -126,7 +126,10 @@ class ShellTest(TestCase):
     @patch('os.getenv')
     @patch('translator.hot.tosca.tosca_compute.'
            'ToscaCompute._create_nova_flavor_dict')
-    def test_template_deploy_with_credentials(self, mock_flavor_dict,
+    @patch('translator.hot.tosca.tosca_compute.'
+           'ToscaCompute._populate_image_dict')
+    def test_template_deploy_with_credentials(self, mock_populate_image_dict,
+                                              mock_flavor_dict,
                                               mock_os_getenv,
                                               mock_token,
                                               mock_url, mock_post,
@@ -136,6 +139,14 @@ class ShellTest(TestCase):
         mock_env.return_value = True
         mock_flavor_dict.return_value = {
             'm1.medium': {'mem_size': 4096, 'disk_size': 40, 'num_cpus': 2}
+        }
+        mock_populate_image_dict.return_value = {
+            "rhel-6.5-test-image": {
+                "version": "6.5",
+                "architecture": "x86_64",
+                "distribution": "RHEL",
+                "type": "Linux"
+            }
         }
         mock_url.return_value = 'http://abc.com'
         mock_token.return_value = 'mock_token'

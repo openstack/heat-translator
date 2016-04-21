@@ -153,6 +153,48 @@ class ToscaCompute(HotResource):
             return None
         return flavor_dict
 
+    def _populate_image_dict(self):
+        '''Populates and returns the images dict using Glance ReST API'''
+        try:
+            access_dict = translator.common.utils.get_ks_access_dict()
+            access_token = translator.common.utils.get_token_id(access_dict)
+            if access_token is None:
+                return None
+            glance_url = translator.common.utils.get_url_for(access_dict,
+                                                             'image')
+            if not glance_url:
+                return None
+            glance_response = requests.get(glance_url + '/v2/images',
+                                           headers={'X-Auth-Token':
+                                                    access_token})
+            if glance_response.status_code != 200:
+                return None
+            images = json.loads(glance_response.content)["images"]
+            images_dict = {}
+            for image in images:
+                image_resp = requests.get(glance_url + '/v2/images/' +
+                                          image["id"],
+                                          headers={'X-Auth-Token':
+                                                   access_token})
+                if image_resp.status_code != 200:
+                    continue
+                metadata = ["architecture", "type", "distribution", "version"]
+                image_data = json.loads(image_resp.content)
+                if any(key in image_data.keys() for key in metadata):
+                    images_dict[image_data["name"]] = dict()
+                    for key in metadata:
+                        if key in image_data.keys():
+                            images_dict[image_data["name"]][key] = \
+                                image_data[key]
+                else:
+                    continue
+
+        except Exception as e:
+            # Handles any exception coming from openstack
+            log.warn(_('Choosing predefined flavors since received '
+                       'Openstack Exception: %s') % str(e))
+        return images_dict
+
     def _best_flavor(self, properties):
         log.info(_('Choosing the best flavor for given attributes.'))
         # Check whether user exported all required environment variables.
@@ -202,26 +244,32 @@ class ToscaCompute(HotResource):
             return None
 
     def _best_image(self, properties):
-        match_all = IMAGES.keys()
+        # Check whether user exported all required environment variables.
+        images = IMAGES
+        if translator.common.utils.check_for_env_variables():
+            resp = self._populate_image_dict()
+            if len(resp.keys()) > 0:
+                images = resp
+        match_all = images.keys()
         architecture = properties.get(self.ARCHITECTURE)
         if architecture is None:
             self._log_compute_msg(self.ARCHITECTURE, 'image')
-        match_arch = self._match_images(match_all, IMAGES,
+        match_arch = self._match_images(match_all, images,
                                         self.ARCHITECTURE, architecture)
         type = properties.get(self.TYPE)
         if type is None:
             self._log_compute_msg(self.TYPE, 'image')
-        match_type = self._match_images(match_arch, IMAGES, self.TYPE, type)
+        match_type = self._match_images(match_arch, images, self.TYPE, type)
         distribution = properties.get(self.DISTRIBUTION)
         if distribution is None:
             self._log_compute_msg(self.DISTRIBUTION, 'image')
-        match_distribution = self._match_images(match_type, IMAGES,
+        match_distribution = self._match_images(match_type, images,
                                                 self.DISTRIBUTION,
                                                 distribution)
         version = properties.get(self.VERSION)
         if version is None:
             self._log_compute_msg(self.VERSION, 'image')
-        match_version = self._match_images(match_distribution, IMAGES,
+        match_version = self._match_images(match_distribution, images,
                                            self.VERSION, version)
 
         if len(match_version):
