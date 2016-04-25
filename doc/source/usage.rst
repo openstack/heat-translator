@@ -65,10 +65,11 @@ In this case, you can simply run translation via CLI entry point::
 
 Things To Consider
 ------------------
-* When deploying the translated template with Heat, please ensure that you have image registered in the Glance. The Heat-Translator
-  project sets flavor and image from a pre-defined set of values (as listed in /home/openstack/heat-translator/translator/hot/tosca/tosca_compute.py)
-  with the best possible match to the constraints defined in the TOSCA template. If there is no possible match found, a null value is set currently.
-  Per the future plan, an image and flavor will be provided from an online repository.
+* When use Heat-Translator in an OpenStack environment, please ensure that you have one or more preferred flavors and images available in your OpenStack
+  environment. To find an appropriate flavor and image, that meets constraints defined in the TOSCA template for the HOST and OS capabilities of TOSCA Compute node,
+  the Heat-Translator project first runs a query against Nova flavors and Glance images. During the query call, it uses the metadata of flavors and images.
+  If call to Nova or Glance can not be made or no flavor or image is found, the Heat-Translator project will set flavor and image from a pre-defined set of values (as listed in /home/openstack/heat-translator/translator/hot/tosca/tosca_compute.py)
+  with the best possible match to the constraints defined in the TOSCA template.
 * The ``key_name`` property of Nova server is irrelevant to the TOSCA specification and can not be used in TOSCA template. In order to use it in
   the translated templates, the user must provide it via parameters, and the heat-translator will set it to all resources of ``OS::Nova::Server`` type.
 * Since properties of TOSCA Compute OS and HOST capabilities are optional, the user should make sure that either they set these properties correctly
