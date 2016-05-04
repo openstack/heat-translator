@@ -317,7 +317,7 @@ class TranslateNodeTemplates(object):
         elif isinstance(input_value, GetAttribute):
             # for the attribute
             # get the proper target type to perform the translation
-            args = input_value.result()
+            args = input_value.result().args
             hot_target = self._find_hot_resource_for_tosca(args[0], resource)
 
             return hot_target.get_hot_attribute(args[1], args)

@@ -112,11 +112,17 @@ class ToscaCompute(HotResource):
         if host_capability:
             for prop in host_capability.get_properties_objects():
                 host_cap_props[prop.name] = prop.value
-            flavor = self._best_flavor(host_cap_props)
+            # if HOST properties are not specified, we should not attempt to
+            # find best match of flavor
+            if host_cap_props:
+                flavor = self._best_flavor(host_cap_props)
         if os_capability:
             for prop in os_capability.get_properties_objects():
                 os_cap_props[prop.name] = prop.value
-            image = self._best_image(os_cap_props)
+            # if OS properties are not specified, we should not attempt to
+            # find best match of image
+            if os_cap_props:
+                image = self._best_image(os_cap_props)
         hot_properties['flavor'] = flavor
         hot_properties['image'] = image
         return hot_properties
@@ -155,6 +161,7 @@ class ToscaCompute(HotResource):
 
     def _populate_image_dict(self):
         '''Populates and returns the images dict using Glance ReST API'''
+        images_dict = {}
         try:
             access_dict = translator.common.utils.get_ks_access_dict()
             access_token = translator.common.utils.get_token_id(access_dict)
@@ -170,7 +177,6 @@ class ToscaCompute(HotResource):
             if glance_response.status_code != 200:
                 return None
             images = json.loads(glance_response.content)["images"]
-            images_dict = {}
             for image in images:
                 image_resp = requests.get(glance_url + '/v2/images/' +
                                           image["id"],
