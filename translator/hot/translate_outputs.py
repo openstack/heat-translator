@@ -33,16 +33,7 @@ class TranslateOutputs(object):
     def _translate_outputs(self):
         hot_outputs = []
         for output in self.outputs:
-            if output.value.name == 'get_attribute':
-                get_parameters = output.value.args
-                hot_target = self.nodes.find_hot_resource(get_parameters[0])
-                hot_value = hot_target.get_hot_attribute(get_parameters[1],
-                                                         get_parameters)
-                hot_outputs.append(HotOutput(output.name,
-                                             hot_value,
-                                             output.description))
-            else:
-                hot_outputs.append(HotOutput(output.name,
-                                             output.value,
-                                             output.description))
+            hot_value = self.nodes.translate_param_value(output.value, None)
+            hot_outputs.append(HotOutput(output.name, hot_value,
+                                         output.description))
         return hot_outputs

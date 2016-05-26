@@ -67,5 +67,5 @@ class ToscaBlockStorage(HotResource):
         # attribute for the matching resource.  Unless there is additional
         # runtime support, this should be a one to one mapping.
         if attribute == 'volume_id':
-            attr['get_resource'] = args[0]
+            attr['get_resource'] = self.name
         return attr

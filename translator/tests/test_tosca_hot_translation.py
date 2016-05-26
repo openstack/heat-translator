@@ -477,3 +477,9 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/hot_interface_on_compute.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_get_functions_semantic(self):
+        tosca_file = '../tests/data/test_tosca_get_functions_semantic.yaml'
+        hot_file = '../tests/data/hot_output/hot_get_functions_semantic.yaml'
+        params = {}
+        self._test_successful_translation(tosca_file, hot_file, params)

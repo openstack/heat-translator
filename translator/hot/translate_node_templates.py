@@ -25,6 +25,7 @@ from toscaparser.utils.gettextutils import _
 from translator.common.exception import ToscaClassAttributeError
 from translator.common.exception import ToscaClassImportError
 from translator.common.exception import ToscaModImportError
+from translator.common import utils
 from translator.conf.config import ConfigProvider as translatorConfig
 from translator.hot.syntax.hot_resource import HotResource
 from translator.hot.tosca.tosca_block_storage_attachment import (
@@ -312,7 +313,7 @@ class TranslateNodeTemplates(object):
             inputs = resource.properties.get('input_values')
             if inputs:
                 for name, value in six.iteritems(inputs):
-                    inputs[name] = self._translate_input(value, resource)
+                    inputs[name] = self.translate_param_value(value, resource)
 
         # remove resources without type defined
         # for example a SoftwareComponent without interfaces
@@ -327,49 +328,118 @@ class TranslateNodeTemplates(object):
 
         return self.hot_resources
 
-    def _translate_input(self, input_value, resource):
+    def translate_param_value(self, param_value, resource):
+        tosca_template = None
+        if resource:
+            tosca_template = resource.nodetemplate
+
         get_property_args = None
-        if isinstance(input_value, GetProperty):
-            get_property_args = input_value.args
+        if isinstance(param_value, GetProperty):
+            get_property_args = param_value.args
         # to remove when the parser is fixed to return GetProperty
-        if isinstance(input_value, dict) and 'get_property' in input_value:
-            get_property_args = input_value['get_property']
+        if isinstance(param_value, dict) and 'get_property' in param_value:
+            get_property_args = param_value['get_property']
         if get_property_args is not None:
-            hot_target = self._find_hot_resource_for_tosca(
-                get_property_args[0], resource)
-            if hot_target:
-                props = hot_target.get_tosca_props()
-                prop_name = get_property_args[1]
-                if prop_name in props:
-                    return props[prop_name]
-        elif isinstance(input_value, GetAttribute):
+            tosca_target, prop_name, prop_arg = \
+                self.decipher_get_operation(get_property_args,
+                                            tosca_template)
+            if tosca_target:
+                prop_value = tosca_target.get_property_value(prop_name)
+                if prop_value:
+                    prop_value = self.translate_param_value(
+                        prop_value, resource)
+                    return self._unfold_value(prop_value, prop_arg)
+        get_attr_args = None
+        if isinstance(param_value, GetAttribute):
+            get_attr_args = param_value.result().args
+        # to remove when the parser is fixed to return GetAttribute
+        if isinstance(param_value, dict) and 'get_attribute' in param_value:
+            get_attr_args = param_value['get_attribute']
+        if get_attr_args is not None:
             # for the attribute
             # get the proper target type to perform the translation
-            args = input_value.result().args
-            hot_target = self._find_hot_resource_for_tosca(args[0], resource)
+            tosca_target, attr_name, attr_arg = \
+                self.decipher_get_operation(get_attr_args, tosca_template)
+            attr_args = []
+            if attr_arg:
+                attr_args += attr_arg
+            if tosca_target:
+                if tosca_target in self.hot_lookup:
+                    attr_value = self.hot_lookup[tosca_target].\
+                        get_hot_attribute(attr_name, attr_args)
+                    attr_value = self.translate_param_value(
+                        attr_value, resource)
+                    return self._unfold_value(attr_value, attr_arg)
+        elif isinstance(param_value, dict) and 'get_artifact' in param_value:
+            get_artifact_args = param_value['get_artifact']
+            tosca_target, artifact_name, _ = \
+                self.decipher_get_operation(get_artifact_args,
+                                            tosca_template)
 
-            return hot_target.get_hot_attribute(args[1], args)
-        # most of artifacts logic should move to the parser
-        elif isinstance(input_value, dict) and 'get_artifact' in input_value:
-            get_artifact_args = input_value['get_artifact']
-
-            hot_target = self._find_hot_resource_for_tosca(
-                get_artifact_args[0], resource)
-            artifacts = TranslateNodeTemplates.get_all_artifacts(
-                hot_target.nodetemplate)
-
-            if get_artifact_args[1] in artifacts:
-                artifact = artifacts[get_artifact_args[1]]
-                if artifact.get('type', None) == 'tosca.artifacts.File':
-                    return {'get_file': artifact.get('file')}
-        elif isinstance(input_value, GetInput):
-            if isinstance(input_value.args, list) \
-                    and len(input_value.args) == 1:
-                return {'get_param': input_value.args[0]}
+            if tosca_target:
+                artifacts = self.get_all_artifacts(tosca_target)
+                if artifact_name in artifacts:
+                    artifact = artifacts[artifact_name]
+                    if artifact.get('type', None) == 'tosca.artifacts.File':
+                        return {'get_file': artifact.get('file')}
+        get_input_args = None
+        if isinstance(param_value, GetInput):
+            get_input_args = param_value.args
+        if isinstance(param_value, dict) and 'get_input' in param_value:
+            get_input_args = param_value['get_input']
+        if get_input_args is not None:
+            if isinstance(get_input_args, list) \
+                    and len(get_input_args) == 1:
+                return {'get_param': self.translate_param_value(
+                    get_input_args[0], resource)}
             else:
-                return {'get_param': input_value.args}
+                return {'get_param': self.translate_param_value(
+                    get_input_args, resource)}
 
-        return input_value
+        return param_value
+
+    @staticmethod
+    def _unfold_value(value, value_arg):
+        if value_arg is not None:
+            if isinstance(value, dict):
+                val = value.get(value_arg)
+                if val is not None:
+                    return val
+
+            index = utils.str_to_num(value_arg)
+            if isinstance(value, list) and index is not None:
+                return value[index]
+        return value
+
+    def decipher_get_operation(self, args, current_tosca_node):
+        tosca_target = self._find_tosca_node(args[0],
+                                             current_tosca_node)
+        new_target = None
+        if tosca_target and len(args) > 2:
+            cap_or_req_name = args[1]
+            cap = tosca_target.get_capability(cap_or_req_name)
+            if cap:
+                new_target = cap
+            else:
+                for req in tosca_target.requirements:
+                    if cap_or_req_name in req:
+                        new_target = self._find_tosca_node(
+                            req[cap_or_req_name])
+                        cap = new_target.get_capability(cap_or_req_name)
+                        if cap:
+                            new_target = cap
+                        break
+
+        if new_target:
+            tosca_target = new_target
+
+            prop_name = args[2]
+            prop_arg = args[3] if len(args) >= 4 else None
+        else:
+            prop_name = args[1]
+            prop_arg = args[2] if len(args) >= 3 else None
+
+        return tosca_target, prop_name, prop_arg
 
     @staticmethod
     def get_all_artifacts(nodetemplate):
@@ -438,23 +508,29 @@ class TranslateNodeTemplates(object):
             if resource.name == name:
                 return resource
 
-    def _find_tosca_node(self, tosca_name):
-        for node in self.nodetemplates:
-            if node.name == tosca_name:
-                return node
+    def _find_tosca_node(self, tosca_name, current_tosca_template=None):
+        tosca_node = None
+        if tosca_name == 'SELF':
+            tosca_node = current_tosca_template
+        if tosca_name == 'HOST' and current_tosca_template:
+            for req in current_tosca_template.requirements:
+                if 'host' in req:
+                    tosca_node = self._find_tosca_node(req['host'])
+
+        if tosca_node is None:
+            for node in self.nodetemplates:
+                if node.name == tosca_name:
+                    tosca_node = node
+                    break
+        return tosca_node
 
     def _find_hot_resource_for_tosca(self, tosca_name,
                                      current_hot_resource=None):
-        if tosca_name == 'SELF':
-            return current_hot_resource
-        if tosca_name == 'HOST' and current_hot_resource is not None:
-            for req in current_hot_resource.nodetemplate.requirements:
-                if 'host' in req:
-                    return self._find_hot_resource_for_tosca(req['host'])
-
-        for node in self.nodetemplates:
-            if node.name == tosca_name:
-                return self.hot_lookup[node]
+        current_tosca_resource = current_hot_resource.nodetemplate \
+            if current_hot_resource else None
+        tosca_node = self._find_tosca_node(tosca_name, current_tosca_resource)
+        if tosca_node:
+            return self.hot_lookup[tosca_node]
 
         return None
 

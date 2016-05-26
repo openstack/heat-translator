@@ -104,7 +104,7 @@ class HotResource(object):
         # scenarios and cannot be fixed or hard coded here
         operations_deploy_sequence = ['create', 'configure', 'start']
 
-        operations = HotResource._get_all_operations(self.nodetemplate)
+        operations = HotResource.get_all_operations(self.nodetemplate)
 
         # create HotResource for each operation used for deployment:
         # create, start, configure
@@ -351,7 +351,7 @@ class HotResource(object):
         return tosca_props
 
     @staticmethod
-    def _get_all_operations(node):
+    def get_all_operations(node):
         operations = {}
         for operation in node.interfaces:
             operations[operation.name] = operation

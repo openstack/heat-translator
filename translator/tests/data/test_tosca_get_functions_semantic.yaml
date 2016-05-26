@@ -1,0 +1,77 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: TOSCA template to test get_* functions semantic
+
+node_types:
+  tosca.capabilities.MyFeature:
+    derived_from: tosca.capabilities.Root
+    properties:
+      my_list:
+        type: list
+      my_map:
+        type: map
+
+  tosca.nodes.WebApplication.MyApp:
+    derived_from: tosca.nodes.WebApplication
+    requirements:
+      - myfeature:
+          capability: tosca.capabilities.MyFeature
+          node: tosca.nodes.MyDatabase
+          relationship: tosca.relationships.ConnectsTo
+
+  tosca.nodes.MyDatabase:
+    derived_from: tosca.nodes.Database
+    capabilities:
+      myfeature:
+        type: tosca.capabilities.MyFeature
+
+topology_template:
+  inputs:
+    map_val:
+      type: string
+
+  node_templates:
+    server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 1
+           mem_size: 1 GB
+        os:
+          properties:
+            type: Linux
+            distribution: Ubuntu
+            version: 12.04
+            architecture: x86_64
+
+    mysql_database:
+      type: tosca.nodes.MyDatabase
+      requirements:
+        - host: server
+      capabilities:
+        myfeature:
+          properties:
+            my_list: [list_val_0]
+            my_map:
+              test_key: {get_input: map_val}
+              test_key_static: static_value
+
+    myapp:
+      type: tosca.nodes.WebApplication.MyApp
+      requirements:
+        - myfeature: mysql_database
+        - host: server
+      interfaces:
+        Standard:
+          configure:
+            implementation: myapp_configure.sh
+            inputs:
+              the_list_val: { get_property: [ SELF, myfeature, my_list, 0 ] }
+
+  outputs:
+    map_val:
+      value: { get_property: [ myapp, myfeature, my_map, test_key ] }
+
+    static_map_val:
+      value: { get_property: [ myapp, myfeature, my_map, test_key_static ] }
