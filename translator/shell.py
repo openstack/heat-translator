@@ -72,8 +72,6 @@ class TranslatorShell(object):
             raise ValueError(msg)
 
     def main(self, args):
-        # TODO(spzala): set self.deploy based on passed args once support for
-        # --deploy argument is enabled.
         self.deploy = False
         self._validate(args)
         path = args[0].split('--template-file=')[1]
