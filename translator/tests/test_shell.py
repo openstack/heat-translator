@@ -10,13 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import ast
-import json
 import os
 import shutil
 import tempfile
 
-from mock import patch
 from toscaparser.common import exception
 from toscaparser.utils.gettextutils import _
 import translator.shell as shell
@@ -49,10 +46,7 @@ class ShellTest(TestCase):
                            '--parameters=key'))
 
     def test_valid_template(self):
-        try:
-            shell.main([self.template_file, self.template_type])
-        except Exception:
-            self.fail(self.failure_msg)
+        shell.main([self.template_file, self.template_type])
 
     def test_valid_template_without_type(self):
         try:
@@ -100,86 +94,3 @@ class ShellTest(TestCase):
                 shutil.rmtree(temp_dir)
                 self.assertTrue(temp_dir is None or
                                 not os.path.exists(temp_dir))
-
-    @patch('uuid.uuid4')
-    @patch('translator.common.utils.check_for_env_variables')
-    @patch('requests.post')
-    @patch('translator.common.utils.get_url_for')
-    @patch('translator.common.utils.get_token_id')
-    @patch('os.getenv')
-    @patch('translator.hot.tosca.tosca_compute.'
-           'ToscaCompute._create_nova_flavor_dict')
-    @patch('translator.hot.tosca.tosca_compute.'
-           'ToscaCompute._populate_image_dict')
-    def test_template_deploy_with_credentials(self, mock_populate_image_dict,
-                                              mock_flavor_dict,
-                                              mock_os_getenv,
-                                              mock_token,
-                                              mock_url, mock_post,
-                                              mock_env,
-                                              mock_uuid):
-        mock_uuid.return_value = 'abcXXX-abcXXX'
-        mock_env.return_value = True
-        mock_flavor_dict.return_value = {
-            'm1.medium': {'mem_size': 4096, 'disk_size': 40, 'num_cpus': 2}
-        }
-        mock_populate_image_dict.return_value = {
-            "rhel-6.5-test-image": {
-                "version": "6.5",
-                "architecture": "x86_64",
-                "distribution": "RHEL",
-                "type": "Linux"
-            }
-        }
-        mock_url.return_value = 'http://abc.com'
-        mock_token.return_value = 'mock_token'
-        mock_os_getenv.side_effect = ['demo', 'demo',
-                                      'demo', 'http://www.abc.com']
-        try:
-            data = {
-                'stack_name': 'heat_abcXXX',
-                'parameters': {},
-                'template': {
-                    'outputs': {},
-                    'heat_template_version': '2013-05-23',
-                    'description': 'Template for deploying a single server '
-                                   'with predefined properties.\n',
-                    'parameters': {},
-                    'resources': {
-                        'my_server': {
-                            'type': 'OS::Nova::Server',
-                            'properties': {
-                                'flavor': 'm1.medium',
-                                'user_data_format': 'SOFTWARE_CONFIG',
-                                'image': 'rhel-6.5-test-image'
-                            }
-                        }
-                    }
-                }
-            }
-
-            mock_heat_res = {
-                "stack": {
-                    "id": 1234
-                }
-            }
-            headers = {
-                'Content-Type': 'application/json',
-                'X-Auth-Token': 'mock_token'
-            }
-
-            class mock_response(object):
-                def __init__(self, status_code, _content):
-                    self.status_code = status_code
-                    self._content = _content
-
-            mock_response_obj = mock_response(201, json.dumps(mock_heat_res))
-            mock_post.return_value = mock_response_obj
-            shell.main([self.template_file, self.template_type,
-                        "--deploy"])
-            args, kwargs = mock_post.call_args
-            self.assertEqual(args[0], 'http://abc.com/stacks')
-            self.assertEqual(ast.literal_eval(kwargs['data']), data)
-            self.assertEqual(kwargs['headers'], headers)
-        except Exception:
-            self.fail(self.failure_msg)

@@ -11,67 +11,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import logging
-import requests
 
 from toscaparser.utils.gettextutils import _
+from translator.common import flavors as nova_flavors
+from translator.common import images as glance_images
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
+
 
 log = logging.getLogger('heat-translator')
 
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaCompute'
-
-# A design issue to be resolved is how to translate the generic TOSCA server
-# properties to OpenStack flavors and images.  At the Atlanta design summit,
-# there was discussion on using Glance to store metadata and Graffiti to
-# describe artifacts.  We will follow these projects to see if they can be
-# leveraged for this TOSCA translation.
-# For development purpose at this time, we temporarily hardcode a list of
-# flavors and images here
-FLAVORS = {'m1.xlarge': {'mem_size': 16384, 'disk_size': 160, 'num_cpus': 8},
-           'm1.large': {'mem_size': 8192, 'disk_size': 80, 'num_cpus': 4},
-           'm1.medium': {'mem_size': 4096, 'disk_size': 40, 'num_cpus': 2},
-           'm1.small': {'mem_size': 2048, 'disk_size': 20, 'num_cpus': 1},
-           'm1.tiny': {'mem_size': 512, 'disk_size': 1, 'num_cpus': 1},
-           'm1.micro': {'mem_size': 128, 'disk_size': 0, 'num_cpus': 1},
-           'm1.nano': {'mem_size': 64, 'disk_size': 0, 'num_cpus': 1}}
-
-IMAGES = {'ubuntu-software-config-os-init': {'architecture': 'x86_64',
-                                             'type': 'Linux',
-                                             'distribution': 'Ubuntu',
-                                             'version': '14.04'},
-          'ubuntu-12.04-software-config-os-init': {'architecture': 'x86_64',
-                                                   'type': 'Linux',
-                                                   'distribution': 'Ubuntu',
-                                                   'version': '12.04'},
-          'fedora-amd64-heat-config': {'architecture': 'x86_64',
-                                       'type': 'Linux',
-                                       'distribution': 'Fedora',
-                                       'version': '18.0'},
-          'F18-x86_64-cfntools': {'architecture': 'x86_64',
-                                  'type': 'Linux',
-                                  'distribution': 'Fedora',
-                                  'version': '19'},
-          'Fedora-x86_64-20-20131211.1-sda': {'architecture': 'x86_64',
-                                              'type': 'Linux',
-                                              'distribution': 'Fedora',
-                                              'version': '20'},
-          'cirros-0.3.1-x86_64-uec': {'architecture': 'x86_64',
-                                      'type': 'Linux',
-                                      'distribution': 'CirrOS',
-                                      'version': '0.3.1'},
-          'cirros-0.3.2-x86_64-uec': {'architecture': 'x86_64',
-                                      'type': 'Linux',
-                                      'distribution': 'CirrOS',
-                                      'version': '0.3.2'},
-          'rhel-6.5-test-image': {'architecture': 'x86_64',
-                                  'type': 'Linux',
-                                  'distribution': 'RHEL',
-                                  'version': '6.5'}}
 
 
 class ToscaCompute(HotResource):
@@ -136,88 +89,10 @@ class ToscaCompute(HotResource):
         hot_properties['image'] = image
         return hot_properties
 
-    def _create_nova_flavor_dict(self):
-        '''Populates and returns the flavors dict using Nova ReST API'''
-        try:
-            access_dict = translator.common.utils.get_ks_access_dict()
-            access_token = translator.common.utils.get_token_id(access_dict)
-            if access_token is None:
-                return None
-            nova_url = translator.common.utils.get_url_for(access_dict,
-                                                           'compute')
-            if not nova_url:
-                return None
-            nova_response = requests.get(nova_url + '/flavors/detail',
-                                         headers={'X-Auth-Token':
-                                                  access_token})
-            if nova_response.status_code != 200:
-                return None
-            flavors = json.loads(nova_response.content)['flavors']
-            flavor_dict = dict()
-            for flavor in flavors:
-                flavor_name = str(flavor['name'])
-                flavor_dict[flavor_name] = {
-                    'mem_size': flavor['ram'],
-                    'disk_size': flavor['disk'],
-                    'num_cpus': flavor['vcpus'],
-                }
-        except Exception as e:
-            # Handles any exception coming from openstack
-            log.warn(_('Choosing predefined flavors since received '
-                       'Openstack Exception: %s') % str(e))
-            return None
-        return flavor_dict
-
-    def _populate_image_dict(self):
-        '''Populates and returns the images dict using Glance ReST API'''
-        images_dict = {}
-        try:
-            access_dict = translator.common.utils.get_ks_access_dict()
-            access_token = translator.common.utils.get_token_id(access_dict)
-            if access_token is None:
-                return None
-            glance_url = translator.common.utils.get_url_for(access_dict,
-                                                             'image')
-            if not glance_url:
-                return None
-            glance_response = requests.get(glance_url + '/v2/images',
-                                           headers={'X-Auth-Token':
-                                                    access_token})
-            if glance_response.status_code != 200:
-                return None
-            images = json.loads(glance_response.content)["images"]
-            for image in images:
-                image_resp = requests.get(glance_url + '/v2/images/' +
-                                          image["id"],
-                                          headers={'X-Auth-Token':
-                                                   access_token})
-                if image_resp.status_code != 200:
-                    continue
-                metadata = ["architecture", "type", "distribution", "version"]
-                image_data = json.loads(image_resp.content)
-                if any(key in image_data.keys() for key in metadata):
-                    images_dict[image_data["name"]] = dict()
-                    for key in metadata:
-                        if key in image_data.keys():
-                            images_dict[image_data["name"]][key] = \
-                                image_data[key]
-                else:
-                    continue
-
-        except Exception as e:
-            # Handles any exception coming from openstack
-            log.warn(_('Choosing predefined flavors since received '
-                       'Openstack Exception: %s') % str(e))
-        return images_dict
-
     def _best_flavor(self, properties):
         log.info(_('Choosing the best flavor for given attributes.'))
         # Check whether user exported all required environment variables.
-        flavors = FLAVORS
-        if translator.common.utils.check_for_env_variables():
-            resp = self._create_nova_flavor_dict()
-            if resp:
-                flavors = resp
+        flavors = nova_flavors.get_flavors()
 
         # start with all flavors
         match_all = flavors.keys()
@@ -260,11 +135,7 @@ class ToscaCompute(HotResource):
 
     def _best_image(self, properties):
         # Check whether user exported all required environment variables.
-        images = IMAGES
-        if translator.common.utils.check_for_env_variables():
-            resp = self._populate_image_dict()
-            if len(resp.keys()) > 0:
-                images = resp
+        images = glance_images.get_images()
         match_all = images.keys()
         architecture = properties.get(self.ARCHITECTURE)
         if architecture is None:

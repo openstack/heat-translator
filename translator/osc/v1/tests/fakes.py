@@ -12,6 +12,8 @@
 
 import sys
 
+import mock
+
 
 class FakeApp(object):
     def __init__(self):
@@ -19,6 +21,9 @@ class FakeApp(object):
         self.stdin = sys.stdin
         self.stdout = sys.stdout
         self.stderr = sys.stderr
+
+        self.cloud = mock.Mock()
+        self.cloud.get_session.return_value = None
 
 
 class FakeClientManager(object):
