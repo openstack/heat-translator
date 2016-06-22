@@ -16,7 +16,6 @@ from mock import patch
 
 from toscaparser.nodetemplate import NodeTemplate
 from toscaparser.tests.base import TestCase
-from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
 from translator.hot.tosca.tosca_compute import ToscaCompute
 
@@ -27,22 +26,12 @@ class ToscaComputeTest(TestCase):
         nodetemplates = (toscaparser.utils.yamlparser.
                          simple_parse(tpl_snippet)['node_templates'])
         name = list(nodetemplates.keys())[0]
-        try:
-            nodetemplate = NodeTemplate(name, nodetemplates)
-            nodetemplate.validate()
-            toscacompute = ToscaCompute(nodetemplate)
-            toscacompute.handle_properties()
-            if not self._compare_properties(toscacompute.properties,
-                                            expectedprops):
-                raise Exception(_("Hot Properties are not"
-                                  " same as expected properties"))
-        except Exception:
-            # for time being rethrowing. Will be handled future based
-            # on new development in Glance and Graffiti
-            raise
+        nodetemplate = NodeTemplate(name, nodetemplates)
+        nodetemplate.validate()
+        toscacompute = ToscaCompute(nodetemplate)
+        toscacompute.handle_properties()
 
-    def _compare_properties(self, hotprops, expectedprops):
-        return all(item in hotprops.items() for item in expectedprops.items())
+        self.assertDictEqual(expectedprops, toscacompute.properties)
 
     def test_node_compute_with_host_and_os_capabilities(self):
         tpl_snippet = '''
@@ -63,7 +52,8 @@ class ToscaComputeTest(TestCase):
                   version: 18.0
         '''
         expectedprops = {'flavor': 'm1.large',
-                         'image': 'fedora-amd64-heat-config'}
+                         'image': 'fedora-amd64-heat-config',
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -82,7 +72,8 @@ class ToscaComputeTest(TestCase):
               #left intentionally
         '''
         expectedprops = {'flavor': 'm1.large',
-                         'image': None}
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -101,7 +92,8 @@ class ToscaComputeTest(TestCase):
                   version: 18.0
         '''
         expectedprops = {'flavor': None,
-                         'image': 'fedora-amd64-heat-config'}
+                         'image': 'fedora-amd64-heat-config',
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -117,7 +109,8 @@ class ToscaComputeTest(TestCase):
               #left intentionally
         '''
         expectedprops = {'flavor': None,
-                         'image': None}
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -129,7 +122,8 @@ class ToscaComputeTest(TestCase):
             type: tosca.nodes.Compute
         '''
         expectedprops = {'flavor': None,
-                         'image': None}
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -144,7 +138,9 @@ class ToscaComputeTest(TestCase):
                 properties:
                 #left intentionally
         '''
-        expectedprops = {'flavor': None}
+        expectedprops = {'flavor': None,
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -160,7 +156,9 @@ class ToscaComputeTest(TestCase):
                   num_cpus: 4
                   mem_size: 4 GB
         '''
-        expectedprops = {'flavor': 'm1.large'}
+        expectedprops = {'flavor': 'm1.large',
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -176,7 +174,9 @@ class ToscaComputeTest(TestCase):
                   num_cpus: 4
                   disk_size: 10 GB
         '''
-        expectedprops = {'flavor': 'm1.large'}
+        expectedprops = {'flavor': 'm1.large',
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -191,7 +191,9 @@ class ToscaComputeTest(TestCase):
                 properties:
                   num_cpus: 4
         '''
-        expectedprops = {'flavor': 'm1.large'}
+        expectedprops = {'flavor': 'm1.large',
+                         'image': None,
+                         'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_compute_test(
             tpl_snippet,
             expectedprops)
@@ -249,7 +251,9 @@ class ToscaComputeTest(TestCase):
                 json.dumps(mock_flavor_content)
             mock_post.return_value = mock_ks_response
             mock_get.return_value = mock_nova_response
-            expectedprops = {'flavor': 'm1.mock_flavor'}
+            expectedprops = {'flavor': 'm1.mock_flavor',
+                             'image': None,
+                             'user_data_format': 'SOFTWARE_CONFIG'}
             self._tosca_compute_test(
                 tpl_snippet,
                 expectedprops)
@@ -279,8 +283,8 @@ class ToscaComputeTest(TestCase):
             mock_ks_content = {}
             mock_ks_response.content = json.dumps(mock_ks_content)
             expectedprops = {'flavor': 'm1.small',
-                             'user_data_format': 'SOFTWARE_CONFIG',
-                             'image': None}
+                             'image': None,
+                             'user_data_format': 'SOFTWARE_CONFIG'}
             self._tosca_compute_test(
                 tpl_snippet,
                 expectedprops)
