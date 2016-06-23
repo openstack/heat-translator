@@ -29,27 +29,8 @@ class ShellTest(TestCase):
         "data/tosca_helloworld.yaml")
     template_file = '--template-file=' + tosca_helloworld
     template_type = '--template-type=tosca'
-    template_validation = "--validate-only=true"
+    template_validation = "--validate-only"
     failure_msg = _('The program raised an exception unexpectedly.')
-
-    def test_missing_arg(self):
-        error = self.assertRaises(ValueError, shell.main, '')
-        err_msg = _('The program requires minimum two arguments. '
-                    'Please refer to the usage documentation.')
-        self.assertEqual(err_msg, str(error))
-
-    def test_invalid_file_arg(self):
-        error = self.assertRaises(ValueError, shell.main, 'translate me')
-        err_msg = _('The program expects --template-file as first '
-                    'argument. Please refer to the usage documentation.')
-        self.assertEqual(err_msg, str(error))
-
-    def test_invalid_type_arg(self):
-        error = self.assertRaises(ValueError,
-                                  shell.main, ('--template-file=', 'xyz'))
-        err_msg = _('The program expects --template-type as second argument. '
-                    'Please refer to the usage documentation.')
-        self.assertEqual(err_msg, str(error))
 
     def test_invalid_file_value(self):
         error = self.assertRaises(ValueError,
@@ -59,21 +40,23 @@ class ShellTest(TestCase):
         self.assertEqual(err_msg, str(error))
 
     def test_invalid_type_value(self):
-        error = self.assertRaises(ValueError, shell.main,
-                                  (self.template_file, '--template-type=xyz'))
-        err_msg = _('xyz is not a valid template type.')
-        self.assertEqual(err_msg, str(error))
+        self.assertRaises(SystemExit, shell.main,
+                          (self.template_file, '--template-type=xyz'))
 
     def test_invalid_parameters(self):
-        error = self.assertRaises(ValueError, shell.main,
-                                  (self.template_file, self.template_type,
-                                   '--parameters=key'))
-        err_msg = _("'key' is not a well-formed parameter.")
-        self.assertEqual(err_msg, str(error))
+        self.assertRaises(ValueError, shell.main,
+                          (self.template_file, self.template_type,
+                           '--parameters=key'))
 
     def test_valid_template(self):
         try:
             shell.main([self.template_file, self.template_type])
+        except Exception:
+            self.fail(self.failure_msg)
+
+    def test_valid_template_without_type(self):
+        try:
+            shell.main([self.template_file])
         except Exception:
             self.fail(self.failure_msg)
 
