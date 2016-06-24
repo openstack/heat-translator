@@ -23,35 +23,48 @@ from translator.tests.base import TestCase
 
 class ToscaHotTranslationTest(TestCase):
 
-    def test_hot_translate_single_server(self):
-        tosca_file = '../tests/data/tosca_single_server.yaml'
-        hot_file = '../tests/data/hot_output/hot_single_server.yaml'
-        params = {'cpus': 1}
+    def _test_successful_translation(self, tosca_file, hot_file, params=None):
+        if not params:
+            params = {}
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
                                                                    hot_file,
                                                                    params)
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
+    def _test_failed_translation(self, tosca_file, hot_file, params, msg,
+                                 msg_path, error_raise, error_collect):
+        if msg_path:
+            path = os.path.normpath(os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), tosca_file))
+            msg = msg % path
+        self.assertRaises(
+            error_raise,
+            TranslationUtils.compare_tosca_translation_with_hot,
+            tosca_file, hot_file, params)
+        ExceptionCollector.assertExceptionMessage(error_collect, msg)
+
+    def test_hot_translate_single_server(self):
+        tosca_file = '../tests/data/tosca_single_server.yaml'
+        hot_file = '../tests/data/hot_output/hot_single_server.yaml'
+        params = {'cpus': 1}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
     def test_hot_translate_single_server_with_defaults(self):
         tosca_file = \
             '../tests/data/tosca_single_server_with_defaults.yaml'
+
         hot_file_with_input = '../tests/data/hot_output/' \
             'hot_single_server_with_defaults_with_input.yaml'
+        params1 = {'cpus': '1'}
+        self._test_successful_translation(tosca_file, hot_file_with_input,
+                                          params1)
+
         hot_file_without_input = '../tests/data/hot_output/' \
             'hot_single_server_with_defaults_without_input.yaml'
-
-        params1 = {'cpus': '1'}
-        diff1 = TranslationUtils.compare_tosca_translation_with_hot(
-            tosca_file, hot_file_with_input, params1)
-        self.assertEqual({}, diff1, '<difference> : ' +
-                         json.dumps(diff1, indent=4, separators=(', ', ': ')))
-
         params2 = {}
-        diff2 = TranslationUtils.compare_tosca_translation_with_hot(
-            tosca_file, hot_file_without_input, params2)
-        self.assertEqual({}, diff2, '<difference> : ' +
-                         json.dumps(diff2, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file_without_input,
+                                          params2)
 
     def test_hot_translate_wordpress_single_instance(self):
         tosca_file = '../tests/data/tosca_single_instance_wordpress.yaml'
@@ -63,29 +76,17 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_helloworld(self):
         tosca_file = '../tests/data/tosca_helloworld.yaml'
         hot_file = '../tests/data/hot_output/hot_hello_world.yaml'
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   {})
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file)
 
     def test_hot_translate_host_assignment(self):
         tosca_file = '../tests/data/test_host_assignment.yaml'
         hot_file = '../tests/data/hot_output/hot_host_assignment.yaml'
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   {})
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file)
 
     def test_hot_translate_elk(self):
         tosca_file = '../tests/data/tosca_elk.yaml'
@@ -93,11 +94,7 @@ class ToscaHotTranslationTest(TestCase):
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
                   'my_cpus': 4}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_nodejs_mongodb_two_instances(self):
         tosca_file = '../tests/data/tosca_nodejs_mongodb_two_instances.yaml'
@@ -106,11 +103,7 @@ class ToscaHotTranslationTest(TestCase):
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
                   'my_cpus': 4}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_blockstorage_with_attachment(self):
         tosca_file = '../tests/data/storage/' \
@@ -121,11 +114,7 @@ class ToscaHotTranslationTest(TestCase):
                   'storage_location': '/dev/vdc',
                   'storage_size': '2000 MB',
                   'storage_snapshot_id': 'ssid'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_blockstorage_with_custom_relationship_type(self):
         tosca_file = '../tests/data/storage/' \
@@ -136,11 +125,7 @@ class ToscaHotTranslationTest(TestCase):
                   'storage_location': '/dev/vdc',
                   'storage_size': '1 GB',
                   'storage_snapshot_id': 'ssid'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_blockstorage_with_relationship_template(self):
         tosca_file = '../tests/data/storage/' \
@@ -150,11 +135,7 @@ class ToscaHotTranslationTest(TestCase):
         params = {'cpus': 1,
                   'storage_location': '/dev/vdc',
                   'storage_size': '1 GB'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_blockstorage_with_attachment_notation1(self):
         tosca_file = '../tests/data/storage/' \
@@ -167,19 +148,11 @@ class ToscaHotTranslationTest(TestCase):
                   'storage_location': 'some_folder',
                   'storage_size': '1 GB',
                   'storage_snapshot_id': 'ssid'}
-        diff1 = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                    hot_file1,
-                                                                    params)
+
         try:
-            self.assertEqual({}, diff1, '<difference> : ' +
-                             json.dumps(diff1, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file1, params)
         except Exception:
-            diff2 = TranslationUtils.compare_tosca_translation_with_hot(
-                tosca_file, hot_file2, params)
-            self.assertEqual({}, diff2, '<difference> : ' +
-                             json.dumps(diff2, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file2, params)
 
     def test_hot_translate_blockstorage_with_attachment_notation2(self):
         tosca_file = '../tests/data/storage/' \
@@ -192,19 +165,10 @@ class ToscaHotTranslationTest(TestCase):
                   'storage_location': '/dev/vdc',
                   'storage_size': '1 GB',
                   'storage_snapshot_id': 'ssid'}
-        diff1 = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                    hot_file1,
-                                                                    params)
         try:
-            self.assertEqual({}, diff1, '<difference> : ' +
-                             json.dumps(diff1, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file1, params)
         except Exception:
-            diff2 = TranslationUtils.compare_tosca_translation_with_hot(
-                tosca_file, hot_file2, params)
-            self.assertEqual({}, diff2, '<difference> : ' +
-                             json.dumps(diff2, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file2, params)
 
     def test_hot_translate_multiple_blockstorage_with_attachment(self):
         tosca_file = '../tests/data/storage/' \
@@ -217,40 +181,23 @@ class ToscaHotTranslationTest(TestCase):
                   'storage_location': '/dev/vdc',
                   'storage_size': '1 GB',
                   'storage_snapshot_id': 'ssid'}
-        diff1 = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                    hot_file1,
-                                                                    params)
         try:
-            self.assertEqual({}, diff1, '<difference> : ' +
-                             json.dumps(diff1, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file1, params)
         except Exception:
-            diff2 = TranslationUtils.compare_tosca_translation_with_hot(
-                tosca_file, hot_file2, params)
-            self.assertEqual({}, diff2, '<difference> : ' +
-                             json.dumps(diff2, indent=4,
-                                        separators=(', ', ': ')))
+            self._test_successful_translation(tosca_file, hot_file2, params)
 
     def test_hot_translate_single_object_store(self):
         tosca_file = '../tests/data/storage/tosca_single_object_store.yaml'
         hot_file = '../tests/data/hot_output/hot_single_object_store.yaml'
         params = {'objectstore_name': 'myobjstore'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_one_server_one_network(self):
         tosca_file = '../tests/data/network/tosca_one_server_one_network.yaml'
         hot_file = '../tests/data/hot_output/network/' \
                    'hot_one_server_one_network.yaml'
         params = {'network_name': 'private_net'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_server_on_existing_network(self):
         tosca_file = '../tests/data/network/' \
@@ -258,11 +205,7 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/network/' \
                    'hot_server_on_existing_network.yaml'
         params = {'network_name': 'private_net'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_two_servers_one_network(self):
         tosca_file = '../tests/data/network/tosca_two_servers_one_network.yaml'
@@ -272,11 +215,7 @@ class ToscaHotTranslationTest(TestCase):
                   'network_cidr': '10.0.0.0/24',
                   'network_start_ip': '10.0.0.100',
                   'network_end_ip': '10.0.0.150'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_one_server_three_networks(self):
         tosca_file = '../tests/data/network/' \
@@ -284,32 +223,20 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/network/' \
                    'hot_one_server_three_networks.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_software_component(self):
         tosca_file = '../tests/data/tosca_software_component.yaml'
         hot_file = '../tests/data/hot_output/hot_software_component.yaml'
         params = {'cpus': '1',
                   'download_url': 'http://www.software.com/download'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_web_application(self):
         tosca_file = '../tests/data/tosca_web_application.yaml'
         hot_file = '../tests/data/hot_output/hot_web_application.yaml'
         params = {'cpus': '2', 'context_root': 'my_web_app'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_template_with_url_import(self):
         tosca_file = '../tests/data/' \
@@ -322,11 +249,7 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_template_by_url_with_local_import(self):
         tosca_file = 'https://raw.githubusercontent.com/openstack/' \
@@ -340,11 +263,7 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_template_by_url_with_local_abspath_import(self):
         tosca_file = 'https://raw.githubusercontent.com/openstack/' \
@@ -359,17 +278,15 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
         expected_msg = _('Absolute file name "/tmp/wordpress.yaml" cannot be '
                          'used in a URL-based input template "https://raw.'
                          'githubusercontent.com/openstack/heat-translator/'
                          'master/translator/tests/data/tosca_single_instance_'
                          'wordpress_with_local_abspath_import.yaml".')
-        ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
+        msg_path = False
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      ImportError)
 
     def test_hot_translate_template_by_url_with_url_import(self):
         tosca_url = 'https://raw.githubusercontent.com/openstack/' \
@@ -383,20 +300,12 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_url,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_url, hot_file, params)
 
     def test_translate_hello_world_csar(self):
         tosca_file = '../tests/data/csar_hello_world.zip'
         hot_file = '../tests/data/hot_output/hot_hello_world.yaml'
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   {})
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file)
 
     def test_translate_single_instance_wordpress_csar(self):
         tosca_file = '../tests/data/csar_single_instance_wordpress.zip'
@@ -408,11 +317,7 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_translate_elk_csar_from_url(self):
         tosca_file = 'https://github.com/openstack/heat-translator/raw/' \
@@ -421,150 +326,103 @@ class ToscaHotTranslationTest(TestCase):
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
                   'my_cpus': 4}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_translate_csar_not_zip(self):
         tosca_file = '../tests/data/csar_not_zip.zip'
         hot_file = ''
         params = {}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
-        path = os.path.normpath(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), tosca_file))
-        expected_msg = _('"%s" is not a valid zip file.') % path
-        ExceptionCollector.assertExceptionMessage(ValidationError,
-                                                  expected_msg)
+        expected_msg = _('"%s" is not a valid zip file.')
+        msg_path = True
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      ValidationError)
 
     def test_translate_csar_metadata_not_yaml(self):
         tosca_file = '../tests/data/csar_metadata_not_yaml.zip'
         hot_file = ''
         params = {}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
-        path = os.path.normpath(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), tosca_file))
         expected_msg = _('The file "TOSCA-Metadata/TOSCA.meta" in the CSAR '
-                         '"%s" does not contain valid YAML content.') % path
-        ExceptionCollector.assertExceptionMessage(ValidationError,
-                                                  expected_msg)
+                         '"%s" does not contain valid YAML content.')
+        msg_path = True
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      ValidationError)
 
     def test_translate_csar_wrong_metadata_file(self):
         tosca_file = '../tests/data/csar_wrong_metadata_file.zip'
         hot_file = ''
         params = {}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
-        path = os.path.normpath(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), tosca_file))
         expected_msg = _('"%s" is not a valid CSAR as it does not contain the '
                          'required file "TOSCA.meta" in the folder '
-                         '"TOSCA-Metadata".') % path
-        ExceptionCollector.assertExceptionMessage(ValidationError,
-                                                  expected_msg)
+                         '"TOSCA-Metadata".')
+        msg_path = True
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      ValidationError)
 
     def test_translate_csar_wordpress_invalid_import_path(self):
         tosca_file = '../tests/data/csar_wordpress_invalid_import_path.zip'
         hot_file = ''
         params = {}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
         expected_msg = _('Import '
                          '"Invalid_import_path/wordpress.yaml" is not valid.')
-        ExceptionCollector.assertExceptionMessage(ImportError, expected_msg)
+        msg_path = False
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      ImportError)
 
     def test_translate_csar_wordpress_invalid_script_url(self):
         tosca_file = '../tests/data/csar_wordpress_invalid_script_url.zip'
         hot_file = ''
         params = {}
-
-        self.assertRaises(
-            ValidationError,
-            TranslationUtils.compare_tosca_translation_with_hot,
-            tosca_file, hot_file, params)
         expected_msg = _('The resource at '
                          '"https://raw.githubusercontent.com/openstack/'
                          'heat-translator/master/translator/tests/data/'
                          'custom_types/wordpress1.yaml" cannot be accessed.')
-        ExceptionCollector.assertExceptionMessage(URLException, expected_msg)
+        msg_path = False
+        self._test_failed_translation(tosca_file, hot_file, params,
+                                      expected_msg, msg_path, ValidationError,
+                                      URLException)
 
     def test_hot_translate_flavor_image(self):
         tosca_file = '../tests/data/test_tosca_flavor_and_image.yaml'
         hot_file = '../tests/data/hot_output/hot_flavor_and_image.yaml'
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   {})
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file)
 
     def test_hot_translate_flavor_image_params(self):
         tosca_file = '../tests/data/test_tosca_flavor_and_image.yaml'
         hot_file = '../tests/data/hot_output/hot_flavor_and_image_params.yaml'
         params = {'key_name': 'paramkey'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_custom_type(self):
         tosca_file = '../tests/data/test_tosca_custom_type.yaml'
         hot_file = '../tests/data/hot_output/' \
             'hot_custom_type.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_custom_type_with_override(self):
         tosca_file = '../tests/data/test_tosca_custom_type_with_override.yaml'
         hot_file = '../tests/data/hot_output/' \
             'hot_custom_type_with_override.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_custom_type_with_param_override(self):
         tosca_file = '../tests/data/test_tosca_custom_type_with_override.yaml'
         hot_file = '../tests/data/hot_output/' \
             'hot_custom_type_with_param_override.yaml'
         params = {'install_path': '/home/custom/from/cli'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_artifact(self):
         tosca_file = '../tests/data/test_tosca_artifact.yaml'
         hot_file = '../tests/data/hot_output/' \
             'hot_artifact.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_without_tosca_os_version(self):
         tosca_file = '../tests/data/' \
@@ -572,21 +430,13 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/' \
             'hot_single_server_without_tosca_os_version.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_helloworld_with_userkey(self):
         tosca_file = '../tests/data/tosca_helloworld.yaml'
         hot_file = '../tests/data/hot_output/hot_hello_world_userkey.yaml'
         params = {'key_name': 'userkey'}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_custom_networks_nodes_inline(self):
         tosca_file = '../tests/data/network/' \
@@ -594,11 +444,7 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/network/' \
                    'hot_custom_network_nodes.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_custom_networks_nodes_imports(self):
         tosca_file = '../tests/data/network/' \
@@ -606,38 +452,22 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/network/' \
                    'hot_custom_network_nodes.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_nfv_sample(self):
         tosca_file = '../tests/data/test_tosca_nfv_sample.yaml'
         hot_file = '../tests/data/hot_output/hot_nfv_sample.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_policy(self):
         tosca_file = '../tests/data/tosca_policies.yaml'
         hot_file = '../tests/data/hot_output/hot_policies.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_script_types(self):
         tosca_file = '../tests/data/test_tosca_script_types.yaml'
         hot_file = '../tests/data/hot_output/hot_script_types.yaml'
         params = {}
-        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
-                                                                   params)
-        self.assertEqual({}, diff, '<difference> : ' +
-                         json.dumps(diff, indent=4, separators=(', ', ': ')))
+        self._test_successful_translation(tosca_file, hot_file, params)
