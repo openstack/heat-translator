@@ -1,0 +1,55 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA template to test get_operation_output by exchanging ssh public key
+
+parameters: {}
+resources:
+  generate_ssh_key_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: generate_ssh_key_create_config
+      server:
+        get_resource: server1
+  import_public_key_create_deploy:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: import_public_key_create_config
+      input_values:
+        public_key:
+          get_attr:
+          - generate_ssh_key_create_deploy
+          - public_key
+      server:
+        get_resource: server2
+    depends_on:
+    - generate_ssh_key_create_deploy
+  server1:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-12.04-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+  server2:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-12.04-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+  generate_ssh_key_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: artifacts/ssh/ssh_generate_keys.sh
+      group: script
+      outputs:
+      - name: public_key
+  import_public_key_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: artifacts/ssh/ssh_import_public_key.sh
+      group: script
+outputs: {}

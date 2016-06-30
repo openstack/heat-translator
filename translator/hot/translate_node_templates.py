@@ -395,8 +395,42 @@ class TranslateNodeTemplates(object):
             else:
                 return {'get_param': self.translate_param_value(
                     get_input_args, resource)}
+        elif isinstance(param_value, dict) \
+                and 'get_operation_output' in param_value:
+            res = self._translate_get_operation_output_function(
+                param_value['get_operation_output'], tosca_template)
+            if res:
+                return res
 
         return param_value
+
+    def _translate_get_operation_output_function(self, args, tosca_template):
+        tosca_target = self._find_tosca_node(args[0],
+                                             tosca_template)
+        if tosca_target and len(args) >= 4:
+            operations = HotResource.get_all_operations(tosca_target)
+            # ignore Standard interface name,
+            # it is the only one supported in the translator anyway
+            op_name = args[2]
+            output_name = args[3]
+            if op_name in operations:
+                operation = operations[op_name]
+                if operation in self.hot_lookup:
+                    matching_deploy = self.hot_lookup[operation]
+                    matching_config_name = matching_deploy.\
+                        properties['config']['get_resource']
+                    matching_config = self.find_hot_resource(
+                        matching_config_name)
+                    if matching_config:
+                        outputs = matching_config.properties.get('outputs')
+                        if outputs is None:
+                            outputs = []
+                        outputs.append({'name': output_name})
+                        matching_config.properties['outputs'] = outputs
+                    return {'get_attr': [
+                        matching_deploy.name,
+                        output_name
+                    ]}
 
     @staticmethod
     def _unfold_value(value, value_arg):

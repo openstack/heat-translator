@@ -1,0 +1,54 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: TOSCA template to test get_operation_output by exchanging ssh public key
+
+topology_template:
+
+  node_templates:
+    server1:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 1
+           mem_size: 1 GB
+        os:
+          properties:
+            type: Linux
+            distribution: Ubuntu
+            version: 12.04
+            architecture: x86_64
+
+    server2:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+         properties:
+           num_cpus: 1
+           mem_size: 1 GB
+        os:
+          properties:
+            type: Linux
+            distribution: Ubuntu
+            version: 12.04
+            architecture: x86_64
+
+    generate_ssh_key:
+      type: tosca.nodes.SoftwareComponent
+      interfaces:
+        Standard:
+          create: artifacts/ssh/ssh_generate_keys.sh
+      requirements:
+        - host: server1
+
+    import_public_key:
+      type: tosca.nodes.SoftwareComponent
+      interfaces:
+        Standard:
+          create:
+            implementation: artifacts/ssh/ssh_import_public_key.sh
+            inputs:
+              public_key: { get_operation_output: [generate_ssh_key, Standard, create, public_key] }
+      requirements:
+        - host: server2
+        - dependency: generate_ssh_key

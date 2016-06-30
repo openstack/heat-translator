@@ -483,3 +483,9 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/hot_get_functions_semantic.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_exchange_public_ssh_key(self):
+        tosca_file = '../tests/data/tosca_exchange_public_ssh_key.yaml'
+        hot_file = '../tests/data/hot_output/hot_exchange_public_ssh_key.yaml'
+        params = {}
+        self._test_successful_translation(tosca_file, hot_file, params)
