@@ -10,10 +10,10 @@ resources:
   myapp_configure_deploy:
     type: OS::Heat::SoftwareDeployment
     properties:
+      input_values:
+        list_val: list_val_0
       config:
         get_resource: myapp_configure_config
-      input_values:
-        the_list_val: list_val_0
       server:
         get_resource: server
     depends_on:
@@ -27,14 +27,24 @@ resources:
   myapp_configure_config:
     type: OS::Heat::SoftwareConfig
     properties:
+      group: script
       config:
         get_file: myapp_configure.sh
-      group: script
 outputs:
   map_val:
     description: null
     value:
       get_input: map_val
+  concat_map_val:
+    description: null
+    value:
+      str_replace:
+        params:
+          $s2: :8080
+          $s0: http://
+          $s1:
+            get_input: map_val
+        template: $s0$s1$s2
   static_map_val:
     description: null
     value: static_value

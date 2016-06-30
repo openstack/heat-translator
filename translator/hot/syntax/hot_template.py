@@ -77,6 +77,7 @@ class HotTemplate(object):
         dict_output.update({self.OUTPUTS: all_outputs})
 
         yaml.add_representer(OrderedDict, self.represent_ordereddict)
+        yaml.add_representer(dict, self.represent_ordereddict)
         yaml_string = yaml.dump(dict_output, default_flow_style=False)
         # get rid of the '' from yaml.dump around numbers
         yaml_string = yaml_string.replace('\'', '')

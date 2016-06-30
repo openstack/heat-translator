@@ -16,6 +16,7 @@ import logging
 import os
 import six
 
+from toscaparser.functions import Concat
 from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
 from toscaparser.functions import GetProperty
@@ -337,7 +338,7 @@ class TranslateNodeTemplates(object):
         if isinstance(param_value, GetProperty):
             get_property_args = param_value.args
         # to remove when the parser is fixed to return GetProperty
-        if isinstance(param_value, dict) and 'get_property' in param_value:
+        elif isinstance(param_value, dict) and 'get_property' in param_value:
             get_property_args = param_value['get_property']
         if get_property_args is not None:
             tosca_target, prop_name, prop_arg = \
@@ -353,7 +354,7 @@ class TranslateNodeTemplates(object):
         if isinstance(param_value, GetAttribute):
             get_attr_args = param_value.result().args
         # to remove when the parser is fixed to return GetAttribute
-        if isinstance(param_value, dict) and 'get_attribute' in param_value:
+        elif isinstance(param_value, dict) and 'get_attribute' in param_value:
             get_attr_args = param_value['get_attribute']
         if get_attr_args is not None:
             # for the attribute
@@ -385,7 +386,7 @@ class TranslateNodeTemplates(object):
         get_input_args = None
         if isinstance(param_value, GetInput):
             get_input_args = param_value.args
-        if isinstance(param_value, dict) and 'get_input' in param_value:
+        elif isinstance(param_value, dict) and 'get_input' in param_value:
             get_input_args = param_value['get_input']
         if get_input_args is not None:
             if isinstance(get_input_args, list) \
@@ -401,8 +402,32 @@ class TranslateNodeTemplates(object):
                 param_value['get_operation_output'], tosca_template)
             if res:
                 return res
+        concat_list = None
+        if isinstance(param_value, Concat):
+            concat_list = param_value.args
+        elif isinstance(param_value, dict) and 'concat' in param_value:
+            concat_list = param_value['concat']
+        if concat_list is not None:
+            res = self._translate_concat_function(concat_list, resource)
+            if res:
+                return res
 
         return param_value
+
+    def _translate_concat_function(self, concat_list, resource):
+        str_replace_template = ''
+        str_replace_params = {}
+        index = 0
+        for elem in concat_list:
+            str_replace_template += '$s' + str(index)
+            str_replace_params['$s' + str(index)] = \
+                self.translate_param_value(elem, resource)
+            index += 1
+
+        return {'str_replace': {
+            'template': str_replace_template,
+            'params': str_replace_params
+        }}
 
     def _translate_get_operation_output_function(self, args, tosca_template):
         tosca_target = self._find_tosca_node(args[0],

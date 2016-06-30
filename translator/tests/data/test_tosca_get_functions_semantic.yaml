@@ -54,7 +54,7 @@ topology_template:
           properties:
             my_list: [list_val_0]
             my_map:
-              test_key: {get_input: map_val}
+              test_key: { get_input: map_val }
               test_key_static: static_value
 
     myapp:
@@ -67,7 +67,7 @@ topology_template:
           configure:
             implementation: myapp_configure.sh
             inputs:
-              the_list_val: { get_property: [ SELF, myfeature, my_list, 0 ] }
+              list_val: { get_property: [ SELF, myfeature, my_list, 0 ] }
 
   outputs:
     map_val:
@@ -75,3 +75,6 @@ topology_template:
 
     static_map_val:
       value: { get_property: [ myapp, myfeature, my_map, test_key_static ] }
+
+    concat_map_val:
+      value: { concat: [ 'http://', { get_property: [ myapp, myfeature, my_map, test_key ] }, ':8080' ] }
