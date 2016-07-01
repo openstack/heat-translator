@@ -32,11 +32,10 @@ resources:
         get_file: myapp_configure.sh
 outputs:
   map_val:
-    description: null
+    description: map_val
     value:
       get_input: map_val
   concat_map_val:
-    description: null
     value:
       str_replace:
         params:
@@ -46,5 +45,4 @@ outputs:
             get_input: map_val
         template: $s0$s1$s2
   static_map_val:
-    description: null
     value: static_value

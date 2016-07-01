@@ -71,6 +71,7 @@ topology_template:
 
   outputs:
     map_val:
+      description: map_val
       value: { get_property: [ myapp, myfeature, my_map, test_key ] }
 
     static_map_val:

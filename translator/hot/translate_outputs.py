@@ -34,6 +34,7 @@ class TranslateOutputs(object):
         hot_outputs = []
         for output in self.outputs:
             hot_value = self.nodes.translate_param_value(output.value, None)
-            hot_outputs.append(HotOutput(output.name, hot_value,
-                                         output.description))
+            if hot_value is not None:
+                hot_outputs.append(HotOutput(output.name, hot_value,
+                                             output.description))
         return hot_outputs
