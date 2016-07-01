@@ -135,7 +135,7 @@ log = logging.getLogger('heat-translator')
 
 TOSCA_TO_HOT_TYPE = _generate_type_map()
 
-BASE_TYPES = six.string_types + six.integer_types + (dict, list, OrderedDict)
+BASE_TYPES = six.string_types + six.integer_types + (dict, OrderedDict)
 
 
 class TranslateNodeTemplates(object):
@@ -414,6 +414,14 @@ class TranslateNodeTemplates(object):
             res = self._translate_concat_function(concat_list, resource)
             if res:
                 return res
+
+        if isinstance(param_value, list):
+            translated_list = []
+            for elem in param_value:
+                translated_elem = self.translate_param_value(elem, resource)
+                if translated_elem:
+                    translated_list.append(translated_elem)
+            return translated_list
 
         if isinstance(param_value, BASE_TYPES):
             return param_value

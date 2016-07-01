@@ -79,3 +79,6 @@ topology_template:
 
     concat_map_val:
       value: { concat: [ 'http://', { get_property: [ myapp, myfeature, my_map, test_key ] }, ':8080' ] }
+
+    test_list_of_functions:
+      value: [ { get_property: [ myapp, myfeature, my_map, test_key ] }, { get_property: [ myapp, myfeature, my_map, test_key_static ] } ]

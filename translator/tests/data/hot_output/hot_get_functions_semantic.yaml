@@ -46,3 +46,7 @@ outputs:
         template: $s0$s1$s2
   static_map_val:
     value: static_value
+  test_list_of_functions:
+    value:
+    - get_input: map_val
+    - static_value
