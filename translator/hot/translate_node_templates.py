@@ -16,6 +16,7 @@ import logging
 import os
 import six
 
+from collections import OrderedDict
 from toscaparser.functions import Concat
 from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
@@ -133,6 +134,8 @@ TOSCA_TO_HOT_PROPERTIES = {'properties': 'input'}
 log = logging.getLogger('heat-translator')
 
 TOSCA_TO_HOT_TYPE = _generate_type_map()
+
+BASE_TYPES = six.string_types + six.integer_types + (dict, list, OrderedDict)
 
 
 class TranslateNodeTemplates(object):
@@ -412,7 +415,10 @@ class TranslateNodeTemplates(object):
             if res:
                 return res
 
-        return param_value
+        if isinstance(param_value, BASE_TYPES):
+            return param_value
+
+        return None
 
     def _translate_concat_function(self, concat_list, resource):
         str_replace_template = ''
