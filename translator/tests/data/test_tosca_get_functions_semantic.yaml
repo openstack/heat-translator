@@ -3,6 +3,12 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 description: TOSCA template to test get_* functions semantic
 
 node_types:
+  tosca.capabilities.custom.Endpoint:
+    derived_from: tosca.capabilities.Endpoint
+    attributes:
+      credential:
+        type: tosca.datatypes.Credential
+
   tosca.capabilities.MyFeature:
     derived_from: tosca.capabilities.Root
     properties:
@@ -25,6 +31,12 @@ node_types:
       myfeature:
         type: tosca.capabilities.MyFeature
 
+  tosca.nodes.custom.Compute:
+    derived_from: tosca.nodes.Compute
+    capabilities:
+      endpoint:
+        type: tosca.capabilities.custom.Endpoint
+
 topology_template:
   inputs:
     map_val:
@@ -32,7 +44,7 @@ topology_template:
 
   node_templates:
     server:
-      type: tosca.nodes.Compute
+      type: tosca.nodes.custom.Compute
       capabilities:
         host:
          properties:
@@ -82,3 +94,7 @@ topology_template:
 
     test_list_of_functions:
       value: [ { get_property: [ myapp, myfeature, my_map, test_key ] }, { get_property: [ myapp, myfeature, my_map, test_key_static ] } ]
+
+    # should not be translated : complex type
+    credential:
+      value: { get_attribute: [server, endpoint, credential] }
