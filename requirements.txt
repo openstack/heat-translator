@@ -12,3 +12,4 @@ keystoneauth1>=2.7.0 # Apache-2.0
 python-novaclient!=2.33.0,>=2.29.0 # Apache-2.0
 python-heatclient>=1.1.0 # Apache-2.0
 python-glanceclient>=2.0.0 # Apache-2.0
+requests>=2.10.0 # Apache-2.0
