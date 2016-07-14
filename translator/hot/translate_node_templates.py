@@ -381,7 +381,7 @@ class TranslateNodeTemplates(object):
                                             tosca_template)
 
             if tosca_target:
-                artifacts = self.get_all_artifacts(tosca_target)
+                artifacts = HotResource.get_all_artifacts(tosca_target)
                 if artifact_name in artifacts:
                     artifact = artifacts[artifact_name]
                     if artifact.get('type', None) == 'tosca.artifacts.File':
@@ -513,18 +513,6 @@ class TranslateNodeTemplates(object):
             prop_arg = args[2] if len(args) >= 3 else None
 
         return tosca_target, prop_name, prop_arg
-
-    @staticmethod
-    def get_all_artifacts(nodetemplate):
-        artifacts = nodetemplate.type_definition.get_value('artifacts',
-                                                           parent=True)
-        if not artifacts:
-            artifacts = {}
-        tpl_artifacts = nodetemplate.entity_tpl.get('artifacts')
-        if tpl_artifacts:
-            artifacts.update(tpl_artifacts)
-
-        return artifacts
 
     def _get_attachment_node(self, node, suffix, volume_name):
         attach = False

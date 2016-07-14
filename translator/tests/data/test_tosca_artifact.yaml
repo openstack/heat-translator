@@ -1,11 +1,14 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
-description: TOSCA template to test artifact usage
+description: TOSCA template to test file and Ansible Galaxy role artifacts
 
 node_types:
   tosca.nodes.CustomWebServer:
     derived_from: tosca.nodes.WebServer
     artifacts:
+      my_galaxyansible_role:
+        file: user.role
+        type: tosca.artifacts.AnsibleGalaxy.role
       web_content:
         file: http://www.mycompany.org/content.tgz
         type: tosca.artifacts.File
