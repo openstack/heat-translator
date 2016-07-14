@@ -127,6 +127,14 @@ class HotResource(object):
         hosting_server = None
         if self.nodetemplate.requirements is not None:
             hosting_server = self._get_hosting_server()
+        # hosting_server is None if requirements is None
+        hosting_on_server = hosting_server.name if hosting_server else None
+        base_type = HotResource.get_base_type_str(
+            self.nodetemplate.type_definition)
+        # if we are on a compute node the host is self
+        if hosting_on_server is None and base_type == 'tosca.nodes.Compute':
+            hosting_on_server = self.name
+
         for operation in operations.values():
             if operation.name in operations_deploy_sequence:
                 config_name = node_name + '_' + operation.name + '_config'
@@ -137,17 +145,6 @@ class HotResource(object):
                                 'OS::Heat::SoftwareConfig',
                                 {'config':
                                     {'get_file': operation.implementation}}))
-
-                # hosting_server is None if requirements is None
-                hosting_on_server = (hosting_server.name if
-                                     hosting_server else None)
-                base_type = HotResource.get_base_type(
-                    self.nodetemplate.type_definition).type
-                # handle interfaces directly defined on a compute
-                if hosting_on_server is None \
-                    and base_type == 'tosca.nodes.Compute':
-                    hosting_on_server = self.name
-
                 if operation.name == reserve_current and \
                     base_type != 'tosca.nodes.Compute':
                     deploy_resource = self
@@ -329,8 +326,8 @@ class HotResource(object):
         # capability is a list of dict
         # For now just check if it's type tosca.nodes.Compute
         # TODO(anyone): match up requirement and capability
-        base_type = HotResource.get_base_type(node.type_definition)
-        if base_type.type == 'tosca.nodes.Compute':
+        base_type = HotResource.get_base_type_str(node.type_definition)
+        if base_type == 'tosca.nodes.Compute':
             return True
         else:
             return False
@@ -375,9 +372,9 @@ class HotResource(object):
     @staticmethod
     def _get_interface_operations_from_type(node_type, node, lifecycle_name):
         operations = {}
-        if isinstance(node_type, str) or \
-            node_type.type == "tosca.policies.Placement":
-                return operations
+        base_type = HotResource.get_base_type_str(node_type)
+        if base_type == "tosca.policies.Placement":
+            return operations
         if node_type.interfaces and lifecycle_name in node_type.interfaces:
             for name, elems in node_type.interfaces[lifecycle_name].items():
                 # ignore empty operations (only type)
@@ -390,11 +387,19 @@ class HotResource(object):
         return operations
 
     @staticmethod
-    def get_base_type(node_type):
-        if node_type.parent_type is not None:
-            if node_type.parent_type.type.endswith('.Root'):
-                return node_type
-            else:
-                return HotResource.get_base_type(node_type.parent_type)
-        else:
+    def get_base_type_str(node_type):
+        if isinstance(node_type, six.string_types):
             return node_type
+        if node_type.parent_type is not None:
+            parent_type_str = None
+            if isinstance(node_type.parent_type, six.string_types):
+                parent_type_str = node_type.parent_type
+            else:
+                parent_type_str = node_type.parent_type.type
+
+            if parent_type_str and parent_type_str.endswith('.Root'):
+                return node_type.type
+            else:
+                return HotResource.get_base_type_str(node_type.parent_type)
+
+        return node_type.type
