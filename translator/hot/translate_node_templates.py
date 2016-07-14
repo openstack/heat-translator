@@ -178,14 +178,14 @@ class TranslateNodeTemplates(object):
         suffix = 0
         # Copy the TOSCA graph: nodetemplate
         for node in self.nodetemplates:
-            base_type = HotResource.get_base_type(node.type_definition)
-            hot_node = TOSCA_TO_HOT_TYPE[base_type.type](node)
+            base_type = HotResource.get_base_type_str(node.type_definition)
+            hot_node = TOSCA_TO_HOT_TYPE[base_type](node)
             self.hot_resources.append(hot_node)
             self.hot_lookup[node] = hot_node
 
             # BlockStorage Attachment is a special case,
             # which doesn't match to Heat Resources 1 to 1.
-            if base_type.type == "tosca.nodes.Compute":
+            if base_type == "tosca.nodes.Compute":
                 volume_name = None
                 requirements = node.requirements
                 if requirements:
@@ -266,9 +266,9 @@ class TranslateNodeTemplates(object):
                 # if the source of dependency is a server and the
                 # relationship type is 'tosca.relationships.HostedOn',
                 # add dependency as properties.server
-                base_type = HotResource.get_base_type(
+                base_type = HotResource.get_base_type_str(
                     node_depend.type_definition)
-                if base_type.type == 'tosca.nodes.Compute' and \
+                if base_type == 'tosca.nodes.Compute' and \
                    node.related[node_depend].type == \
                    node.type_definition.HOSTEDON:
                     self.hot_lookup[node].properties['server'] = \
