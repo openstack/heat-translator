@@ -43,6 +43,11 @@ class ToscaClassImportError(TOSCAException):
                 'exists and has no language definition errors.')
 
 
+class UnsupportedTypeError(TOSCAException):
+    msg_fmt = _('Type "%(type)s" is valid TOSCA type but translation '
+                'support is not yet available.')
+
+
 class ToscaClassAttributeError(TOSCAException):
     msg_fmt = _('Class attribute referenced not found. '
                 '%(message)s. Check to see that it is defined.')

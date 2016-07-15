@@ -1,0 +1,15 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: Template to test unsupported translation. Load Balancer is a
+   > valid TOSCA type but not supported in translator yet.
+
+topology_template:
+  node_templates:
+    simple_load_balancer:
+      type: tosca.nodes.LoadBalancer
+      capabilities:
+        client:
+          properties:
+            network_name: PUBLIC
+            floating: true
+            dns_name: http://mycompany.com/

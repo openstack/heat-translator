@@ -27,6 +27,7 @@ from toscaparser.utils.gettextutils import _
 from translator.common.exception import ToscaClassAttributeError
 from translator.common.exception import ToscaClassImportError
 from translator.common.exception import ToscaModImportError
+from translator.common.exception import UnsupportedTypeError
 from translator.common import utils
 from translator.conf.config import ConfigProvider as translatorConfig
 from translator.hot.syntax.hot_resource import HotResource
@@ -180,6 +181,8 @@ class TranslateNodeTemplates(object):
         # Copy the TOSCA graph: nodetemplate
         for node in self.nodetemplates:
             base_type = HotResource.get_base_type_str(node.type_definition)
+            if base_type not in TOSCA_TO_HOT_TYPE:
+                raise UnsupportedTypeError(type=_('%s') % base_type)
             hot_node = TOSCA_TO_HOT_TYPE[base_type](node)
             self.hot_resources.append(hot_node)
             self.hot_lookup[node] = hot_node
@@ -220,6 +223,8 @@ class TranslateNodeTemplates(object):
 
         for policy in self.policies:
             policy_type = policy.type_definition
+            if policy_type.type not in TOSCA_TO_HOT_TYPE:
+                raise UnsupportedTypeError(type=_('%s') % policy_type.type)
             policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
             self.hot_resources.append(policy_node)
 

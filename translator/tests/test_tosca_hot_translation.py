@@ -16,8 +16,11 @@ import os
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import URLException
 from toscaparser.common.exception import ValidationError
+from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
+from translator.common.exception import UnsupportedTypeError
 from translator.common.utils import TranslationUtils
+from translator.hot.tosca_translator import TOSCATranslator
 from translator.tests.base import TestCase
 
 
@@ -495,3 +498,15 @@ class ToscaHotTranslationTest(TestCase):
         hot_file = '../tests/data/hot_output/hot_autoscaling.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_translate_unsupported_tosca_type(self):
+        tosca_file = '../tests/data/test_tosca_unsupported_type.yaml'
+        tosca_tpl = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), tosca_file))
+        params = {}
+        expected_msg = _('Type "tosca.nodes.LoadBalancer" is valid TOSCA '
+                         'type but translation support is not yet available.')
+        tosca = ToscaTemplate(tosca_tpl, params, True)
+        err = self.assertRaises(UnsupportedTypeError,
+                                TOSCATranslator(tosca, params).translate)
+        self.assertEqual(expected_msg, err.__str__())
