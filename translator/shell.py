@@ -12,21 +12,28 @@
 
 
 import argparse
-import ast
-import json
 import logging
 import logging.config
 import os
-import prettytable
-import requests
 import sys
 import uuid
 import yaml
 
+# NOTE(aloga): As per upstream developers requirement this needs to work
+# without the clients, therefore we need to pass if we cannot import them
+try:
+    import heatclient.client
+    from keystoneauth1 import loading
+except ImportError:
+    has_clients = False
+else:
+    has_clients = True
+
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 from toscaparser.utils.urlutils import UrlUtils
-from translator.common import utils
+from translator.common import flavors
+from translator.common import images
 from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 
@@ -55,7 +62,7 @@ class TranslatorShell(object):
 
     SUPPORTED_TYPES = ['tosca']
 
-    def get_parser(self):
+    def get_parser(self, argv):
         parser = argparse.ArgumentParser(prog="heat-translator")
 
         parser.add_argument('--template-file',
@@ -91,11 +98,25 @@ class TranslatorShell(object):
                             help=_('Whether to deploy the generated template '
                                    'or not.'))
 
+        self._append_global_identity_args(parser, argv)
+
         return parser
+
+    def _append_global_identity_args(self, parser, argv):
+        if not has_clients:
+            return
+
+        loading.register_session_argparse_arguments(parser)
+
+        default_auth_plugin = 'password'
+        if 'os-token' in argv:
+            default_auth_plugin = 'token'
+        loading.register_auth_argparse_arguments(
+            parser, argv, default=default_auth_plugin)
 
     def main(self, argv):
 
-        parser = self.get_parser()
+        parser = self.get_parser(argv)
         (args, args_list) = parser.parse_known_args(argv)
 
         template_file = args.template_file
@@ -117,22 +138,48 @@ class TranslatorShell(object):
                          'validation.') % {'template_file': template_file})
                 print(msg)
             else:
-                heat_tpl = self._translate(template_type, template_file,
-                                           parsed_params, a_file, deploy)
-                if heat_tpl:
-                    if utils.check_for_env_variables() and deploy:
-                        try:
-                            heatclient(heat_tpl, parsed_params)
-                        except Exception:
-                            log.error(_("Unable to launch the heat stack"))
+                hot = self._translate(template_type, template_file,
+                                      parsed_params, a_file, deploy)
+                if hot and deploy:
+                    if not has_clients:
+                        raise RuntimeError(_('Could not find OpenStack '
+                                             'clients and libs, aborting '))
 
-                    self._write_output(heat_tpl, output_file)
+                    keystone_auth = (
+                        loading.load_auth_from_argparse_arguments(args)
+                    )
+                    keystone_session = (
+                        loading.load_session_from_argparse_arguments(
+                            args,
+                            auth=keystone_auth
+                        )
+                    )
+                    images.SESSION = keystone_session
+                    flavors.SESSION = keystone_session
+                    self.deploy_on_heat(keystone_session, keystone_auth,
+                                        hot, parsed_params)
+
+                self._write_output(hot, output_file)
         else:
             msg = (_('The path %(template_file)s is not a valid '
                      'file or URL.') % {'template_file': template_file})
 
             log.error(msg)
             raise ValueError(msg)
+
+    def deploy_on_heat(self, session, auth, template, parameters):
+        endpoint = auth.get_endpoint(session, service_type="orchestration")
+        client = heatclient.client.Client('1',
+                                          session=session,
+                                          auth=auth,
+                                          endpoint=endpoint)
+
+        stack_name = "heat_" + str(uuid.uuid4()).split("-")[0]
+        tpl = yaml.load(template)
+        tpl['heat_template_version'] = str(tpl['heat_template_version'])
+        client.stacks.create(stack_name=stack_name,
+                             template=tpl,
+                             parameters=parameters)
 
     def _parse_parameters(self, parameter_list):
         parsed_inputs = {}
@@ -175,48 +222,6 @@ class TranslatorShell(object):
                     f.write(output)
             else:
                 print(output)
-
-
-def heatclient(output, params):
-    try:
-        access_dict = utils.get_ks_access_dict()
-        endpoint = utils.get_url_for(access_dict, 'orchestration')
-        token = utils.get_token_id(access_dict)
-    except Exception as e:
-        log.error(e)
-    headers = {
-        'Content-Type': 'application/json',
-        'X-Auth-Token': token
-    }
-    heat_stack_name = "heat_" + str(uuid.uuid4()).split("-")[0]
-    output = yaml.load(output)
-    output['heat_template_version'] = str(output['heat_template_version'])
-    data = {
-        'stack_name': heat_stack_name,
-        'template': output,
-        'parameters': params
-    }
-    response = requests.post(endpoint + '/stacks',
-                             data=json.dumps(data),
-                             headers=headers)
-    content = ast.literal_eval(response._content)
-    if response.status_code == 201:
-        stack_id = content["stack"]["id"]
-        get_url = endpoint + '/stacks/' + heat_stack_name + '/' + stack_id
-        get_stack_response = requests.get(get_url,
-                                          headers=headers)
-        stack_details = json.loads(get_stack_response.content)["stack"]
-        col_names = ["id", "stack_name", "stack_status", "creation_time",
-                     "updated_time"]
-        pt = prettytable.PrettyTable(col_names)
-        stack_list = []
-        for col in col_names:
-            stack_list.append(stack_details[col])
-        pt.add_row(stack_list)
-        print(pt)
-    else:
-        err_msg = content["error"]["message"]
-        log(_("Unable to deploy to Heat\n%s\n") % err_msg)
 
 
 def main(args=None):

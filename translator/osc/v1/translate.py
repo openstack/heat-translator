@@ -21,6 +21,8 @@ from cliff import command
 
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
+from translator.common import flavors
+from translator.common import images
 from translator.common.utils import UrlUtils
 from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
@@ -35,7 +37,7 @@ class TranslateTemplate(command.Command):
 
     """Translate a template"""
 
-    auth_required = False
+    auth_required = True
 
     def get_parser(self, prog_name):
         parser = super(TranslateTemplate, self).get_parser(prog_name)
@@ -72,6 +74,10 @@ class TranslateTemplate(command.Command):
         log.debug(_('Translating the template with input parameters'
                     '(%s).'), parsed_args)
         output = None
+
+        session = self.app.cloud.get_session()
+        flavors.SESSION = session
+        images.SESSION = session
 
         if parsed_args.parameter:
             parsed_params = parsed_args.parameter
