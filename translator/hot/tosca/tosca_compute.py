@@ -186,7 +186,10 @@ class ToscaCompute(HotResource):
             return this_list
         matching_images = []
         for image in this_list:
-            if this_dict[image][attr].lower() == str(prop).lower():
+            if attr in this_dict[image]:
+                if this_dict[image][attr].lower() == str(prop).lower():
+                    matching_images.insert(0, image)
+            else:
                 matching_images.append(image)
         return matching_images
 

@@ -12,17 +12,17 @@
 
 import logging
 
-# NOTE(aloga): this should be safe. If we do not have the clients, we won't
-# have the session below, therefore the clients won't be ever called.
 try:
     import glanceclient.client
+    client_available = True
 except ImportError:
+    client_available = False
     pass
 
 log = logging.getLogger('heat-translator')
 
 
-_IMAGES = {
+PREDEF_IMAGES = {
     'ubuntu-software-config-os-init': {'architecture': 'x86_64',
                                        'type': 'Linux',
                                        'distribution': 'Ubuntu',
@@ -59,11 +59,16 @@ _IMAGES = {
 
 SESSION = None
 
+IMAGES = {}
+
 
 def get_images():
-    ret = {}
+    global IMAGES
 
-    if SESSION is not None:
+    if IMAGES:
+        return IMAGES
+
+    if SESSION is not None and client_available:
         try:
             client = glanceclient.client.Client("2", session=SESSION)
         except Exception as e:
@@ -72,10 +77,15 @@ def get_images():
                        'Openstack Exception: %s') % str(e))
         else:
             for image in client.images.list():
+                image_name = image.name.encode('ascii', 'ignore')
                 metadata = ["architecture", "type", "distribution", "version"]
                 if any(key in image.keys() for key in metadata):
-                    ret = [image["name"]] = {}
+                    IMAGES[image_name] = {}
                     for key in metadata:
                         if key in image.keys():
-                            ret[image["name"]][key] = image[key]
-    return ret or _IMAGES
+                            IMAGES[image_name][key] = image[key]
+
+    if not IMAGES:
+        IMAGES = PREDEF_IMAGES
+
+    return IMAGES

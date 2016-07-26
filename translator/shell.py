@@ -22,12 +22,19 @@ import yaml
 # NOTE(aloga): As per upstream developers requirement this needs to work
 # without the clients, therefore we need to pass if we cannot import them
 try:
-    import heatclient.client
     from keystoneauth1 import loading
 except ImportError:
-    has_clients = False
+    keystone_client_avail = False
 else:
-    has_clients = True
+    keystone_client_avail = True
+
+try:
+    import heatclient.client
+except ImportError:
+    heat_client_avail = False
+else:
+    heat_client_avail = True
+
 
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
@@ -103,7 +110,7 @@ class TranslatorShell(object):
         return parser
 
     def _append_global_identity_args(self, parser, argv):
-        if not has_clients:
+        if not keystone_client_avail:
             return
 
         loading.register_session_argparse_arguments(parser)
@@ -138,24 +145,33 @@ class TranslatorShell(object):
                          'validation.') % {'template_file': template_file})
                 print(msg)
             else:
+                if keystone_client_avail:
+                    try:
+                        keystone_auth = (
+                            loading.load_auth_from_argparse_arguments(args)
+                        )
+                        keystone_session = (
+                            loading.load_session_from_argparse_arguments(
+                                args,
+                                auth=keystone_auth
+                            )
+                        )
+                        images.SESSION = keystone_session
+                        flavors.SESSION = keystone_session
+                    except Exception:
+                        keystone_session = None
+
                 hot = self._translate(template_type, template_file,
                                       parsed_params, a_file, deploy)
                 if hot and deploy:
-                    if not has_clients:
-                        raise RuntimeError(_('Could not find OpenStack '
-                                             'clients and libs, aborting '))
+                    if not keystone_client_avail or not heat_client_avail:
+                        raise RuntimeError(_('Could not find Heat or Keystone'
+                                             'client to deploy, aborting '))
+                    if not keystone_session:
+                        raise RuntimeError(_('Impossible to login with '
+                                             'Keystone to deploy on Heat, '
+                                             'please check your credentials'))
 
-                    keystone_auth = (
-                        loading.load_auth_from_argparse_arguments(args)
-                    )
-                    keystone_session = (
-                        loading.load_session_from_argparse_arguments(
-                            args,
-                            auth=keystone_auth
-                        )
-                    )
-                    images.SESSION = keystone_session
-                    flavors.SESSION = keystone_session
                     self.deploy_on_heat(keystone_session, keystone_auth,
                                         hot, parsed_params)
 
