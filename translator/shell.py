@@ -44,8 +44,8 @@ Test the heat-translator translation from command line as:
   --template-type=<type of template e.g. tosca>
   --parameters="purpose=test"
 Takes three user arguments,
-1. type of translation (e.g. tosca) (required)
-2. Path to the file that needs to be translated (required)
+1. Path to the file that needs to be translated (required)
+2. type of translation (e.g. tosca) (optional)
 3. Input parameters (optional)
 
 In order to use heat-translator to only validate template,

@@ -12,7 +12,8 @@ Assuming that OpenStackClient (OSC) is available in your environment, you can ea
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 
-Once installation is complete, Heat-Translator is ready to use. Currently you can use it in following three ways.
+Once installation is complete, Heat-Translator is ready to use. The only required argument is ``--template-file``. By default, the ``--template-type`` is set to ``tosca`` which is the
+only supported template type at present. Currently you can use Heat-Translator in following three ways.
 
 Translate and get output on command line. For example: ::
 
@@ -39,15 +40,13 @@ Heat-Translator can be used without any specific OpenStack environment set up as
     python heat_translator.py --template-file==<path to the YAML template> --template-type=<type of template e.g. tosca> --parameters="purpose=test"
 
 The heat_translator.py test program is at the root level of the project. The program has currently tested with TOSCA templates.
-It requires two arguments::
-
-1. Path to the file that needs to be translated. The file, flat yaml template or CSAR, can be specified as a local file in your
+The only required argument is ``--template-file``. By default, the ``--template-type`` is set to ``tosca`` which is the only supported template type at present.
+The value to the ``--template-file`` is a path to the file that needs to be translated. The file, flat yaml template or CSAR, can be specified as a local file in your
 system or via URL.
-2. Type of translation (e.g. tosca)
 
 For example, a TOSCA hello world template can be translated by running the following command from the project location::
 
-    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
+    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml
 
 This should produce a translated Heat Orchestration Template on the command line. The translated content can be saved to a desired file by setting --output-file=<path>.
 For example: ::
