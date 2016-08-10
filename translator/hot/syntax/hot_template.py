@@ -80,5 +80,7 @@ class HotTemplate(object):
         yaml.add_representer(dict, self.represent_ordereddict)
         yaml_string = yaml.dump(dict_output, default_flow_style=False)
         # get rid of the '' from yaml.dump around numbers
-        yaml_string = yaml_string.replace('\'', '')
+        # also replace double return lines with a single one
+        # seems to be a bug in the serialization of multiline literal scalars
+        yaml_string = yaml_string.replace('\'', '') .replace('\n\n', '\n')
         return version_string + desc_str + yaml_string
