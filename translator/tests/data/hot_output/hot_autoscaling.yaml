@@ -1,0 +1,36 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template for deploying servers based on policies.
+
+parameters: {}
+resources:
+  my_server_1:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 2
+      default_instances: 3
+      resources:
+        type: OS::Nova::Server
+        properties:
+          flavor: m1.medium
+          user_data_format: SOFTWARE_CONFIG
+          image: rhel-6.5-test-image
+      max_size: 10
+  asg:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id:
+        get_resource: my_server_1
+      adjustment_type: change_in_capacity
+      scaling_adjustment: 1
+  asg_alarm:
+    type: OS::Ceilometer::Alarm
+    properties:
+      meter_name: cpu_util
+      description: Simple node autoscaling
+      period: 60
+      statistic: average
+      threshold: 1
+      comparison_operator: gt
+outputs: {}

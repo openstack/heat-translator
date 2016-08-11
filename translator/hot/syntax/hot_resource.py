@@ -26,6 +26,8 @@ SECTIONS = (TYPE, PROPERTIES, MEDADATA, DEPENDS_ON, UPDATE_POLICY,
             DELETION_POLICY) = \
            ('type', 'properties', 'metadata',
             'depends_on', 'update_policy', 'deletion_policy')
+
+policy_type = ['tosca.policies.Placement', 'tosca.policies.Scaling']
 log = logging.getLogger('heat-translator')
 
 
@@ -400,7 +402,7 @@ class HotResource(object):
     def get_all_artifacts(nodetemplate):
         # workaround bug in the parser
         base_type = HotResource.get_base_type_str(nodetemplate.type_definition)
-        if base_type == "tosca.policies.Placement":
+        if base_type in policy_type:
             artifacts = {}
         else:
             artifacts = nodetemplate.type_definition.get_value('artifacts',
@@ -421,7 +423,7 @@ class HotResource(object):
 
         # workaround bug in the parser
         base_type = HotResource.get_base_type_str(node.type_definition)
-        if base_type == "tosca.policies.Placement":
+        if base_type in policy_type:
             return operations
 
         node_type = node.type_definition
@@ -441,7 +443,7 @@ class HotResource(object):
     def _get_interface_operations_from_type(node_type, node, lifecycle_name):
         operations = {}
         base_type = HotResource.get_base_type_str(node_type)
-        if base_type == "tosca.policies.Placement":
+        if base_type in policy_type:
             return operations
         if node_type.interfaces and lifecycle_name in node_type.interfaces:
             for name, elems in node_type.interfaces[lifecycle_name].items():
