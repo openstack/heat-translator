@@ -10,6 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
+import json
+import mock
 import os
 import shutil
 import tempfile
@@ -94,3 +97,71 @@ class ShellTest(TestCase):
                 shutil.rmtree(temp_dir)
                 self.assertTrue(temp_dir is None or
                                 not os.path.exists(temp_dir))
+
+    @mock.patch('uuid.uuid4')
+    @mock.patch.object(shell.TranslatorShell, '_create_stack')
+    @mock.patch('keystoneauth1.loading.load_auth_from_argparse_arguments')
+    @mock.patch('keystoneauth1.loading.load_session_from_argparse_arguments')
+    @mock.patch('translator.common.flavors.get_flavors')
+    @mock.patch('translator.common.images.get_images')
+    def test_template_deploy(self, mock_populate_image_dict,
+                             mock_flavor_dict,
+                             mock_keystone_session,
+                             mock_keystone_auth,
+                             mock_client,
+                             mock_uuid):
+        mock_uuid.return_value = 'abcXXX-abcXXX'
+        mock_flavor_dict.return_value = {
+            'm1.medium': {'mem_size': 4096, 'disk_size': 40, 'num_cpus': 2}
+        }
+        mock_populate_image_dict.return_value = {
+            "rhel-6.5-test-image": {
+                "version": "6.5",
+                "architecture": "x86_64",
+                "distribution": "RHEL",
+                "type": "Linux"
+            }
+        }
+
+        try:
+            data = {
+                'outputs': {},
+                'heat_template_version': '2013-05-23',
+                'description': 'Template for deploying a single server '
+                               'with predefined properties.\n',
+                'parameters': {},
+                'resources': {
+                    'my_server': {
+                        'type': 'OS::Nova::Server',
+                        'properties': {
+                            'flavor': 'm1.medium',
+                            'user_data_format': 'SOFTWARE_CONFIG',
+                            'image': 'rhel-6.5-test-image'
+                        }
+                    }
+                }
+            }
+
+            mock_heat_res = {
+                "stacks": [
+                    {
+                        "id": "d648ad27-fb9c-44d1-b293-646ea6c4f8da",
+                        "stack_status": "CREATE_IN_PROGRESS",
+                    }
+                ]
+            }
+
+            class mock_response(object):
+                def __init__(self, status_code, _content):
+                    self.status_code = status_code
+                    self._content = _content
+
+            mock_response_obj = mock_response(201, json.dumps(mock_heat_res))
+            mock_client.return_value = mock_response_obj
+            shell.main([self.template_file, self.template_type, "--deploy"])
+            args, kwargs = mock_client.call_args
+            self.assertEqual(kwargs["stack_name"],
+                             'heat_tosca_helloworld_abcXXX')
+            self.assertEqual(kwargs["template"], data)
+        except Exception as e:
+            self.fail(e)
