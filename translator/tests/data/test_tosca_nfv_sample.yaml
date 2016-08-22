@@ -21,6 +21,38 @@ topology_template:
             type: Linux
             distribution: RHEL
             version: 6.5
+      requirements:
+        - high_availability: VDU2
+        - local_storage:
+            node: BlockStorage
+            relationship:
+              type: tosca.relationships.AttachesTo
+              properties:
+                location: /data
+
+
+    BlockStorage:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: 10 GB
+
+    VDU2:
+      type: tosca.nodes.nfv.VDU
+      capabilities:
+        host:
+         properties:
+           num_cpus: 2
+           disk_size: 10 GB
+           mem_size: 512 MB
+        # Guest Operating System properties
+        os:
+          properties:
+           # host Operating System image properties
+            architecture: x86_64
+            type: Linux
+            distribution: RHEL
+            version: 6.5
+
     CP1:
       type: tosca.nodes.nfv.CP
       properties:
@@ -31,6 +63,18 @@ topology_template:
 #           relationship: tosca.relationships.nfv.VirtualLinksTo
         - virtualBinding:
             node: VDU1
+            relationship: tosca.relationships.nfv.VirtualBindsTo
+
+    CP2:
+      type: tosca.nodes.nfv.CP
+      properties:
+        ip_address: 192.168.0.56
+      requirements:
+        - virtualLink:
+            node: VL1
+#           relationship: tosca.relationships.nfv.VirtualLinksTo
+        - virtualBinding:
+            node: VDU2
             relationship: tosca.relationships.nfv.VirtualBindsTo
 
     VL1:
