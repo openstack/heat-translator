@@ -12,17 +12,17 @@
 
 import logging
 
-# NOTE(aloga): this should be safe. If we do not have the clients, we won't
-# have the session below, therefore the clients won't be ever called.
 try:
     import novaclient.client
+    client_available = True
 except ImportError:
+    client_available = False
     pass
 
 log = logging.getLogger('heat-translator')
 
 
-_FLAVORS = {
+PREDEF_FLAVORS = {
     'm1.xlarge': {'mem_size': 16384, 'disk_size': 160, 'num_cpus': 8},
     'm1.large': {'mem_size': 8192, 'disk_size': 80, 'num_cpus': 4},
     'm1.medium': {'mem_size': 4096, 'disk_size': 40, 'num_cpus': 2},
@@ -34,10 +34,16 @@ _FLAVORS = {
 
 SESSION = None
 
+FLAVORS = {}
+
 
 def get_flavors():
-    ret = {}
-    if SESSION is not None:
+    global FLAVORS
+
+    if FLAVORS:
+        return FLAVORS
+
+    if SESSION is not None and client_available:
         try:
             client = novaclient.client.Client("2", session=SESSION)
         except Exception as e:
@@ -46,9 +52,13 @@ def get_flavors():
                        'Openstack Exception: %s') % str(e))
         else:
             for flv in client.flavors.list(detailed=True):
-                ret[str(flv.name)] = {
+                FLAVORS[str(flv.name)] = {
                     "mem_size": flv.ram,
                     "disk_size": flv.disk,
                     "num_cpus": flv.vcpus
                 }
-    return ret or _FLAVORS
+
+    if not FLAVORS:
+        FLAVORS = PREDEF_FLAVORS
+
+    return FLAVORS
