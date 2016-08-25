@@ -41,3 +41,6 @@ topology_template:
         start_ip: '192.168.0.50'
         end_ip: '192.168.0.200'
         gateway_ip: '192.168.0.1'
+        network_name: test_net
+        network_type: vxlan
+        segmentation_id: 100

@@ -57,8 +57,6 @@ class ToscaNetwork(HotResource):
                     self.existing_resource_id = value
                     break
                 elif key == 'segmentation_id':
-                    net_props['segmentation_id'] =  \
-                        tosca_props['segmentation_id']
                     # Hardcode to vxlan for now until we add the network type
                     # and physical network to the spec.
                     net_props['value_specs'] = {'provider:segmentation_id':
