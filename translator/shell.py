@@ -105,6 +105,12 @@ class TranslatorShell(object):
                             help=_('Whether to deploy the generated template '
                                    'or not.'))
 
+        parser.add_argument('--stack-name',
+                            metavar='<stack-name>',
+                            required=False,
+                            help=_('The name to use for the Heat stack when '
+                                   'deploy the generated template.'))
+
         self._append_global_identity_args(parser, argv)
 
         return parser
@@ -131,6 +137,7 @@ class TranslatorShell(object):
         output_file = args.output_file
         validate_only = args.validate_only
         deploy = args.deploy
+        stack_name = args.stack_name
 
         parsed_params = {}
         if args.parameters:
@@ -172,8 +179,11 @@ class TranslatorShell(object):
                                              'Keystone to deploy on Heat, '
                                              'please check your credentials'))
 
+                    file_name = os.path.basename(
+                        os.path.splitext(template_file)[0])
                     self.deploy_on_heat(keystone_session, keystone_auth,
-                                        hot, parsed_params)
+                                        hot, stack_name, file_name,
+                                        parsed_params)
 
                 self._write_output(hot, output_file)
         else:
@@ -183,19 +193,31 @@ class TranslatorShell(object):
             log.error(msg)
             raise ValueError(msg)
 
-    def deploy_on_heat(self, session, auth, template, parameters):
+    def deploy_on_heat(self, session, auth, template,
+                       stack_name, file_name, parameters):
         endpoint = auth.get_endpoint(session, service_type="orchestration")
-        client = heatclient.client.Client('1',
-                                          session=session,
-                                          auth=auth,
-                                          endpoint=endpoint)
+        heat_client = heatclient.client.Client('1',
+                                               session=session,
+                                               auth=auth,
+                                               endpoint=endpoint)
 
-        stack_name = "heat_" + str(uuid.uuid4()).split("-")[0]
+        heat_stack_name = stack_name if stack_name else \
+            'heat_' + file_name + '_' + str(uuid.uuid4()).split("-")[0]
+        msg = _('Deploy the generated template, the stack name is %(name)s.')\
+            % {'name': heat_stack_name}
+        log.debug(msg)
         tpl = yaml.load(template)
         tpl['heat_template_version'] = str(tpl['heat_template_version'])
-        client.stacks.create(stack_name=stack_name,
-                             template=tpl,
-                             parameters=parameters)
+        self._create_stack(heat_client=heat_client,
+                           stack_name=heat_stack_name,
+                           template=tpl,
+                           parameters=parameters)
+
+    def _create_stack(self, heat_client, stack_name, template, parameters):
+        if heat_client:
+            self.heat_client.stacks.create(stack_name=stack_name,
+                                           template=template,
+                                           parameters=parameters)
 
     def _parse_parameters(self, parameter_list):
         parsed_inputs = {}
