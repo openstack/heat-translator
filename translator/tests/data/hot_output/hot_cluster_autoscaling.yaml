@@ -1,0 +1,60 @@
+heat_template_version: 2016-04-08
+
+description: >
+  Template for deploying servers based on policies.
+
+parameters: {}
+resources:
+  my_server_1:
+    type: OS::Senlin::Profile
+    properties:
+      type: os.nova.server-1.0
+      properties:
+        flavor: m1.medium
+        image: rhel-6.5-test-image
+        networks:
+        - network: net0
+  cluster_scaling_scale_out:
+    type: OS::Senlin::Policy
+    properties:
+      bindings:
+      - cluster:
+          get_resource: my_server_1_cluster
+      type: senlin.policy.scaling-1.0
+      properties:
+        adjustment:
+          type: CHANGE_IN_CAPACITY
+          number: 1
+        event: CLUSTER_SCALE_OUT
+  my_server_1_cluster:
+    type: OS::Senlin::Cluster
+    properties:
+      profile:
+        get_resource: my_server_1
+      min_size: 2
+      max_size: 10
+      desired_capacity: 3
+  my_server_1_scale_out_receiver:
+    type: OS::Senlin::Receiver
+    properties:
+      action: CLUSTER_SCALE_OUT
+      cluster:
+        get_resource: my_server_1_cluster
+      type: webhook
+  scale_out_alarm:
+    type: OS::Aodh::Alarm
+    properties:
+      meter_name: cpu_util
+      alarm_actions:
+      - get_attr:
+        - my_server_1_scale_out_receiver
+        - channel
+        - alarm_url
+      description: Cluster node autoscaling
+      evaluation_periods: 1
+      repeat_actions: True
+      period: 60
+      statistic: avg
+      threshold: 50
+      comparison_operator: gt
+outputs: {}

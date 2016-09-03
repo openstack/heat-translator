@@ -44,11 +44,11 @@ class HotTemplate(object):
             nodes.append((node_key, node_value))
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
 
-    def output_to_yaml(self):
+    def output_to_yaml(self, hot_template_version=LATEST):
         log.debug(_('Converting translated output to yaml format.'))
         dict_output = OrderedDict()
         # Version
-        version_string = self.VERSION + ": " + self.LATEST + "\n\n"
+        version_string = self.VERSION + ": " + hot_template_version + "\n\n"
 
         # Description
         desc_str = ""

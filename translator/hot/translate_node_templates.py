@@ -138,6 +138,9 @@ TOSCA_TO_HOT_TYPE = _generate_type_map()
 
 BASE_TYPES = six.string_types + six.integer_types + (dict, OrderedDict)
 
+HOT_SCALING_POLICY_TYPE = ["OS::Heat::AutoScalingGroup",
+                           "OS::Senlin::Profile"]
+
 
 class TranslateNodeTemplates(object):
     '''Translate TOSCA NodeTemplates to Heat Resources.'''
@@ -155,6 +158,7 @@ class TranslateNodeTemplates(object):
         # stores the last deploy of generated behavior for a resource
         # useful to satisfy underlying dependencies between interfaces
         self.last_deploy_map = {}
+        self.hot_template_version = None
 
     def translate(self):
         return self._translate_nodetemplates()
@@ -170,7 +174,8 @@ class TranslateNodeTemplates(object):
 
         if resource.type == "OS::Nova::ServerGroup":
             resource.handle_properties(self.hot_resources)
-        elif resource.type == "OS::Heat::ScalingPolicy":
+        elif resource.type in ("OS::Heat::ScalingPolicy",
+                               "OS::Senlin::Policy"):
             self.hot_resources = resource.handle_properties(self.hot_resources)
         else:
             resource.handle_properties()
@@ -225,6 +230,8 @@ class TranslateNodeTemplates(object):
             policy_type = policy.type_definition
             if policy_type.type not in TOSCA_TO_HOT_TYPE:
                 raise UnsupportedTypeError(type=_('%s') % policy_type.type)
+            elif policy_type.type == 'tosca.policies.Scaling.Cluster':
+                self.hot_template_version = '2016-04-08'
             policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
             self.hot_resources.append(policy_node)
 
@@ -304,7 +311,7 @@ class TranslateNodeTemplates(object):
         # dependent nodes in correct order
         self.processed_resources = []
         for resource in self.hot_resources:
-            if resource.type != "OS::Heat::AutoScalingGroup":
+            if resource.type not in HOT_SCALING_POLICY_TYPE:
                 self._recursive_handle_properties(resource)
 
         # handle resources that need to expand to more than one HOT resource
