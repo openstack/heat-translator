@@ -81,14 +81,10 @@ class AutoscalingTest(TestCase):
                 increment: 1
               '''
 
-        expectedprops = {'default_instances': 3,
+        expectedprops = {'desired_capacity': 3,
                          'max_size': 10,
                          'min_size': 2,
-                         'resources': {'properties': {
-                                       'flavor': 'm1.medium',
-                                       'image': 'rhel-6.5-test-image',
-                                       'user_data_format': 'SOFTWARE_CONFIG'},
-                                       'type': 'OS::Nova::Server'}}
+                         'resource': {'type': 'asg_res.yaml'}}
 
         self._tosca_scaling_test(
             tpl_snippet,

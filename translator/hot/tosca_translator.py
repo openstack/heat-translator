@@ -39,7 +39,8 @@ class TOSCATranslator(object):
         self.hot_template.parameters = self._translate_inputs()
         self.node_translator = TranslateNodeTemplates(self.tosca,
                                                       self.hot_template)
-        self.hot_template.resources = self.node_translator.translate()
+        self.hot_template.resources = \
+            self.node_translator.translate()
         self.hot_template.outputs = self._translate_outputs()
         if self.node_translator.hot_template_version:
             return self.hot_template.\

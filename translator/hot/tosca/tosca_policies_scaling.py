@@ -12,9 +12,18 @@
 # under the License.
 
 
+from collections import OrderedDict
+import yaml
+
 from translator.hot.syntax.hot_resource import HotResource
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaAutoscaling'
+HEAT_TEMPLATE_BASE = """
+heat_template_version: 2013-05-23
+"""
+ALARM_STATISTIC = {'average': 'avg'}
+SCALING_RESOURCES = ["OS::Heat::ScalingPolicy", "OS::Heat::AutoScalingGroup",
+                     "OS::Aodh::Alarm"]
 
 
 class ToscaAutoscaling(HotResource):
@@ -29,29 +38,59 @@ class ToscaAutoscaling(HotResource):
         self.policy = policy
 
     def handle_expansion(self):
-        sample = self.policy.\
-            entity_tpl["triggers"]["resize_compute"]["condition"]
+        sample = None
+        if self.policy.entity_tpl.get('triggers'):
+            sample = self.policy.\
+                entity_tpl["triggers"]["resize_compute"]["condition"]
         prop = {}
-        prop["description"] = self.policy.entity_tpl['description']
+        prop["description"] = self.policy.entity_tpl.get('description')
         prop["meter_name"] = "cpu_util"
-        prop["statistic"] = sample["method"]
-        prop["period"] = sample["period"]
-        prop["threshold"] = sample["evaluations"]
+        if sample:
+            prop["statistic"] = ALARM_STATISTIC[sample["method"]]
+            prop["period"] = sample["period"]
+            prop["threshold"] = sample["evaluations"]
         prop["comparison_operator"] = "gt"
+        alarm_name = self.name.replace('_scale_in', '').\
+            replace('_scale_out', '')
         ceilometer_resources = HotResource(self.nodetemplate,
-                                           type='OS::Ceilometer::Alarm',
-                                           name=self.name + '_alarm',
+                                           type='OS::Aodh::Alarm',
+                                           name=alarm_name + '_alarm',
                                            properties=prop)
         hot_resources = [ceilometer_resources]
         return hot_resources
 
+    def represent_ordereddict(self, dumper, data):
+        nodes = []
+        for key, value in data.items():
+            node_key = dumper.represent_data(key)
+            node_value = dumper.represent_data(value)
+            nodes.append((node_key, node_value))
+        return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
+
+    def _handle_nested_template(self, scale_res):
+        template_dict = yaml.load(HEAT_TEMPLATE_BASE)
+        template_dict['description'] = 'Tacker Scaling template'
+        template_dict["resources"] = {}
+        for res in scale_res:
+            dict_res = res.get_dict_output()
+            res_name = list(dict_res.keys())[0]
+            template_dict["resources"][res_name] = \
+                dict_res[res_name]
+        yaml.add_representer(OrderedDict, self.represent_ordereddict)
+        yaml.add_representer(dict, self.represent_ordereddict)
+        with open(self.policy.name + '_res.yaml', 'w') as nested_tpl:
+            yaml.dump(template_dict, nested_tpl, default_flow_style=False)
+
     def handle_properties(self, resources):
-        for node in self.policy.targets:
-            self.properties = {}
-            self.properties["auto_scaling_group_id"] = {'get_resource': node}
-            self.properties["adjustment_type"] = "change_in_capacity "
-            self.properties["scaling_adjustment"] = self.\
-                policy.entity_tpl["properties"]["increment"]
+        self.properties = {}
+        self.properties["auto_scaling_group_id"] = {
+            'get_resource': self.policy.name + '_group'
+        }
+        self.properties["adjustment_type"] = "change_in_capacity "
+        self.properties["scaling_adjustment"] = self.\
+            policy.entity_tpl["properties"]["increment"]
+        delete_res_names = []
+        scale_res = []
         for index, resource in enumerate(resources):
             if resource.name in self.policy.targets and \
                 resource.type != 'OS::Heat::AutoScalingGroup':
@@ -60,15 +99,22 @@ class ToscaAutoscaling(HotResource):
                 res = {}
                 res["min_size"] = temp["min_instances"]
                 res["max_size"] = temp["max_instances"]
-                res["default_instances"] = temp["default_instances"]
+                res["desired_capacity"] = temp["default_instances"]
                 props['type'] = resource.type
                 props['properties'] = resource.properties
-                res['resources'] = props
+                res['resource'] = {'type': self.policy.name + '_res.yaml'}
                 scaling_resources = \
                     HotResource(resource,
                                 type='OS::Heat::AutoScalingGroup',
-                                name=resource.name,
+                                name=self.policy.name + '_group',
                                 properties=res)
-                resources.pop(index)
-                resources.insert(index, scaling_resources)
+
+            if resource.type not in SCALING_RESOURCES:
+                delete_res_names.append(resource.name)
+                scale_res.append(resource)
+        self._handle_nested_template(scale_res)
+        resources = [tmp_res
+                     for tmp_res in resources
+                     if tmp_res.name not in delete_res_names]
+        resources.append(scaling_resources)
         return resources

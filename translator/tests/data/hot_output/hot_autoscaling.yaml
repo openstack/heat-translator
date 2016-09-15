@@ -5,32 +5,35 @@ description: >
 
 parameters: {}
 resources:
-  my_server_1:
+  asg_group:
     type: OS::Heat::AutoScalingGroup
     properties:
       min_size: 2
-      default_instances: 3
-      resources:
-        type: OS::Nova::Server
-        properties:
-          flavor: m1.medium
-          user_data_format: SOFTWARE_CONFIG
-          image: rhel-6.5-test-image
+      desired_capacity: 3
+      resource:
+        type: asg_res.yaml
       max_size: 10
-  asg:
+  asg_scale_out:
     type: OS::Heat::ScalingPolicy
     properties:
       auto_scaling_group_id:
-        get_resource: my_server_1
+        get_resource: asg_group
       adjustment_type: change_in_capacity
       scaling_adjustment: 1
+  asg_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id:
+        get_resource: asg_group
+      adjustment_type: change_in_capacity
+      scaling_adjustment: -1
   asg_alarm:
-    type: OS::Ceilometer::Alarm
+    type: OS::Aodh::Alarm
     properties:
       meter_name: cpu_util
       description: Simple node autoscaling
       period: 60
-      statistic: average
+      statistic: avg
       threshold: 1
       comparison_operator: gt
 outputs: {}

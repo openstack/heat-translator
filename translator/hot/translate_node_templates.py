@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import importlib
 import logging
 import os
@@ -159,6 +160,7 @@ class TranslateNodeTemplates(object):
         # useful to satisfy underlying dependencies between interfaces
         self.last_deploy_map = {}
         self.hot_template_version = None
+        self.processed_policy_res = []
 
     def translate(self):
         return self._translate_nodetemplates()
@@ -176,7 +178,35 @@ class TranslateNodeTemplates(object):
             resource.handle_properties(self.hot_resources)
         elif resource.type in ("OS::Heat::ScalingPolicy",
                                "OS::Senlin::Policy"):
-            self.hot_resources = resource.handle_properties(self.hot_resources)
+            if resource.name in self.processed_policy_res:
+                return
+            self.processed_policy_res.append(resource.name)
+            self.hot_resources = \
+                resource.handle_properties(self.hot_resources)
+            extra_hot_resources = []
+            for res in self.hot_resources:
+                if res.type == 'OS::Heat::ScalingPolicy':
+                    extra_res = copy.deepcopy(res)
+                    scaling_adjustment = res.properties['scaling_adjustment']
+                    if scaling_adjustment < 0:
+                        res.name = res.name + '_scale_in'
+                        extra_res.name = extra_res.name + '_scale_out'
+                        extra_res.properties['scaling_adjustment'] = \
+                            -1 * scaling_adjustment
+                        extra_hot_resources.append(extra_res)
+                        self.processed_policy_res.append(res.name)
+                        self.processed_policy_res.append(extra_res.name)
+                    elif scaling_adjustment > 0:
+                        res.name = res.name + '_scale_out'
+                        extra_res.name = extra_res.name + '_scale_in'
+                        extra_res.properties['scaling_adjustment'] = \
+                            -1 * scaling_adjustment
+                        extra_hot_resources.append(extra_res)
+                        self.processed_policy_res.append(res.name)
+                        self.processed_policy_res.append(extra_res.name)
+                    else:
+                        continue
+            self.hot_resources += extra_hot_resources
         else:
             resource.handle_properties()
 
@@ -232,7 +262,12 @@ class TranslateNodeTemplates(object):
 
         for policy in self.policies:
             policy_type = policy.type_definition
-            if policy_type.type not in TOSCA_TO_HOT_TYPE:
+            if policy.is_derived_from('tosca.policies.Scaling') and \
+               policy_type.type != 'tosca.policies.Scaling.Cluster':
+                TOSCA_TO_HOT_TYPE[policy_type.type] = \
+                    TOSCA_TO_HOT_TYPE['tosca.policies.Scaling']
+            if not policy.is_derived_from('tosca.policies.Scaling') and \
+               policy_type.type not in TOSCA_TO_HOT_TYPE:
                 raise UnsupportedTypeError(type=_('%s') % policy_type.type)
             elif policy_type.type == 'tosca.policies.Scaling.Cluster':
                 self.hot_template_version = '2016-04-08'
