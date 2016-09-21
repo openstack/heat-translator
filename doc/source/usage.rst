@@ -56,7 +56,7 @@ For example: ::
 An optional argument can be provided to handle user inputs parameters. Also, a template file can only be validated instead of translation by using --validate-only=true
 optional argument. The command below shows an example usage::
 
-    python heat_translator.py --template-file==<path to the YAML template> --template-type=<type of template e.g. tosca> --validate-only=true
+    python heat_translator.py --template-file=<path to the YAML template> --template-type=<type of template e.g. tosca> --validate-only=true
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
 In this case, you can simply run translation via CLI entry point::
@@ -78,4 +78,9 @@ Things To Consider
   capabilities. However, user may required to use these properties in template in certain circumstances, so in that case, TOSCA Compute can be extended
   with these properties and later used in the node template. For a good example, refer to the ``translator/tests/data/test_tosca_flavor_and_image.yaml`` test
   template.
+* The Heat-Translator can be used to automatically deploy translated TOSCA template given that your environment has python-heatclient and python-keystoneclient.
+  This can be achieved by providing ``--deploy`` argument to the Heat-Translator. You can provide desired stack name by providing it as ``--stack-name <name>``
+  argument. If you do not provide ``--stack-name``, an unique name will be created and used.
+  Below is an example command to deploy translated template with a desired stack name::
+      heat-translator --template-file translator/tests/data/tosca_helloworld.yaml --stack-name mystack --deploy
 
