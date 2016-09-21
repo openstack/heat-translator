@@ -215,9 +215,9 @@ class TranslatorShell(object):
 
     def _create_stack(self, heat_client, stack_name, template, parameters):
         if heat_client:
-            self.heat_client.stacks.create(stack_name=stack_name,
-                                           template=template,
-                                           parameters=parameters)
+            heat_client.stacks.create(stack_name=stack_name,
+                                      template=template,
+                                      parameters=parameters)
 
     def _parse_parameters(self, parameter_list):
         parsed_inputs = {}
