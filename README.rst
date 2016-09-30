@@ -31,7 +31,7 @@ Directory Structure
 
 Three main directories related to the heat-translator are:
 
-1. hot: It is the generator, that has logic of converting TOSCA in memory graph to HOT yaml files.
+1. hot: It is the generator, that has logic of converting TOSCA in memory graph to HOT YAML files.
 2. common: It has all the file that can support the execution of parser and generator.
 3. tests: It contains test programs and more importantly several templates which are used for testing.
 
