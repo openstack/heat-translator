@@ -100,7 +100,7 @@ class TranslateTemplate(command.Command):
                     translator = TOSCATranslator(tosca, parsed_params)
                     output = translator.translate()
             else:
-                msg = _('Could not find template file.')
+                msg = _('Could not find template file.\n')
                 log.error(msg)
                 sys.stdout.write(msg)
                 raise SystemExit
