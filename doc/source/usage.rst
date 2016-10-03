@@ -41,7 +41,7 @@ Heat-Translator can be used without any specific OpenStack environment set up as
 
 The heat_translator.py test program is at the root level of the project. The program has currently tested with TOSCA templates.
 The only required argument is ``--template-file``. By default, the ``--template-type`` is set to ``tosca`` which is the only supported template type at present.
-The value to the ``--template-file`` is a path to the file that needs to be translated. The file, flat yaml template or CSAR, can be specified as a local file in your
+The value to the ``--template-file`` is a path to the file that needs to be translated. The file, flat YAML template or CSAR, can be specified as a local file in your
 system or via URL.
 
 For example, a TOSCA hello world template can be translated by running the following command from the project location::
