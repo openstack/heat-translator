@@ -38,7 +38,7 @@ class HotResource(object):
 
     def __init__(self, nodetemplate, name=None, type=None, properties=None,
                  metadata=None, depends_on=None,
-                 update_policy=None, deletion_policy=None):
+                 update_policy=None, deletion_policy=None, csar_dir=None):
         log.debug(_('Translating TOSCA node type to HOT resource type.'))
         self.nodetemplate = nodetemplate
         if name:
@@ -47,11 +47,19 @@ class HotResource(object):
             self.name = nodetemplate.name
         self.type = type
         self.properties = properties or {}
+
+        self.csar_dir = csar_dir
         # special case for HOT softwareconfig
+        cwd = os.getcwd()
         if type == 'OS::Heat::SoftwareConfig':
             config = self.properties.get('config')
             if isinstance(config, dict):
-                implementation_artifact = config.get('get_file')
+                if self.csar_dir:
+                    os.chdir(self.csar_dir)
+                    implementation_artifact = os.path.abspath(config.get(
+                        'get_file'))
+                else:
+                    implementation_artifact = config.get('get_file')
                 if implementation_artifact:
                     filename, file_extension = os.path.splitext(
                         implementation_artifact)
@@ -68,7 +76,7 @@ class HotResource(object):
 
             if self.properties.get('group') is None:
                 self.properties['group'] = 'script'
-
+        os.chdir(cwd)
         self.metadata = metadata
 
         # The difference between depends_on and depends_on_nodes is
@@ -139,16 +147,23 @@ class HotResource(object):
         if hosting_on_server is None and base_type == 'tosca.nodes.Compute':
             hosting_on_server = self.name
 
+        cwd = os.getcwd()
         for operation in operations.values():
             if operation.name in operations_deploy_sequence:
                 config_name = node_name + '_' + operation.name + '_config'
                 deploy_name = node_name + '_' + operation.name + '_deploy'
+                if self.csar_dir:
+                    os.chdir(self.csar_dir)
+                    get_file = os.path.abspath(operation.implementation)
+                else:
+                    get_file = operation.implementation
                 hot_resources.append(
                     HotResource(self.nodetemplate,
                                 config_name,
                                 'OS::Heat::SoftwareConfig',
                                 {'config':
-                                    {'get_file': operation.implementation}}))
+                                    {'get_file': get_file}},
+                                csar_dir=self.csar_dir))
                 if operation.name == reserve_current and \
                     base_type != 'tosca.nodes.Compute':
                     deploy_resource = self
@@ -166,13 +181,14 @@ class HotResource(object):
                         HotResource(self.nodetemplate,
                                     deploy_name,
                                     'OS::Heat::SoftwareDeployment',
-                                    sd_config)
+                                    sd_config, csar_dir=self.csar_dir)
                     hot_resources.append(deploy_resource)
                     deploy_lookup[operation] = deploy_resource
                 lifecycle_inputs = self._get_lifecycle_inputs(operation)
                 if lifecycle_inputs:
                     deploy_resource.properties['input_values'] = \
                         lifecycle_inputs
+        os.chdir(cwd)
 
         # Add dependencies for the set of HOT resources in the sequence defined
         # in operations_deploy_sequence
@@ -244,14 +260,15 @@ class HotResource(object):
             hot_resources.append(
                 HotResource(self.nodetemplate, config_name,
                             'OS::Heat::SoftwareConfig',
-                            {'config': install_roles_script}))
+                            {'config': install_roles_script},
+                            csar_dir=self.csar_dir))
             sd_config = {'config': {'get_resource': config_name},
                          'server': {'get_resource':
                                     hosting_on_server}}
             deploy_resource = \
                 HotResource(self.nodetemplate, deploy_name,
                             'OS::Heat::SoftwareDeployment',
-                            sd_config)
+                            sd_config, csar_dir=self.csar_dir)
             hot_resources.append(deploy_resource)
 
             return deploy_resource
@@ -278,7 +295,7 @@ class HotResource(object):
                         deploy_name,
                         'OS::Heat::SoftwareDeployment',
                         sd_config,
-                        depends_on=[hot_depends])
+                        depends_on=[hot_depends], csar_dir=self.csar_dir)
         connect_inputs = self._get_connect_inputs(config_location, operation)
         if connect_inputs:
             deploy_resource.properties['input_values'] = connect_inputs

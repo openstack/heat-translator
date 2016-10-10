@@ -12,12 +12,14 @@
 
 
 import argparse
+import codecs
 import logging
 import logging.config
 import os
 import sys
 import uuid
 import yaml
+import zipfile
 
 # NOTE(aloga): As per upstream developers requirement this needs to work
 # without the clients, therefore we need to pass if we cannot import them
@@ -41,6 +43,7 @@ from toscaparser.utils.gettextutils import _
 from toscaparser.utils.urlutils import UrlUtils
 from translator.common import flavors
 from translator.common import images
+from translator.common import utils
 from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 
@@ -68,6 +71,7 @@ log = logging.getLogger("heat-translator")
 class TranslatorShell(object):
 
     SUPPORTED_TYPES = ['tosca']
+    TOSCA_CSAR_META_DIR = "TOSCA-Metadata"
 
     def get_parser(self, argv):
         parser = argparse.ArgumentParser(prog="heat-translator")
@@ -207,17 +211,31 @@ class TranslatorShell(object):
             % {'name': heat_stack_name}
         log.debug(msg)
         tpl = yaml.load(template)
+
+        # get all the values for get_file from a translated template
+        get_files = []
+        utils.get_dict_value(tpl, "get_file", get_files)
+        files = {}
+        if get_files:
+            for file in get_files:
+                with codecs.open(file, encoding='utf-8', errors='strict') \
+                    as f:
+                        text = f.read()
+                        files[file] = text
         tpl['heat_template_version'] = str(tpl['heat_template_version'])
         self._create_stack(heat_client=heat_client,
                            stack_name=heat_stack_name,
                            template=tpl,
-                           parameters=parameters)
+                           parameters=parameters,
+                           files=files)
 
-    def _create_stack(self, heat_client, stack_name, template, parameters):
+    def _create_stack(self, heat_client, stack_name, template, parameters,
+                      files):
         if heat_client:
             heat_client.stacks.create(stack_name=stack_name,
                                       template=template,
-                                      parameters=parameters)
+                                      parameters=parameters,
+                                      files=files)
 
     def _parse_parameters(self, parameter_list):
         parsed_inputs = {}
@@ -248,7 +266,17 @@ class TranslatorShell(object):
         if sourcetype == "tosca":
             log.debug(_('Loading the tosca template.'))
             tosca = ToscaTemplate(path, parsed_params, a_file)
-            translator = TOSCATranslator(tosca, parsed_params, deploy)
+            csar_dir = None
+            if deploy and zipfile.is_zipfile(path):
+                # set CSAR directory to the root of TOSCA-Metadata
+                csar_decompress = utils.decompress(path)
+                csar_dir = os.path.join(csar_decompress,
+                                        self.TOSCA_CSAR_META_DIR)
+                msg = _("'%(csar)s' is the location of decompressed "
+                        "CSAR file.") % {'csar': csar_dir}
+                log.info(msg)
+            translator = TOSCATranslator(tosca, parsed_params, deploy,
+                                         csar_dir=csar_dir)
             log.debug(_('Translating the tosca template.'))
             output = translator.translate()
         return output

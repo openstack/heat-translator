@@ -45,9 +45,10 @@ class ToscaCompute(HotResource):
          'scheduler_hints', 'security_groups', 'software_config_transport',
          'user_data', 'user_data_format', 'user_data_update_policy')
 
-    def __init__(self, nodetemplate):
+    def __init__(self, nodetemplate, csar_dir=None):
         super(ToscaCompute, self).__init__(nodetemplate,
-                                           type='OS::Nova::Server')
+                                           type='OS::Nova::Server',
+                                           csar_dir=csar_dir)
         # List with associated hot port resources with this server
         self.assoc_port_resources = []
         pass

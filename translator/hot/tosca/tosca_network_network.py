@@ -28,9 +28,10 @@ class ToscaNetwork(HotResource):
 
     existing_resource_id = None
 
-    def __init__(self, nodetemplate):
+    def __init__(self, nodetemplate, csar_dir=None):
         super(ToscaNetwork, self).__init__(nodetemplate,
-                                           type='OS::Neutron::Net')
+                                           type='OS::Neutron::Net',
+                                           csar_dir=csar_dir)
         pass
 
     def handle_properties(self):

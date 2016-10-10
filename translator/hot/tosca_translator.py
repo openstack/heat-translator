@@ -24,12 +24,13 @@ log = logging.getLogger('heat-translator')
 class TOSCATranslator(object):
     '''Invokes translation methods.'''
 
-    def __init__(self, tosca, parsed_params, deploy=None):
+    def __init__(self, tosca, parsed_params, deploy=None, csar_dir=None):
         super(TOSCATranslator, self).__init__()
         self.tosca = tosca
         self.hot_template = HotTemplate()
         self.parsed_params = parsed_params
         self.deploy = deploy
+        self.csar_dir = csar_dir
         self.node_translator = None
         log.info(_('Initialized parmaters for translation.'))
 
@@ -38,7 +39,8 @@ class TOSCATranslator(object):
         self.hot_template.description = self.tosca.description
         self.hot_template.parameters = self._translate_inputs()
         self.node_translator = TranslateNodeTemplates(self.tosca,
-                                                      self.hot_template)
+                                                      self.hot_template,
+                                                      csar_dir=self.csar_dir)
         self.hot_template.resources = \
             self.node_translator.translate()
         self.hot_template.outputs = self._translate_outputs()

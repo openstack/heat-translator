@@ -31,10 +31,11 @@ class ToscaAutoscaling(HotResource):
 
     toscatype = 'tosca.policies.Scaling'
 
-    def __init__(self, policy):
+    def __init__(self, policy, csar_dir=None):
         hot_type = "OS::Heat::ScalingPolicy"
         super(ToscaAutoscaling, self).__init__(policy,
-                                               type=hot_type)
+                                               type=hot_type,
+                                               csar_dir=csar_dir)
         self.policy = policy
 
     def handle_expansion(self):

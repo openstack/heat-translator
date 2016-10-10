@@ -22,8 +22,9 @@ class ToscaWebApplication(HotResource):
 
     toscatype = 'tosca.nodes.WebApplication'
 
-    def __init__(self, nodetemplate):
-        super(ToscaWebApplication, self).__init__(nodetemplate)
+    def __init__(self, nodetemplate, csar_dir=None):
+        super(ToscaWebApplication, self).__init__(nodetemplate,
+                                                  csar_dir=csar_dir)
         pass
 
     def handle_properties(self):

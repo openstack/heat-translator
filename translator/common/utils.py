@@ -20,7 +20,9 @@ import re
 import requests
 import six
 from six.moves.urllib.parse import urlparse
+import tempfile
 import yaml
+import zipfile
 
 from toscaparser.utils.gettextutils import _
 import toscaparser.utils.yamlparser
@@ -323,3 +325,30 @@ def get_token_id(access_dict):
     if access_dict is None:
         return None
     return access_dict['access']['token']['id']
+
+
+def decompress(zip_file, dir=None):
+    """Decompress Zip file
+
+    Decompress any zip file. For example, TOSCA CSAR
+
+    inputs:
+       zip_file: file in zip format
+       dir: directory to decompress zip. If not provided an unique temporary
+            directory will be generated and used.
+    return:
+       dir: absolute path to the decopressed directory
+    """
+    if not dir:
+        dir = tempfile.NamedTemporaryFile().name
+    with zipfile.ZipFile(zip_file, "r") as zf:
+        zf.extractall(dir)
+    return dir
+
+
+def get_dict_value(dict_item, key, get_files):
+    if key in dict_item:
+        return get_files.append(dict_item[key])
+    for k, v in dict_item.items():
+        if isinstance(v, dict):
+            get_dict_value(v, key, get_files)

@@ -234,3 +234,37 @@ class CommonUtilsTest(TestCase):
         self.assertFalse(self.UrlUtils.validate_url("github.com"))
         self.assertFalse(self.UrlUtils.validate_url("123"))
         self.assertFalse(self.UrlUtils.validate_url("a/b/c"))
+
+    def test_get_dict_value(self):
+        single_snippet = \
+            {'nodejs_create_config':
+             {'type': 'tosca.nodes.SoftwareConfig',
+              'properties':
+              {'config':
+               {'get_file': 'create.sh'}}}}
+        actual_output_single_snippet = []
+        ex_output_single_snippet = ['create.sh']
+        translator.common.utils.get_dict_value(single_snippet, "get_file",
+                                               actual_output_single_snippet)
+        self.assertEqual(actual_output_single_snippet,
+                         ex_output_single_snippet)
+        multi_snippet = \
+            {'resources':
+             {'nodejs_create_config':
+              {'type': 'tosca.nodes.SoftwareConfig',
+               'properties':
+               {'config':
+                {'get_file': 'nodejs/create.sh'}}},
+              'mongodb_create_config':
+              {'type': 'tosca.nodes.SoftwareConfig',
+               'properties':
+               {'config':
+                {'get_file': 'mongodb/create.sh'}}}}}
+
+        actual_output_multi_snippet = []
+        ex_output_multi_snippet = ['mongodb/create.sh',
+                                   'nodejs/create.sh']
+        translator.common.utils.get_dict_value(multi_snippet, "get_file",
+                                               actual_output_multi_snippet)
+        self.assertEqual(sorted(actual_output_multi_snippet),
+                         ex_output_multi_snippet)

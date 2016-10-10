@@ -24,9 +24,10 @@ class ToscaNetworkPort(HotResource):
 
     toscatype = 'tosca.nodes.network.Port'
 
-    def __init__(self, nodetemplate):
+    def __init__(self, nodetemplate, csar_dir=None):
         super(ToscaNetworkPort, self).__init__(nodetemplate,
-                                               type='OS::Neutron::Port')
+                                               type='OS::Neutron::Port',
+                                               csar_dir=csar_dir)
         # Default order
         self.order = 0
         pass

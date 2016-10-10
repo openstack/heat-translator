@@ -22,9 +22,10 @@ class ToscaPolicies(HotResource):
 
     toscatype = 'tosca.policies.Placement'
 
-    def __init__(self, policy):
+    def __init__(self, policy, csar_dir=None):
         super(ToscaPolicies, self).__init__(policy,
-                                            type='OS::Nova::ServerGroup')
+                                            type='OS::Nova::ServerGroup',
+                                            csar_dir=csar_dir)
         self.policy = policy
 
     def handle_properties(self, resources):

@@ -146,10 +146,11 @@ HOT_SCALING_POLICY_TYPE = ["OS::Heat::AutoScalingGroup",
 class TranslateNodeTemplates(object):
     '''Translate TOSCA NodeTemplates to Heat Resources.'''
 
-    def __init__(self, tosca, hot_template):
+    def __init__(self, tosca, hot_template, csar_dir=None):
         self.tosca = tosca
         self.nodetemplates = self.tosca.nodetemplates
         self.hot_template = hot_template
+        self.csar_dir = csar_dir
         # list of all HOT resources generated
         self.hot_resources = []
         # mapping between TOSCA nodetemplate and HOT resource
@@ -218,7 +219,8 @@ class TranslateNodeTemplates(object):
             base_type = HotResource.get_base_type_str(node.type_definition)
             if base_type not in TOSCA_TO_HOT_TYPE:
                 raise UnsupportedTypeError(type=_('%s') % base_type)
-            hot_node = TOSCA_TO_HOT_TYPE[base_type](node)
+            hot_node = TOSCA_TO_HOT_TYPE[base_type](node,
+                                                    csar_dir=self.csar_dir)
             self.hot_resources.append(hot_node)
             self.hot_lookup[node] = hot_node
 
@@ -435,9 +437,16 @@ class TranslateNodeTemplates(object):
             if tosca_target:
                 artifacts = HotResource.get_all_artifacts(tosca_target)
                 if artifact_name in artifacts:
+                    cwd = os.getcwd()
                     artifact = artifacts[artifact_name]
+                    if self.csar_dir:
+                        os.chdir(self.csar_dir)
+                        get_file = os.path.abspath(artifact.get('file'))
+                    else:
+                        get_file = artifact.get('file')
                     if artifact.get('type', None) == 'tosca.artifacts.File':
-                        return {'get_file': artifact.get('file')}
+                        return {'get_file': get_file}
+            os.chdir(cwd)
         get_input_args = None
         if isinstance(param_value, GetInput):
             get_input_args = param_value.args
@@ -683,16 +692,30 @@ class TranslateNodeTemplates(object):
                 raise Exception(msg)
         config_name = source_node.name + '_' + target_name + '_connect_config'
         implement = connect_config.get('implementation')
+        cwd = os.getcwd()
         if config_location == 'target':
+            if self.csar_dir:
+                os.chdir(self.csar_dir)
+                get_file = os.path.abspath(implement)
+            else:
+                get_file = implement
             hot_config = HotResource(target_node,
                                      config_name,
                                      'OS::Heat::SoftwareConfig',
-                                     {'config': {'get_file': implement}})
+                                     {'config': {'get_file': get_file}},
+                                     csar_dir=self.csar_dir)
         elif config_location == 'source':
+            if self.csar_dir:
+                os.chdir(self.csar_dir)
+                get_file = os.path.abspath(implement)
+            else:
+                get_file = implement
             hot_config = HotResource(source_node,
                                      config_name,
                                      'OS::Heat::SoftwareConfig',
-                                     {'config': {'get_file': implement}})
+                                     {'config': {'get_file': get_file}},
+                                     csar_dir=self.csar_dir)
+        os.chdir(cwd)
         connectsto_resources.append(hot_config)
         hot_target = self._find_hot_resource_for_tosca(target_name)
         hot_source = self._find_hot_resource_for_tosca(source_node.name)

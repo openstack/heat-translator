@@ -22,8 +22,9 @@ class ToscaSoftwareComponent(HotResource):
 
     toscatype = 'tosca.nodes.SoftwareComponent'
 
-    def __init__(self, nodetemplate):
-        super(ToscaSoftwareComponent, self).__init__(nodetemplate)
+    def __init__(self, nodetemplate, csar_dir=None):
+        super(ToscaSoftwareComponent, self).__init__(nodetemplate,
+                                                     csar_dir=csar_dir)
         pass
 
     def handle_properties(self):

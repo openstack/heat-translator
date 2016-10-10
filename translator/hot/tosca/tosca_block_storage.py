@@ -29,9 +29,10 @@ class ToscaBlockStorage(HotResource):
 
     toscatype = 'tosca.nodes.BlockStorage'
 
-    def __init__(self, nodetemplate):
+    def __init__(self, nodetemplate, csar_dir=None):
         super(ToscaBlockStorage, self).__init__(nodetemplate,
-                                                type='OS::Cinder::Volume')
+                                                type='OS::Cinder::Volume',
+                                                csar_dir=csar_dir)
         pass
 
     def handle_properties(self):

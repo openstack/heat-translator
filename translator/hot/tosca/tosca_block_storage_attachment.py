@@ -23,9 +23,11 @@ class ToscaBlockStorageAttachment(HotResource):
 
     toscatype = 'tosca.nodes.BlockStorageAttachment'
 
-    def __init__(self, template, nodetemplates, instance_uuid, volume_id):
+    def __init__(self, template, nodetemplates, instance_uuid, volume_id,
+                 csar_dir=None):
         super(ToscaBlockStorageAttachment,
-              self).__init__(template, type='OS::Cinder::VolumeAttachment')
+              self).__init__(template, type='OS::Cinder::VolumeAttachment',
+                             csar_dir=csar_dir)
         self.nodetemplates = nodetemplates
         self.instance_uuid = {'get_resource': instance_uuid}
         self.volume_id = {'get_resource': volume_id}

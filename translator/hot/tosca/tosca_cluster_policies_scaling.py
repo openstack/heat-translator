@@ -34,10 +34,11 @@ class ToscaClusterAutoscaling(HotResource):
 
     toscatype = 'tosca.policies.Scaling.Cluster'
 
-    def __init__(self, policy):
+    def __init__(self, policy, csar_dir=None):
         hot_type = "OS::Senlin::Policy"
         super(ToscaClusterAutoscaling, self).__init__(policy,
-                                                      type=hot_type)
+                                                      type=hot_type,
+                                                      csar_dir=csar_dir)
         self.policy = policy
 
     def _generate_scale_properties(self,

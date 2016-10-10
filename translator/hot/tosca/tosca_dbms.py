@@ -22,8 +22,8 @@ class ToscaDbms(HotResource):
 
     toscatype = 'tosca.nodes.DBMS'
 
-    def __init__(self, nodetemplate):
-        super(ToscaDbms, self).__init__(nodetemplate)
+    def __init__(self, nodetemplate, csar_dir=None):
+        super(ToscaDbms, self).__init__(nodetemplate, csar_dir=csar_dir)
         pass
 
     def handle_properties(self):
