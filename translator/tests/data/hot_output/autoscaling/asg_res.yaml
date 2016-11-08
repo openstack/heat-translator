@@ -1,0 +1,9 @@
+heat_template_version: 2013-05-23
+description: Tacker Scaling template
+resources:
+  my_server_1:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      user_data_format: SOFTWARE_CONFIG
+      image: rhel-6.5-test-image
