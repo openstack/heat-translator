@@ -296,7 +296,7 @@ class TranslateNodeTemplates(object):
         connectsto_resources = []
         for node in self.nodetemplates:
             for requirement in node.requirements:
-                for endpoint, details in six.iteritems(requirement):
+                for endpoint, details in requirement.items():
                     relation = None
                     if isinstance(details, dict):
                         target = details.get('node')
@@ -370,7 +370,7 @@ class TranslateNodeTemplates(object):
             # traverse the reference chain to get the actual value
             inputs = resource.properties.get('input_values')
             if inputs:
-                for name, value in six.iteritems(inputs):
+                for name, value in inputs.items():
                     inputs[name] = self.translate_param_value(value, resource)
 
         # remove resources without type defined
@@ -666,7 +666,7 @@ class TranslateNodeTemplates(object):
                                 connect_interfaces):
         connectsto_resources = []
         if connect_interfaces:
-            for iname, interface in six.iteritems(connect_interfaces):
+            for iname, interface in connect_interfaces.items():
                 connectsto_resources += \
                     self._create_connect_config(source_node, target_name,
                                                 interface)
