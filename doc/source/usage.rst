@@ -83,4 +83,17 @@ Things To Consider
   argument. If you do not provide ``--stack-name``, an unique name will be created and used.
   Below is an example command to deploy translated template with a desired stack name::
       heat-translator --template-file translator/tests/data/tosca_helloworld.yaml --stack-name mystack --deploy
-
+* The Heat-Translator supports translation of TOSCA templates to Heat Senlin
+  resources (e.g. ``OS::Senlin::Cluster``) but that requires to use a specific
+  TOSCA node type called ``tosca.policies.Scaling.Cluster``.
+  The ``tosca.policies.Scaling.Cluster`` is a custom type that derives from
+  ``tosca.policies.Scaling``. For example usage, refer to the
+  ``tosca_cluster_autoscaling.yaml`` and ``hot_cluster_autoscaling.yaml``
+  provided under the ``translator/tests/data/autoscaling`` and
+  ``translator/tests/data/hot_output/autoscaling`` directories respectively in
+  the heat-translator project (``https://github.com/openstack/heat-translator``).
+  When you use ``tosca.policies.Scaling`` normative node type, the
+  Heat-Translator will translate it to ``OS::Heat::AutoScalingGroup`` Heat
+  resource. Related example templates, ``tosca_autoscaling.yaml`` and
+  ``hot_autoscaling.yaml`` can be found for reference purposes under the same
+  directory structure mentioned above.
