@@ -458,26 +458,28 @@ class ToscaHotTranslationTest(TestCase):
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_nfv_sample(self):
-        tosca_file = '../tests/data/test_tosca_nfv_sample.yaml'
-        hot_file = '../tests/data/hot_output/hot_nfv_sample.yaml'
+        tosca_file = '../tests/data/nfv/test_tosca_nfv_sample.yaml'
+        hot_file = '../tests/data/hot_output/nfv/hot_nfv_sample.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_policy(self):
-        tosca_file = '../tests/data/tosca_policies.yaml'
-        hot_file = '../tests/data/hot_output/hot_policies.yaml'
+        tosca_file = '../tests/data/policies/tosca_policies.yaml'
+        hot_file = '../tests/data/hot_output/policies/hot_policies.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_script_types(self):
-        tosca_file = '../tests/data/test_tosca_script_types.yaml'
+        tosca_file = '../tests/data/interfaces/test_tosca_script_types.yaml'
         hot_file = '../tests/data/hot_output/hot_script_types.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_interface_on_compute(self):
-        tosca_file = '../tests/data/test_tosca_interface_on_compute.yaml'
-        hot_file = '../tests/data/hot_output/hot_interface_on_compute.yaml'
+        tosca_file = '../tests/data/interfaces/' \
+                     'test_tosca_interface_on_compute.yaml'
+        hot_file = '../tests/data/hot_output/interfaces/' \
+                   'hot_interface_on_compute.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
@@ -494,8 +496,8 @@ class ToscaHotTranslationTest(TestCase):
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_hot_translate_scaling_policy(self):
-        tosca_file = '../tests/data/tosca_autoscaling.yaml'
-        hot_file = '../tests/data/hot_output/hot_autoscaling.yaml'
+        tosca_file = '../tests/data/autoscaling/tosca_autoscaling.yaml'
+        hot_file = '../tests/data/hot_output/autoscaling/hot_autoscaling.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
@@ -512,7 +514,8 @@ class ToscaHotTranslationTest(TestCase):
         self.assertEqual(expected_msg, err.__str__())
 
     def test_hot_translate_cluster_scaling_policy(self):
-        tosca_file = '../tests/data/tosca_cluster_autoscaling.yaml'
-        hot_file = '../tests/data/hot_output/hot_cluster_autoscaling.yaml'
+        tosca_file = '../tests/data/autoscaling/tosca_cluster_autoscaling.yaml'
+        hot_file = '../tests/data/hot_output/autoscaling/' \
+                   'hot_cluster_autoscaling.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)

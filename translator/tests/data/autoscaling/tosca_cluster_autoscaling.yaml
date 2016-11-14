@@ -4,7 +4,7 @@ description: >
   Template for deploying servers based on policies.
 
 imports:
-  - custom_types/senlin_cluster_policies.yaml
+  - ../custom_types/senlin_cluster_policies.yaml
 
 topology_template:
   node_templates:
