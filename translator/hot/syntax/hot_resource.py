@@ -241,7 +241,7 @@ class HotResource(object):
                                     hosting_on_server):
         artifacts = self.get_all_artifacts(self.nodetemplate)
         install_roles_script = ''
-        for artifact_name, artifact in six.iteritems(artifacts):
+        for artifact_name, artifact in artifacts.items():
             artifact_type = artifact.get('type', '').lower()
             if artifact_type == 'tosca.artifacts.ansiblegalaxy.role':
                 role = artifact.get('file', None)
@@ -356,7 +356,7 @@ class HotResource(object):
             inputs = operation.value.get('inputs')
             deploy_inputs = {}
             if inputs:
-                for name, value in six.iteritems(inputs):
+                for name, value in inputs.items():
                     deploy_inputs[name] = value
             return deploy_inputs
 
@@ -367,7 +367,7 @@ class HotResource(object):
             inputs = operation.get('pre_configure_source').get('inputs')
         deploy_inputs = {}
         if inputs:
-            for name, value in six.iteritems(inputs):
+            for name, value in inputs.items():
                 deploy_inputs[name] = value
         return deploy_inputs
 
@@ -377,7 +377,7 @@ class HotResource(object):
         this_node_template = self.nodetemplate \
             if node_template is None else node_template
         for requirement in this_node_template.requirements:
-            for requirement_name, assignment in six.iteritems(requirement):
+            for requirement_name, assignment in requirement.items():
                 for check_node in this_node_template.related_nodes:
                     # check if the capability is Container
                     if isinstance(assignment, dict):
