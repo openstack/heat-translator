@@ -139,13 +139,25 @@ class HotResource(object):
         hosting_server = None
         if self.nodetemplate.requirements is not None:
             hosting_server = self._get_hosting_server()
+        servers = {}
+        server_key = 'server'
+        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
+        if hosting_server is not None:
+            if len(hosting_server) == 1:
+                servers['get_resource'] = hosting_server[0]
+            else:
+                for server in hosting_server:
+                    servers[server] = {'get_resource': server}
+                sw_deploy_res += 'Group'
+                server_key = 'servers'
         # hosting_server is None if requirements is None
-        hosting_on_server = hosting_server.name if hosting_server else None
+        hosting_on_server = hosting_server if hosting_server else None
         base_type = HotResource.get_base_type_str(
             self.nodetemplate.type_definition)
         # if we are on a compute node the host is self
         if hosting_on_server is None and base_type == 'tosca.nodes.Compute':
             hosting_on_server = self.name
+            servers = {'get_resource': self.name}
 
         cwd = os.getcwd()
         for operation in operations.values():
@@ -168,19 +180,17 @@ class HotResource(object):
                     base_type != 'tosca.nodes.Compute':
                     deploy_resource = self
                     self.name = deploy_name
-                    self.type = 'OS::Heat::SoftwareDeployment'
+                    self.type = sw_deploy_res
                     self.properties = {'config': {'get_resource': config_name},
-                                       'server': {'get_resource':
-                                                  hosting_on_server}}
+                                       server_key: servers}
                     deploy_lookup[operation] = self
                 else:
                     sd_config = {'config': {'get_resource': config_name},
-                                 'server': {'get_resource':
-                                            hosting_on_server}}
+                                 server_key: servers}
                     deploy_resource = \
                         HotResource(self.nodetemplate,
                                     deploy_name,
-                                    'OS::Heat::SoftwareDeployment',
+                                    sw_deploy_res,
                                     sd_config, csar_dir=self.csar_dir)
                     hot_resources.append(deploy_resource)
                     deploy_lookup[operation] = deploy_resource
@@ -225,7 +235,7 @@ class HotResource(object):
             hot.group_dependencies.update(group)
 
         roles_deploy_resource = self._handle_ansiblegalaxy_roles(
-            hot_resources, node_name, hosting_on_server)
+            hot_resources, node_name, servers)
 
         # add a dependency to this ansible roles deploy to
         # the first "classic" deploy generated for this node
@@ -241,6 +251,11 @@ class HotResource(object):
                                     hosting_on_server):
         artifacts = self.get_all_artifacts(self.nodetemplate)
         install_roles_script = ''
+        server_key = 'server'
+        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
+        if len(hosting_on_server.keys()) > 1:
+            server_key += 's'
+            sw_deploy_res += 'Group'
         for artifact_name, artifact in artifacts.items():
             artifact_type = artifact.get('type', '').lower()
             if artifact_type == 'tosca.artifacts.ansiblegalaxy.role':
@@ -263,11 +278,10 @@ class HotResource(object):
                             {'config': install_roles_script},
                             csar_dir=self.csar_dir))
             sd_config = {'config': {'get_resource': config_name},
-                         'server': {'get_resource':
-                                    hosting_on_server}}
+                         server_key: hosting_on_server}
             deploy_resource = \
                 HotResource(self.nodetemplate, deploy_name,
-                            'OS::Heat::SoftwareDeployment',
+                            sw_deploy_res,
                             sd_config, csar_dir=self.csar_dir)
             hot_resources.append(deploy_resource)
 
@@ -280,20 +294,31 @@ class HotResource(object):
         # This hot resource is the software config portion in the HOT template
         # This method adds the matching software deployment with the proper
         # target server and dependency
+        servers = {}
+        server_key = 'server'
+        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
         if config_location == 'target':
             hosting_server = hot_target._get_hosting_server()
             hot_depends = hot_target
         elif config_location == 'source':
             hosting_server = self._get_hosting_server()
             hot_depends = hot_source
+        if hosting_server is not None:
+            if len(hosting_server) == 1:
+                servers['get_resource'] = hosting_server[0]
+            else:
+                for server in hosting_server:
+                    servers[server] = {'get_resource': server}
+                sw_deploy_res += 'Group'
+                server_key = 'servers'
         deploy_name = tosca_source.name + '_' + tosca_target.name + \
             '_connect_deploy'
         sd_config = {'config': {'get_resource': self.name},
-                     'server': {'get_resource': hosting_server.name}}
+                     server_key: servers}
         deploy_resource = \
             HotResource(self.nodetemplate,
                         deploy_name,
-                        'OS::Heat::SoftwareDeployment',
+                        sw_deploy_res,
                         sd_config,
                         depends_on=[hot_depends], csar_dir=self.csar_dir)
         connect_inputs = self._get_connect_inputs(config_location, operation)
@@ -309,16 +334,28 @@ class HotResource(object):
         # handle hosting server for the OS:HEAT::SoftwareDeployment
         # from the TOSCA nodetemplate, traverse the relationship chain
         # down to the server
-        if self.type == 'OS::Heat::SoftwareDeployment':
+        sw_deploy_group = 'OS::Heat::SoftwareDeploymentGroup'
+        sw_deploy = 'OS::Heat::SoftwareDeployment'
+        if self.properties.get('servers') and \
+                self.properties.get('server'):
+            del self.properties['server']
+        if self.type == sw_deploy_group or self.type == sw_deploy:
             # skip if already have hosting
             # If type is NodeTemplate, look up corresponding HotResrouce
-            host_server = self.properties.get('server')
-            if host_server is None or not host_server['get_resource']:
+            host_server = self.properties.get('servers') \
+                or self.properties.get('server')
+            if host_server is None:
                 raise Exception(_("Internal Error: expecting host "
                                   "in software deployment"))
-            elif isinstance(host_server['get_resource'], NodeTemplate):
+
+            elif isinstance(host_server.get('get_resource'), NodeTemplate):
                 self.properties['server']['get_resource'] = \
                     host_server['get_resource'].name
+
+            elif isinstance(host_server, dict) and \
+                not host_server.get('get_resource'):
+                self.properties['servers'] = \
+                    host_server
 
     def top_of_chain(self):
         dependent = self.group_dependencies.get(self)
@@ -374,6 +411,8 @@ class HotResource(object):
     def _get_hosting_server(self, node_template=None):
         # find the server that hosts this software by checking the
         # requirements and following the hosting chain
+        hosting_servers = []
+        host_exists = False
         this_node_template = self.nodetemplate \
             if node_template is None else node_template
         for requirement in this_node_template.requirements:
@@ -387,9 +426,12 @@ class HotResource(object):
                     if node_name and node_name == check_node.name:
                         if self._is_container_type(requirement_name,
                                                    check_node):
-                            return check_node
-                        elif check_node.related_nodes:
+                            hosting_servers.append(check_node.name)
+                            host_exists = True
+                        elif check_node.related_nodes and not host_exists:
                             return self._get_hosting_server(check_node)
+        if hosting_servers:
+            return hosting_servers
         return None
 
     def _is_container_type(self, requirement_name, node):

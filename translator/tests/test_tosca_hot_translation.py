@@ -235,6 +235,15 @@ class ToscaHotTranslationTest(TestCase):
                   'download_url': 'http://www.software.com/download'}
         self._test_successful_translation(tosca_file, hot_file, params)
 
+    def test_hot_translate_software_component_multiple_hosts(self):
+        tosca_file = '../tests/data/tosca_software_component'\
+            '_multiple_hosts.yaml'
+        hot_file = '../tests/data/hot_output/hot_software_component'\
+            '_multiple_hosts.yaml'
+        params = {'cpus': '1',
+                  'download_url': 'http://www.software.com/download'}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
     def test_hot_translate_web_application(self):
         tosca_file = '../tests/data/tosca_web_application.yaml'
         hot_file = '../tests/data/hot_output/hot_web_application.yaml'

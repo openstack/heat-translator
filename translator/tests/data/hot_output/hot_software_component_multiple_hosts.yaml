@@ -1,0 +1,71 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA simple profile with a software component.
+
+parameters:
+  cpus:
+    type: number
+    description: Number of CPUs for the server.
+    default: 1
+    constraints:
+    - allowed_values:
+      - 1
+      - 2
+      - 4
+      - 8
+
+resources:
+  server1:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+
+  server2:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.small
+      image: ubuntu-software-config-os-init
+      user_data_format: SOFTWARE_CONFIG
+
+  my_software_create_deploy:
+    type: OS::Heat::SoftwareDeploymentGroup
+    properties:
+      config:
+        get_resource: my_software_create_config
+      servers:
+        server1:
+          get_resource: server1
+        server2:
+          get_resource: server2
+
+  my_software_create_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: software_install.sh
+      group: script
+
+  my_software_start_deploy:
+    type: OS::Heat::SoftwareDeploymentGroup
+    properties:
+      config:
+        get_resource: my_software_start_config
+      servers:
+        server1:
+          get_resource: server1
+        server2:
+          get_resource: server2
+    depends_on:
+    - my_software_create_deploy
+
+  my_software_start_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        get_file: software_start.sh
+      group: script
+
+outputs: {}
