@@ -139,17 +139,12 @@ class HotResource(object):
         hosting_server = None
         if self.nodetemplate.requirements is not None:
             hosting_server = self._get_hosting_server()
-        servers = {}
-        server_key = 'server'
-        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
-        if hosting_server is not None:
-            if len(hosting_server) == 1:
-                servers['get_resource'] = hosting_server[0]
-            else:
-                for server in hosting_server:
-                    servers[server] = {'get_resource': server}
-                sw_deploy_res += 'Group'
-                server_key = 'servers'
+
+        sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
+        server_key = sw_deployment_resouce.server_key
+        servers = sw_deployment_resouce.servers
+        sw_deploy_res = sw_deployment_resouce.software_deployment
+
         # hosting_server is None if requirements is None
         hosting_on_server = hosting_server if hosting_server else None
         base_type = HotResource.get_base_type_str(
@@ -251,11 +246,11 @@ class HotResource(object):
                                     hosting_on_server):
         artifacts = self.get_all_artifacts(self.nodetemplate)
         install_roles_script = ''
-        server_key = 'server'
-        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
-        if len(hosting_on_server.keys()) > 1:
-            server_key += 's'
-            sw_deploy_res += 'Group'
+
+        sw_deployment_resouce = \
+            HOTSoftwareDeploymentResources(hosting_on_server)
+        server_key = sw_deployment_resouce.server_key
+        sw_deploy_res = sw_deployment_resouce.software_deployment
         for artifact_name, artifact in artifacts.items():
             artifact_type = artifact.get('type', '').lower()
             if artifact_type == 'tosca.artifacts.ansiblegalaxy.role':
@@ -294,23 +289,17 @@ class HotResource(object):
         # This hot resource is the software config portion in the HOT template
         # This method adds the matching software deployment with the proper
         # target server and dependency
-        servers = {}
-        server_key = 'server'
-        sw_deploy_res = 'OS::Heat::SoftwareDeployment'
         if config_location == 'target':
             hosting_server = hot_target._get_hosting_server()
             hot_depends = hot_target
         elif config_location == 'source':
             hosting_server = self._get_hosting_server()
             hot_depends = hot_source
-        if hosting_server is not None:
-            if len(hosting_server) == 1:
-                servers['get_resource'] = hosting_server[0]
-            else:
-                for server in hosting_server:
-                    servers[server] = {'get_resource': server}
-                sw_deploy_res += 'Group'
-                server_key = 'servers'
+        sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
+        server_key = sw_deployment_resouce.server_key
+        servers = sw_deployment_resouce.servers
+        sw_deploy_res = sw_deployment_resouce.software_deployment
+
         deploy_name = tosca_source.name + '_' + tosca_target.name + \
             '_connect_deploy'
         sd_config = {'config': {'get_resource': self.name},
@@ -334,8 +323,10 @@ class HotResource(object):
         # handle hosting server for the OS:HEAT::SoftwareDeployment
         # from the TOSCA nodetemplate, traverse the relationship chain
         # down to the server
-        sw_deploy_group = 'OS::Heat::SoftwareDeploymentGroup'
-        sw_deploy = 'OS::Heat::SoftwareDeployment'
+        sw_deploy_group = \
+            HOTSoftwareDeploymentResources.HOT_SW_DEPLOYMENT_GROUP_RESOURCE
+        sw_deploy = HOTSoftwareDeploymentResources.HOT_SW_DEPLOYMENT_RESOURCE
+
         if self.properties.get('servers') and \
                 self.properties.get('server'):
             del self.properties['server']
@@ -534,3 +525,29 @@ class HotResource(object):
                 return HotResource.get_base_type_str(node_type.parent_type)
 
         return node_type.type
+
+
+class HOTSoftwareDeploymentResources(object):
+    """Provides HOT Software Deployment resources
+
+    SoftwareDeployment or SoftwareDeploymentGroup Resource
+    """
+
+    HOT_SW_DEPLOYMENT_RESOURCE = 'OS::Heat::SoftwareDeployment'
+    HOT_SW_DEPLOYMENT_GROUP_RESOURCE = 'OS::Heat::SoftwareDeploymentGroup'
+
+    def __init__(self, hosting_server=None):
+        self.software_deployment = self.HOT_SW_DEPLOYMENT_RESOURCE
+        self.software_deployment_group = self.HOT_SW_DEPLOYMENT_GROUP_RESOURCE
+        self.server_key = 'server'
+        self.hosting_server = hosting_server
+        self.servers = {}
+        if hosting_server is not None:
+            if len(self.hosting_server) == 1:
+                if isinstance(hosting_server, list):
+                    self.servers['get_resource'] = self.hosting_server[0]
+            else:
+                for server in self.hosting_server:
+                    self.servers[server] = {'get_resource': server}
+                self.software_deployment = self.software_deployment_group
+                self.server_key = 'servers'
