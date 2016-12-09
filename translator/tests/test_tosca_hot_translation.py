@@ -26,11 +26,13 @@ from translator.tests.base import TestCase
 
 class ToscaHotTranslationTest(TestCase):
 
-    def _test_successful_translation(self, tosca_file, hot_file, params=None):
+    def _test_successful_translation(self, tosca_file, hot_files, params=None):
         if not params:
             params = {}
+        if not isinstance(hot_files, list):
+            hot_files = [hot_files]
         diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
-                                                                   hot_file,
+                                                                   hot_files,
                                                                    params)
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
@@ -501,9 +503,12 @@ class ToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_scaling_policy(self):
         tosca_file = '../tests/data/autoscaling/tosca_autoscaling.yaml'
-        hot_file = '../tests/data/hot_output/autoscaling/hot_autoscaling.yaml'
+        hot_files = [
+            '../tests/data/hot_output/autoscaling/hot_autoscaling.yaml',
+            '../tests/data/hot_output/autoscaling/asg_res.yaml',
+            ]
         params = {}
-        self._test_successful_translation(tosca_file, hot_file, params)
+        self._test_successful_translation(tosca_file, hot_files, params)
 
     def test_translate_unsupported_tosca_type(self):
         tosca_file = '../tests/data/test_tosca_unsupported_type.yaml'
@@ -514,7 +519,8 @@ class ToscaHotTranslationTest(TestCase):
                          'type but translation support is not yet available.')
         tosca = ToscaTemplate(tosca_tpl, params, True)
         err = self.assertRaises(UnsupportedTypeError,
-                                TOSCATranslator(tosca, params).translate)
+                                TOSCATranslator(tosca, params)
+                                .output_to_yaml)
         self.assertEqual(expected_msg, err.__str__())
 
     def test_hot_translate_cluster_scaling_policy(self):

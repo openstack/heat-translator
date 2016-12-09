@@ -216,7 +216,7 @@ class YamlUtils(object):
 class TranslationUtils(object):
 
     @staticmethod
-    def compare_tosca_translation_with_hot(tosca_file, hot_file, params):
+    def compare_tosca_translation_with_hot(tosca_file, hot_files, params):
         '''Verify tosca translation against the given hot specification.
 
         inputs:
@@ -237,16 +237,28 @@ class TranslationUtils(object):
         if not a_file:
             tosca_tpl = tosca_file
 
-        expected_hot_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), hot_file)
+        expected_hot_templates = []
+        for hot_file in hot_files:
+            expected_hot_templates.append(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), hot_file))
 
         tosca = ToscaTemplate(tosca_tpl, params, a_file)
         translate = TOSCATranslator(tosca, params)
 
-        output = translate.translate()
-        output_dict = toscaparser.utils.yamlparser.simple_parse(output)
-        expected_output_dict = YamlUtils.get_dict(expected_hot_tpl)
-        return CompareUtils.diff_dicts(output_dict, expected_output_dict)
+        basename = os.path.basename(hot_files[0])
+        output_hot_templates = translate.output_to_yaml_files_dict(basename)
+        output_dict = {}
+        for output_hot_template_name in output_hot_templates:
+            output_dict[output_hot_template_name] = \
+                toscaparser.utils.yamlparser.simple_parse(
+                    output_hot_templates[output_hot_template_name])
+
+        expected_output_dict = {}
+        for expected_hot_template in expected_hot_templates:
+            expected_output_dict[os.path.basename(expected_hot_template)] = \
+                YamlUtils.get_dict(expected_hot_template)
+
+        return CompareUtils.diff_dicts(expected_output_dict, output_dict)
 
 
 class UrlUtils(object):

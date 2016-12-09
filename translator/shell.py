@@ -16,6 +16,7 @@ import codecs
 import logging
 import logging.config
 import os
+import six
 import sys
 import uuid
 import yaml
@@ -172,9 +173,12 @@ class TranslatorShell(object):
                     except Exception:
                         keystone_session = None
 
-                hot = self._translate(template_type, template_file,
-                                      parsed_params, a_file, deploy)
-                if hot and deploy:
+                translator = self._get_translator(template_type,
+                                                  template_file,
+                                                  parsed_params, a_file,
+                                                  deploy)
+
+                if translator and deploy:
                     if not keystone_client_avail or not heat_client_avail:
                         raise RuntimeError(_('Could not find Heat or Keystone'
                                              'client to deploy, aborting '))
@@ -186,10 +190,10 @@ class TranslatorShell(object):
                     file_name = os.path.basename(
                         os.path.splitext(template_file)[0])
                     self.deploy_on_heat(keystone_session, keystone_auth,
-                                        hot, stack_name, file_name,
+                                        translator, stack_name, file_name,
                                         parsed_params)
 
-                self._write_output(hot, output_file)
+                self._write_output(translator, output_file)
         else:
             msg = (_('The path %(template_file)s is not a valid '
                      'file or URL.') % {'template_file': template_file})
@@ -197,7 +201,7 @@ class TranslatorShell(object):
             log.error(msg)
             raise ValueError(msg)
 
-    def deploy_on_heat(self, session, auth, template,
+    def deploy_on_heat(self, session, auth, translator,
                        stack_name, file_name, parameters):
         endpoint = auth.get_endpoint(session, service_type="orchestration")
         heat_client = heatclient.client.Client('1',
@@ -210,7 +214,7 @@ class TranslatorShell(object):
         msg = _('Deploy the generated template, the stack name is %(name)s.')\
             % {'name': heat_stack_name}
         log.debug(msg)
-        tpl = yaml.load(template)
+        tpl = yaml.load(translator.output_to_yaml())
 
         # get all the values for get_file from a translated template
         get_files = []
@@ -261,8 +265,7 @@ class TranslatorShell(object):
                 raise ValueError(msg)
         return parsed_inputs
 
-    def _translate(self, sourcetype, path, parsed_params, a_file, deploy):
-        output = None
+    def _get_translator(self, sourcetype, path, parsed_params, a_file, deploy):
         if sourcetype == "tosca":
             log.debug(_('Loading the tosca template.'))
             tosca = ToscaTemplate(path, parsed_params, a_file)
@@ -278,16 +281,25 @@ class TranslatorShell(object):
             translator = TOSCATranslator(tosca, parsed_params, deploy,
                                          csar_dir=csar_dir)
             log.debug(_('Translating the tosca template.'))
-            output = translator.translate()
-        return output
+        return translator
 
-    def _write_output(self, output, output_file=None):
-        if output:
-            if output_file:
-                with open(output_file, 'w+') as f:
-                    f.write(output)
-            else:
-                print(output)
+    def _write_output(self, translator, output_file=None):
+        if output_file:
+            path, filename = os.path.split(output_file)
+            yaml_files = translator.output_to_yaml_files_dict(filename)
+            for name, content in six.iteritems(yaml_files):
+                with open(os.path.join(path, name), 'w+') as f:
+                    f.write(content)
+        else:
+            # TODO(mvelten) go back to calling output_to_yaml instead for
+            # stdout once embed_substack_templates is correctly implemented
+            # print(translator.output_to_yaml())
+            yaml_files = translator.output_to_yaml_files_dict('output.yaml')
+            for name, content in six.iteritems(yaml_files):
+                if name != "output.yaml":
+                    with open(name, 'w+') as f:
+                        f.write(content)
+            print(yaml_files['output.yaml'])
 
 
 def main(args=None):

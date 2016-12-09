@@ -79,8 +79,10 @@ class ToscaAutoscaling(HotResource):
                 dict_res[res_name]
         yaml.add_representer(OrderedDict, self.represent_ordereddict)
         yaml.add_representer(dict, self.represent_ordereddict)
-        with open(self.policy.name + '_res.yaml', 'w') as nested_tpl:
-            yaml.dump(template_dict, nested_tpl, default_flow_style=False)
+        self.nested_template = {
+            self.policy.name + '_res.yaml':
+                yaml.dump(template_dict, default_flow_style=False)
+        }
 
     def handle_properties(self, resources):
         self.properties = {}
@@ -119,3 +121,9 @@ class ToscaAutoscaling(HotResource):
                      if tmp_res.name not in delete_res_names]
         resources.append(scaling_resources)
         return resources
+
+    def extract_substack_templates(self, base_filename, hot_template_version):
+        return self.nested_template
+
+    def embed_substack_templates(self, hot_template_version):
+        pass

@@ -34,7 +34,7 @@ class TOSCATranslator(object):
         self.node_translator = None
         log.info(_('Initialized parmaters for translation.'))
 
-    def translate(self):
+    def _translate(self):
         self._resolve_input()
         self.hot_template.description = self.tosca.description
         self.hot_template.parameters = self._translate_inputs()
@@ -44,11 +44,19 @@ class TOSCATranslator(object):
         self.hot_template.resources = \
             self.node_translator.translate()
         self.hot_template.outputs = self._translate_outputs()
-        if self.node_translator.hot_template_version:
-            return self.hot_template.\
-                output_to_yaml(self.node_translator.hot_template_version)
-        else:
-            return self.hot_template.output_to_yaml()
+        if self.node_translator.hot_template_version is None:
+            self.node_translator.hot_template_version = HotTemplate.LATEST
+
+    def output_to_yaml(self):
+        self._translate()
+        return self.hot_template.output_to_yaml(
+            self.node_translator.hot_template_version)
+
+    def output_to_yaml_files_dict(self, base_filename):
+        self._translate()
+        return self.hot_template.output_to_yaml_files_dict(
+            base_filename,
+            self.node_translator.hot_template_version)
 
     def _translate_inputs(self):
         translator = TranslateInputs(self.tosca.inputs, self.parsed_params,
