@@ -29,7 +29,7 @@ class ToscaComputeTest(TestCase):
         toscacompute = ToscaCompute(nodetemplate)
         toscacompute.handle_properties()
 
-        self.assertDictEqual(expectedprops, toscacompute.properties)
+        self.assertEqual(expectedprops, toscacompute.properties)
 
     def test_node_compute_with_host_and_os_capabilities(self):
         tpl_snippet = '''
