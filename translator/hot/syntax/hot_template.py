@@ -13,6 +13,7 @@
 
 from collections import OrderedDict
 import logging
+import os
 import textwrap
 from toscaparser.utils.gettextutils import _
 import yaml
@@ -44,8 +45,31 @@ class HotTemplate(object):
             nodes.append((node_key, node_value))
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
 
-    def output_to_yaml(self, hot_template_version=LATEST):
+    def output_to_yaml_files_dict(self, base_filename,
+                                  hot_template_version=LATEST):
+        yaml_files_dict = {}
+        base_filename, ext = os.path.splitext(base_filename)
+
+        # convert from inlined substack to a substack defined in another file
+        for resource in self.resources:
+            yaml_files_dict.update(
+                resource.extract_substack_templates(base_filename,
+                                                    hot_template_version))
+
+        yaml_files_dict[base_filename + ext] = \
+            self.output_to_yaml(hot_template_version, False)
+
+        return yaml_files_dict
+
+    def output_to_yaml(self, hot_template_version=LATEST,
+                       embed_substack_templates=True):
         log.debug(_('Converting translated output to yaml format.'))
+
+        if embed_substack_templates:
+            # fully inlined substack by storing the template as a blob string
+            for resource in self.resources:
+                resource.embed_substack_templates(hot_template_version)
+
         dict_output = OrderedDict()
         # Version
         version_string = self.VERSION + ": " + hot_template_version + "\n\n"

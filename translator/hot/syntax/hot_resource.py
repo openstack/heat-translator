@@ -355,6 +355,19 @@ class HotResource(object):
         else:
             return dependent.top_of_chain()
 
+    # this function allows to provides substacks as external files
+    # those files will be dumped along the output file.
+    #
+    # return a dict of filename-content
+    def extract_substack_templates(self, base_filename, hot_template_version):
+        return {}
+
+    # this function asks the resource to embed substacks
+    # into the main template, if any.
+    # this is used when the final output is stdout
+    def embed_substack_templates(self, hot_template_version):
+        pass
+
     def get_dict_output(self):
         resource_sections = OrderedDict()
         resource_sections[TYPE] = self.type
