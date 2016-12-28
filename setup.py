@@ -26,6 +26,4 @@ except ImportError:
 
 setuptools.setup(
     setup_requires=['pbr>=1.8'],
-    include_package_data=True,
-    package_data={"translator": ["conf/*.conf"]},
     pbr=True)
