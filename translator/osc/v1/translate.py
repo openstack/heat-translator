@@ -98,7 +98,7 @@ class TranslateTemplate(command.Command):
                 else:
                     tosca = ToscaTemplate(path, parsed_params, a_file)
                     translator = TOSCATranslator(tosca, parsed_params)
-                    output = translator.output_to_yaml()
+                    output = translator.translate()
             else:
                 msg = _('Could not find template file.\n')
                 log.error(msg)

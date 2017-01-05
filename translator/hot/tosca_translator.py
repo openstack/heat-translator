@@ -34,7 +34,7 @@ class TOSCATranslator(object):
         self.node_translator = None
         log.info(_('Initialized parmaters for translation.'))
 
-    def _translate(self):
+    def _translate_to_hot_yaml(self):
         self._resolve_input()
         self.hot_template.description = self.tosca.description
         self.hot_template.parameters = self._translate_inputs()
@@ -47,13 +47,26 @@ class TOSCATranslator(object):
         if self.node_translator.hot_template_version is None:
             self.node_translator.hot_template_version = HotTemplate.LATEST
 
-    def output_to_yaml(self):
-        self._translate()
+    def translate(self):
+        """Translate to HOT YAML
+
+        This method produces a translated output for main template.
+        The nested template, if any referenced by main, will be created
+        as a separate file.
+        """
+        self._translate_to_hot_yaml()
         return self.hot_template.output_to_yaml(
             self.node_translator.hot_template_version)
 
-    def output_to_yaml_files_dict(self, base_filename):
-        self._translate()
+    def translate_to_yaml_files_dict(self, base_filename):
+        """Translate to HOT YAML
+
+        This method produces a translated output containing main and
+        any nested templates referenced by main. This output can be
+        programmatically stored into different files by using key as
+        template name and value as template content.
+        """
+        self._translate_to_hot_yaml()
         return self.hot_template.output_to_yaml_files_dict(
             base_filename,
             self.node_translator.hot_template_version)

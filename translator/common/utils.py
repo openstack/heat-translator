@@ -246,7 +246,7 @@ class TranslationUtils(object):
         translate = TOSCATranslator(tosca, params)
 
         basename = os.path.basename(hot_files[0])
-        output_hot_templates = translate.output_to_yaml_files_dict(basename)
+        output_hot_templates = translate.translate_to_yaml_files_dict(basename)
         output_dict = {}
         for output_hot_template_name in output_hot_templates:
             output_dict[output_hot_template_name] = \

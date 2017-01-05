@@ -26,7 +26,7 @@ class ToscaTemplateOutputTest(TestCase):
             "tosca_nodejs_mongodb_two_instances.yaml")
         tosca = ToscaTemplate(tosca_tpl)
         translate = TOSCATranslator(tosca, [])
-        hot_translation = translate.output_to_yaml()
+        hot_translation = translate.translate()
 
         expected_output = {'nodejs_url':
                            {'description': 'URL for the nodejs '

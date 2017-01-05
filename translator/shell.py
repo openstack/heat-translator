@@ -214,7 +214,7 @@ class TranslatorShell(object):
         msg = _('Deploy the generated template, the stack name is %(name)s.')\
             % {'name': heat_stack_name}
         log.debug(msg)
-        tpl = yaml.load(translator.output_to_yaml())
+        tpl = yaml.load(translator.translate())
 
         # get all the values for get_file from a translated template
         get_files = []
@@ -286,20 +286,12 @@ class TranslatorShell(object):
     def _write_output(self, translator, output_file=None):
         if output_file:
             path, filename = os.path.split(output_file)
-            yaml_files = translator.output_to_yaml_files_dict(filename)
+            yaml_files = translator.translate_to_yaml_files_dict(filename)
             for name, content in six.iteritems(yaml_files):
                 with open(os.path.join(path, name), 'w+') as f:
                     f.write(content)
         else:
-            # TODO(mvelten) go back to calling output_to_yaml instead for
-            # stdout once embed_substack_templates is correctly implemented
-            # print(translator.output_to_yaml())
-            yaml_files = translator.output_to_yaml_files_dict('output.yaml')
-            for name, content in six.iteritems(yaml_files):
-                if name != "output.yaml":
-                    with open(name, 'w+') as f:
-                        f.write(content)
-            print(yaml_files['output.yaml'])
+            print(translator.translate())
 
 
 def main(args=None):

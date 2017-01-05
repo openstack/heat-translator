@@ -529,7 +529,7 @@ class ToscaHotTranslationTest(TestCase):
         tosca = ToscaTemplate(tosca_tpl, params, True)
         err = self.assertRaises(UnsupportedTypeError,
                                 TOSCATranslator(tosca, params)
-                                .output_to_yaml)
+                                .translate)
         self.assertEqual(expected_msg, err.__str__())
 
     def test_hot_translate_cluster_scaling_policy(self):
