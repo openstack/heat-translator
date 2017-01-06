@@ -538,3 +538,12 @@ class ToscaHotTranslationTest(TestCase):
                    'hot_cluster_autoscaling.yaml'
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_translate_nfv_scaling(self):
+        tosca_file = '../tests/data/nfv/test_tosca_nfv_autoscaling.yaml'
+        hot_files = [
+            '../tests/data/hot_output/nfv/hot_tosca_nfv_autoscaling.yaml',
+            '../tests/data/hot_output/nfv/SP1_res.yaml',
+            ]
+        params = {}
+        self._test_successful_translation(tosca_file, hot_files, params)

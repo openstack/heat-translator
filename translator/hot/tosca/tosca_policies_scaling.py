@@ -39,26 +39,25 @@ class ToscaAutoscaling(HotResource):
         self.policy = policy
 
     def handle_expansion(self):
-        sample = None
         if self.policy.entity_tpl.get('triggers'):
             sample = self.policy.\
                 entity_tpl["triggers"]["resize_compute"]["condition"]
-        prop = {}
-        prop["description"] = self.policy.entity_tpl.get('description')
-        prop["meter_name"] = "cpu_util"
-        if sample:
-            prop["statistic"] = ALARM_STATISTIC[sample["method"]]
-            prop["period"] = sample["period"]
-            prop["threshold"] = sample["evaluations"]
-        prop["comparison_operator"] = "gt"
-        alarm_name = self.name.replace('_scale_in', '').\
-            replace('_scale_out', '')
-        ceilometer_resources = HotResource(self.nodetemplate,
-                                           type='OS::Aodh::Alarm',
-                                           name=alarm_name + '_alarm',
-                                           properties=prop)
-        hot_resources = [ceilometer_resources]
-        return hot_resources
+            prop = {}
+            prop["description"] = self.policy.entity_tpl.get('description')
+            prop["meter_name"] = "cpu_util"
+            if sample:
+                prop["statistic"] = ALARM_STATISTIC[sample["method"]]
+                prop["period"] = sample["period"]
+                prop["threshold"] = sample["evaluations"]
+            prop["comparison_operator"] = "gt"
+            alarm_name = self.name.replace('_scale_in', '').\
+                replace('_scale_out', '')
+            ceilometer_resources = HotResource(self.nodetemplate,
+                                               type='OS::Aodh::Alarm',
+                                               name=alarm_name + '_alarm',
+                                               properties=prop)
+            hot_resources = [ceilometer_resources]
+            return hot_resources
 
     def represent_ordereddict(self, dumper, data):
         nodes = []
