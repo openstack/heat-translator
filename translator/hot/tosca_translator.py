@@ -12,6 +12,7 @@
 # under the License.
 
 import logging
+import six
 from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_template import HotTemplate
 from translator.hot.translate_inputs import TranslateInputs
@@ -55,8 +56,20 @@ class TOSCATranslator(object):
         as a separate file.
         """
         self._translate_to_hot_yaml()
-        return self.hot_template.output_to_yaml(
+
+        # TODO(mvelten) go back to calling hot_template.output_to_yaml instead
+        # for stdout once embed_substack_templates is correctly implemented
+        # return self.hot_template.output_to_yaml(
+        #     self.node_translator.hot_template_version)
+        yaml_files = self.hot_template.output_to_yaml_files_dict(
+            "output.yaml",
             self.node_translator.hot_template_version)
+        for name, content in six.iteritems(yaml_files):
+            if name != "output.yaml":
+                with open(name, 'w+') as f:
+                    f.write(content)
+
+        return yaml_files["output.yaml"]
 
     def translate_to_yaml_files_dict(self, base_filename):
         """Translate to HOT YAML
