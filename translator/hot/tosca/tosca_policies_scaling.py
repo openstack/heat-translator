@@ -71,16 +71,19 @@ class ToscaAutoscaling(HotResource):
         template_dict = yaml.load(HEAT_TEMPLATE_BASE)
         template_dict['description'] = 'Tacker Scaling template'
         template_dict["resources"] = {}
+        dict_res = OrderedDict()
         for res in scale_res:
             dict_res = res.get_dict_output()
             res_name = list(dict_res.keys())[0]
             template_dict["resources"][res_name] = \
                 dict_res[res_name]
+
         yaml.add_representer(OrderedDict, self.represent_ordereddict)
         yaml.add_representer(dict, self.represent_ordereddict)
+        yaml_string = yaml.dump(template_dict, default_flow_style=False)
+        yaml_string = yaml_string.replace('\'', '') .replace('\n\n', '\n')
         self.nested_template = {
-            self.policy.name + '_res.yaml':
-                yaml.dump(template_dict, default_flow_style=False)
+            self.policy.name + '_res.yaml': yaml_string
         }
 
     def handle_properties(self, resources):

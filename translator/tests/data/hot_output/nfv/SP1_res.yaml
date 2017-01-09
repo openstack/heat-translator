@@ -9,7 +9,7 @@ resources:
       image: cirros-0.3.4-x86_64-uec
       flavor: m1.tiny
       networks:
-      - port: '{ get_resource: CP1 }'
+      - port: { get_resource: CP1 }
       config_drive: false
   CP1:
     type: OS::Neutron::Port
@@ -31,7 +31,7 @@ resources:
       image: cirros-0.3.4-x86_64-uec
       flavor: m1.tiny
       networks:
-      - port: '{ get_resource: CP2 }'
+      - port: { get_resource: CP2 }
       config_drive: false
   VL1:
     type: OS::Neutron::Net
