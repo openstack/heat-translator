@@ -3,7 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 description: Template for deploying a server with custom properties for image, flavor and key_name.
 
 node_types:
-  tosca.nodes.nfv.VDU:
+  tosca.nodes.nfv.MyType:
     derived_from: tosca.nodes.Compute
     properties:
       key_name:
@@ -21,7 +21,7 @@ topology_template:
 
   node_templates:
     my_server:
-      type: tosca.nodes.nfv.VDU
+      type: tosca.nodes.nfv.MyType
       properties:
         flavor: m1.medium
         image: rhel-6.5-test-image
