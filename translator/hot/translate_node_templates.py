@@ -21,6 +21,7 @@ from collections import OrderedDict
 from toscaparser.functions import Concat
 from toscaparser.functions import GetAttribute
 from toscaparser.functions import GetInput
+from toscaparser.functions import GetOperationOutput
 from toscaparser.functions import GetProperty
 from toscaparser.properties import Property
 from toscaparser.relationship_template import RelationshipTemplate
@@ -460,6 +461,11 @@ class TranslateNodeTemplates(object):
             else:
                 return {'get_param': self.translate_param_value(
                     get_input_args, resource)}
+        elif isinstance(param_value, GetOperationOutput):
+            res = self._translate_get_operation_output_function(
+                param_value.args, tosca_template)
+            if res:
+                return res
         elif isinstance(param_value, dict) \
                 and 'get_operation_output' in param_value:
             res = self._translate_get_operation_output_function(
