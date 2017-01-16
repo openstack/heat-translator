@@ -97,3 +97,22 @@ Things To Consider
   resource. Related example templates, ``tosca_autoscaling.yaml`` and
   ``hot_autoscaling.yaml`` can be found for reference purposes under the same
   directory structure mentioned above.
+* With the version 0.7.0 of Heat-Translator, output of multiple template files
+  (for example, nested templates in autoscaling) can be accessed via newly
+  introduced API called ``translate_to_yaml_files_dict(<output_filename>)``
+  where ``<output_filename>`` is the name of file where you want to store parent
+  HOT template. The return value of this API call will be a dictionary in HOT
+  YAML with one or multiple file names as keys and translated content as values.
+  In order to use this on the command line, simply invoke Heat-Translator with
+  ``--output-file`` argument. Here, the parent template will be stored in the
+  value specified to the ``--output-file``. Whereas, child templates, if any,
+  will be saved at the same location of the parent template.
+
+  Below is an example of how to call the API in your code, where
+  ``translator`` is an instance of Heat-Translator::
+
+      yaml_files = translator.translate_to_yaml_files_dict(filename)
+
+  Below is an example of how to use this on the command line::
+
+      heat-translator --template-file translator/tests/data/autoscaling/tosca_autoscaling.yaml --output-file /tmp/hot.yaml
