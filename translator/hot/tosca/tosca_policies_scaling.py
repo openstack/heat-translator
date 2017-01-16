@@ -68,7 +68,7 @@ class ToscaAutoscaling(HotResource):
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
 
     def _handle_nested_template(self, scale_res):
-        template_dict = yaml.load(HEAT_TEMPLATE_BASE)
+        template_dict = yaml.safe_load(HEAT_TEMPLATE_BASE)
         template_dict['description'] = 'Tacker Scaling template'
         template_dict["resources"] = {}
         dict_res = OrderedDict()
