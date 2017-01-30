@@ -196,7 +196,7 @@ class YamlUtils(object):
     def get_dict(yaml_file):
         '''Returns the dictionary representation of the given YAML spec.'''
         try:
-            return yaml.load(open(yaml_file))
+            return yaml.safe_load(open(yaml_file))
         except IOError:
             return None
 

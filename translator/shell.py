@@ -214,7 +214,7 @@ class TranslatorShell(object):
         msg = _('Deploy the generated template, the stack name is %(name)s.')\
             % {'name': heat_stack_name}
         log.debug(msg)
-        tpl = yaml.load(translator.translate())
+        tpl = yaml.safe_load(translator.translate())
 
         # get all the values for get_file from a translated template
         get_files = []
