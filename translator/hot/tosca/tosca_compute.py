@@ -87,7 +87,10 @@ class ToscaCompute(HotResource):
             if os_cap_props:
                 image = self._best_image(os_cap_props)
         hot_properties['flavor'] = flavor
-        hot_properties['image'] = image
+        if image:
+            hot_properties['image'] = image
+        else:
+            hot_properties.pop('image', None)
         return hot_properties
 
     def _best_flavor(self, properties):
