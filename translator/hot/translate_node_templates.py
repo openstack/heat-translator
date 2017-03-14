@@ -228,11 +228,11 @@ class TranslateNodeTemplates(object):
             # BlockStorage Attachment is a special case,
             # which doesn't match to Heat Resources 1 to 1.
             if base_type == "tosca.nodes.Compute":
-                volume_name = None
                 requirements = node.requirements
                 if requirements:
                     # Find the name of associated BlockStorage node
                     for requires in requirements:
+                        volume_name = None
                         for value in requires.values():
                             if isinstance(value, dict):
                                 for node_name in value.values():
@@ -250,11 +250,12 @@ class TranslateNodeTemplates(object):
                                         volume_name = node_name
                                         break
 
-                    suffix = suffix + 1
-                    attachment_node = self._get_attachment_node(
-                        node, suffix, volume_name)
-                    if attachment_node:
-                        self.hot_resources.append(attachment_node)
+                        if volume_name:
+                            suffix = suffix + 1
+                            attachment_node = self._get_attachment_node(
+                                node, suffix, volume_name)
+                            if attachment_node:
+                                self.hot_resources.append(attachment_node)
                 for i in self.tosca.inputs:
                     if (i.name == 'key_name' and
                             node.get_property_value('key_name') is None):
@@ -587,7 +588,8 @@ class TranslateNodeTemplates(object):
         for key_r, value_n in node.relationships.items():
             if key_r.is_derived_from('tosca.relationships.AttachesTo'):
                 if value_n.is_derived_from('tosca.nodes.BlockStorage'):
-                    attach = True
+                    if volume_name == value_n.name:
+                        attach = True
             if attach:
                 relationship_tpl = None
                 for req in node.requirements:

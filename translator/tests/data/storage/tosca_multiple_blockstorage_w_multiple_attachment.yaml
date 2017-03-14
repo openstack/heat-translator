@@ -1,0 +1,79 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: >
+  TOSCA simple profile with 1 server attached 2 block storages.
+
+topology_template:
+  inputs:
+    cpus:
+      type: integer
+      description: Number of CPUs for the server.
+      constraints:
+        - valid_values: [ 1, 2, 4, 8 ]
+    storage_size:
+      type: scalar-unit.size
+      default: 1 GB
+      description: Size of the storage to be created.
+    storage_snapshot_id:
+      type: string
+      description: >
+        Optional identifier for an existing snapshot to use when creating storage.
+    storage_location1:
+      type: string
+      description: >
+        Block storage mount point (filesystem path).
+    storage_location2:
+      type: string
+      description: >
+        Block storage mount point (filesystem path).
+
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            disk_size: 10 GB
+            num_cpus: { get_input: cpus }
+            mem_size: 4096 MB
+        os:
+          properties:
+            architecture: x86_64
+            type: Linux
+            distribution: Fedora
+            version: 18.0
+      requirements:
+        - local_storage1:
+            node: my_storage1
+            relationship:
+              type: AttachesTo
+              properties:
+                location: { get_input: storage_location1 }
+        - local_storage2:
+            node: my_storage2
+            relationship:
+              type: AttachesTo
+              properties:
+                location: { get_input: storage_location2 }
+    my_storage1:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
+        snapshot_id: { get_input: storage_snapshot_id }
+
+    my_storage2:
+      type: tosca.nodes.BlockStorage
+      properties:
+        size: { get_input: storage_size }
+        snapshot_id: { get_input: storage_snapshot_id }
+
+  outputs:
+    server_ip:
+      description: The private IP address of the application's server.
+      value: { get_attribute: [my_server, private_address] }
+    volume_id_1:
+      description: The volume id of the first block storage instance.
+      value: { get_attribute: [my_storage1, volume_id] }
+    volume_id_2:
+      description: The volume id of the second block storage instance.
+      value: { get_attribute: [my_storage2, volume_id] }

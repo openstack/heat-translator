@@ -191,6 +191,18 @@ class ToscaHotTranslationTest(TestCase):
         except Exception:
             self._test_successful_translation(tosca_file, hot_file2, params)
 
+    def test_hot_translate_multiple_blockstorage_w_multiple_attachment(self):
+        tosca_file = '../tests/data/storage/' \
+                     'tosca_multiple_blockstorage_w_multiple_attachment.yaml'
+        hot_file = '../tests/data/hot_output/storage/' \
+                   'hot_multiple_blockstorage_w_multiple_attachment.yaml'
+        params = {'cpus': 1,
+                  'storage_location1': '/dev/vdb',
+                  'storage_location2': '/dev/vdc',
+                  'storage_size': '1 GB',
+                  'storage_snapshot_id': 'ssid'}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
     def test_hot_translate_single_object_store(self):
         tosca_file = '../tests/data/storage/tosca_single_object_store.yaml'
         hot_file = '../tests/data/hot_output/hot_single_object_store.yaml'

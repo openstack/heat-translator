@@ -1,0 +1,97 @@
+heat_template_version: 2013-05-23
+
+description: >
+  TOSCA simple profile with 1 server attached 2 block storages.
+
+parameters:
+  cpus:
+    type: number
+    description: Number of CPUs for the server.
+    default: 1
+    constraints:
+    - allowed_values:
+      - 1
+      - 2
+      - 4
+      - 8
+  storage_location1:
+    type: string
+    description: Block storage mount point (filesystem path).
+    default: /dev/vdb
+  storage_location2:
+    type: string
+    description: Block storage mount point (filesystem path).
+    default: /dev/vdc
+  storage_size:
+    type: number
+    description: Size of the storage to be created.
+    default: 1
+  storage_snapshot_id:
+    type: string
+    description: Optional identifier for an existing snapshot to use when creating storage.
+    default: ssid
+
+resources:
+  my_server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      image: fedora-amd64-heat-config
+      user_data_format: SOFTWARE_CONFIG
+    depends_on:
+    - my_storage1
+    - my_storage2
+
+  my_storage1:
+    type: OS::Cinder::Volume
+    properties:
+      size:
+        get_param: storage_size
+      snapshot_id:
+        get_param: storage_snapshot_id
+
+  my_storage2:
+    type: OS::Cinder::Volume
+    properties:
+      size:
+        get_param: storage_size
+      snapshot_id:
+        get_param: storage_snapshot_id
+
+  attachesto_1:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      instance_uuid:
+        get_resource: my_server
+      mountpoint:
+        get_param: storage_location1
+      volume_id:
+        get_resource: my_storage1
+
+  attachesto_2:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      instance_uuid:
+        get_resource: my_server
+      mountpoint:
+        get_param: storage_location2
+      volume_id:
+        get_resource: my_storage2
+
+outputs:
+  server_ip:
+    description: The private IP address of the applications server.
+    value:
+      get_attr:
+      - my_server
+      - networks
+      - private
+      - 0
+  volume_id_1:
+    description: The volume id of the first block storage instance.
+    value:
+      get_resource: my_storage1
+  volume_id_2:
+    description: The volume id of the second block storage instance.
+    value:
+      get_resource: my_storage2
