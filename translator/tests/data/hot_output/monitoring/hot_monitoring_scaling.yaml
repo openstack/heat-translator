@@ -12,6 +12,7 @@ resources:
         get_resource: asg_group
       adjustment_type: change_in_capacity
       scaling_adjustment: 1
+      cooldown: 60
   low_cpu_usage:
     type: OS::Aodh::Alarm
     properties:
@@ -30,6 +31,7 @@ resources:
       resource:
         type: asg_res.yaml
       max_size: 10
+      cooldown: 60
   asg_scale_in:
     type: OS::Heat::ScalingPolicy
     properties:
@@ -37,6 +39,7 @@ resources:
         get_resource: asg_group
       adjustment_type: change_in_capacity
       scaling_adjustment: -1
+      cooldown: 60
   high_cpu_usage:
     type: OS::Aodh::Alarm
     properties:

@@ -10,6 +10,7 @@ resources:
     properties:
       min_size: 2
       desired_capacity: 3
+      cooldown: 60
       resource:
         type: asg_res.yaml
       max_size: 10
@@ -20,6 +21,7 @@ resources:
         get_resource: asg_group
       adjustment_type: change_in_capacity
       scaling_adjustment: 1
+      cooldown: 60
   asg_scale_in:
     type: OS::Heat::ScalingPolicy
     properties:
@@ -27,6 +29,7 @@ resources:
         get_resource: asg_group
       adjustment_type: change_in_capacity
       scaling_adjustment: -1
+      cooldown: 60
   asg_alarm:
     type: OS::Aodh::Alarm
     properties:

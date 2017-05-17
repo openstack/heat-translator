@@ -12,6 +12,7 @@ resources:
         get_resource: SP1_group
       adjustment_type: change_in_capacity
       scaling_adjustment: 1
+      cooldown: 120
   SP1_group:
     type: OS::Heat::AutoScalingGroup
     properties:
@@ -20,6 +21,7 @@ resources:
       resource:
         type: SP1_res.yaml
       max_size: 3
+      cooldown: 120
   SP1_scale_in:
     type: OS::Heat::ScalingPolicy
     properties:
@@ -27,4 +29,5 @@ resources:
         get_resource: SP1_group
       adjustment_type: change_in_capacity
       scaling_adjustment: -1
+      cooldown: 120
 outputs: {}

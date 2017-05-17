@@ -30,6 +30,7 @@ topology_template:
           max_instances: 10
           default_instances: 3
           increment: 1
+          cooldown: 60
 
     - cpu_monitoring:
         type: tosca.policies.Monitoring
