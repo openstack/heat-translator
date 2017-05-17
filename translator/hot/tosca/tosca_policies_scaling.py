@@ -94,6 +94,8 @@ class ToscaAutoscaling(HotResource):
         self.properties["adjustment_type"] = "change_in_capacity "
         self.properties["scaling_adjustment"] = self.\
             policy.entity_tpl["properties"]["increment"]
+        self.properties["cooldown"] =\
+            self.policy.entity_tpl["properties"]["cooldown"]
         delete_res_names = []
         scale_res = []
         for index, resource in enumerate(resources):
@@ -105,6 +107,7 @@ class ToscaAutoscaling(HotResource):
                 res["min_size"] = temp["min_instances"]
                 res["max_size"] = temp["max_instances"]
                 res["desired_capacity"] = temp["default_instances"]
+                res["cooldown"] = temp["cooldown"]
                 props['type'] = resource.type
                 props['properties'] = resource.properties
                 res['resource'] = {'type': self.policy.name + '_res.yaml'}

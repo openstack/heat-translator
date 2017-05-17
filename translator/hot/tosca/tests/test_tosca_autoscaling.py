@@ -79,11 +79,13 @@ class AutoscalingTest(TestCase):
                 max_instances: 10
                 default_instances: 3
                 increment: 1
+                cooldown: 60
               '''
 
         expectedprops = {'desired_capacity': 3,
                          'max_size': 10,
                          'min_size': 2,
+                         'cooldown': 60,
                          'resource': {'type': 'asg_res.yaml'}}
 
         self._tosca_scaling_test(
