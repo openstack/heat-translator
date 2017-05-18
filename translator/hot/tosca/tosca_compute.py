@@ -28,13 +28,16 @@ TARGET_CLASS_NAME = 'ToscaCompute'
 
 
 class ToscaCompute(HotResource):
-    '''Translate TOSCA node type tosca.nodes.Compute.'''
+    """Translate TOSCA node type tosca.nodes.Compute."""
 
     COMPUTE_HOST_PROP = (DISK_SIZE, MEM_SIZE, NUM_CPUS) = \
                         ('disk_size', 'mem_size', 'num_cpus')
 
     COMPUTE_OS_PROP = (ARCHITECTURE, DISTRIBUTION, TYPE, VERSION) = \
                       ('architecture', 'distribution', 'type', 'version')
+
+    IMAGE_OS_PROP = (OS_DISTRO, OS_TYPE, OS_VERSION) = \
+                    ('os_distro', 'os_type', 'os_version')
     toscatype = 'tosca.nodes.Compute'
 
     ALLOWED_NOVA_SERVER_PROPS = \
@@ -141,32 +144,41 @@ class ToscaCompute(HotResource):
         # Check whether user exported all required environment variables.
         images = glance_images.get_images()
         match_all = images.keys()
+
         architecture = properties.get(self.ARCHITECTURE)
         if architecture is None:
             self._log_compute_msg(self.ARCHITECTURE, 'image')
         match_arch = self._match_images(match_all, images,
-                                        self.ARCHITECTURE, architecture)
-        type = properties.get(self.TYPE)
-        if type is None:
+                                        [self.ARCHITECTURE], architecture)
+
+        image_type = properties.get(self.TYPE)
+        if image_type is None:
             self._log_compute_msg(self.TYPE, 'image')
-        match_type = self._match_images(match_arch, images, self.TYPE, type)
+        match_type = self._match_images(match_arch, images, [self.TYPE,
+                                                             self.OS_TYPE],
+                                        image_type)
+
         distribution = properties.get(self.DISTRIBUTION)
         if distribution is None:
             self._log_compute_msg(self.DISTRIBUTION, 'image')
         match_distribution = self._match_images(match_type, images,
-                                                self.DISTRIBUTION,
+                                                [self.DISTRIBUTION,
+                                                 self.OS_DISTRO],
                                                 distribution)
+
         version = properties.get(self.VERSION)
         if version is None:
             self._log_compute_msg(self.VERSION, 'image')
         match_version = self._match_images(match_distribution, images,
-                                           self.VERSION, version)
+                                           [self.VERSION, self.OS_VERSION],
+                                           version)
 
         if len(match_version):
             return list(match_version)[0]
 
-    def _match_flavors(self, this_list, this_dict, attr, size):
-        '''Return from this list all flavors matching the attribute size.'''
+    @staticmethod
+    def _match_flavors(this_list, this_dict, attr, size):
+        """Return from this list all flavors matching the attribute size."""
         if not size:
             return list(this_list)
         matching_flavors = []
@@ -177,24 +189,27 @@ class ToscaCompute(HotResource):
         log.debug(_('Returning list of flavors matching the attribute size.'))
         return matching_flavors
 
-    def _least_flavor(self, this_list, this_dict, attr):
-        '''Return from this list the flavor with the smallest attr.'''
+    @staticmethod
+    def _least_flavor(this_list, this_dict, attr):
+        """Return from this list the flavor with the smallest attr."""
         least_flavor = this_list[0]
         for flavor in this_list:
             if this_dict[flavor][attr] < this_dict[least_flavor][attr]:
                 least_flavor = flavor
         return least_flavor
 
-    def _match_images(self, this_list, this_dict, attr, prop):
+    @staticmethod
+    def _match_images(this_list, this_dict, attr_list, prop):
         if not prop:
             return this_list
         matching_images = []
         for image in this_list:
-            if attr in this_dict[image]:
-                if this_dict[image][attr].lower() == str(prop).lower():
-                    matching_images.insert(0, image)
-            else:
-                matching_images.append(image)
+            for attr in attr_list:
+                if attr in this_dict[image]:
+                    if this_dict[image][attr].lower() == str(prop).lower():
+                        matching_images.insert(0, image)
+                else:
+                    matching_images.append(image)
         return matching_images
 
     def get_hot_attribute(self, attribute, args):
@@ -214,8 +229,9 @@ class ToscaCompute(HotResource):
 
         return attr
 
-    def _log_compute_msg(self, prop, what):
+    @staticmethod
+    def _log_compute_msg(prop, what):
         msg = _('No value is provided for Compute capability '
                 'property "%(prop)s". This may set an undesired "%(what)s" '
                 'in the template.') % {'prop': prop, 'what': what}
-        log.warn(msg)
+        log.warning(msg)

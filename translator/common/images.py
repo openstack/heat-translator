@@ -1,3 +1,4 @@
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -24,37 +25,46 @@ log = logging.getLogger('heat-translator')
 
 PREDEF_IMAGES = {
     'ubuntu-software-config-os-init': {'architecture': 'x86_64',
-                                       'type': 'Linux',
-                                       'distribution': 'Ubuntu',
-                                       'version': '14.04'},
+                                       'os_type': 'linux',
+                                       'os_distro': 'ubuntu',
+                                       'os_version': '14.04'
+                                       },
+
     'ubuntu-12.04-software-config-os-init': {'architecture': 'x86_64',
-                                             'type': 'Linux',
-                                             'distribution': 'Ubuntu',
-                                             'version': '12.04'},
+                                             'os_type': 'linux',
+                                             'os_distro': 'ubuntu',
+                                             'os_version': '12.04'
+                                             },
     'fedora-amd64-heat-config': {'architecture': 'x86_64',
-                                 'type': 'Linux',
-                                 'distribution': 'Fedora',
-                                 'version': '18.0'},
+                                 'os_type': 'linux',
+                                 'os_distro': 'fedora',
+                                 'os_version': '18.0'
+                                 },
     'F18-x86_64-cfntools': {'architecture': 'x86_64',
-                            'type': 'Linux',
-                            'distribution': 'Fedora',
-                            'version': '19'},
+                            'os_type': 'linux',
+                            'os_distro': 'fedora',
+                            'os_version': '19'
+                            },
     'Fedora-x86_64-20-20131211.1-sda': {'architecture': 'x86_64',
-                                        'type': 'Linux',
-                                        'distribution': 'Fedora',
-                                        'version': '20'},
+                                        'os_type': 'linux',
+                                        'os_distro': 'fedora',
+                                        'os_version': '20'
+                                        },
     'cirros-0.3.1-x86_64-uec': {'architecture': 'x86_64',
-                                'type': 'Linux',
-                                'distribution': 'CirrOS',
-                                'version': '0.3.1'},
+                                'os_type': 'linux',
+                                'os_distro': 'cirros',
+                                'os_version': '0.3.1'
+                                },
     'cirros-0.3.2-x86_64-uec': {'architecture': 'x86_64',
-                                'type': 'Linux',
-                                'distribution': 'CirrOS',
-                                'version': '0.3.2'},
+                                'os_type': 'linux',
+                                'os_distro': 'cirros',
+                                'os_version': '0.3.2'
+                                },
     'rhel-6.5-test-image': {'architecture': 'x86_64',
-                            'type': 'Linux',
-                            'distribution': 'RHEL',
-                            'version': '6.5'}
+                            'os_type': 'linux',
+                            'os_distro': 'rhel',
+                            'os_version': '6.5'
+                            }
 }
 
 SESSION = None
@@ -78,7 +88,8 @@ def get_images():
         else:
             for image in client.images.list():
                 image_name = image.name.encode('ascii', 'ignore')
-                metadata = ["architecture", "type", "distribution", "version"]
+                metadata = ["architecture", "type", "distribution", "version",
+                            "os_distro", "os_type", "os_version"]
                 if any(key in image.keys() for key in metadata):
                     IMAGES[image_name] = {}
                     for key in metadata:
