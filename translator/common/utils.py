@@ -216,7 +216,8 @@ class YamlUtils(object):
 class TranslationUtils(object):
 
     @staticmethod
-    def compare_tosca_translation_with_hot(tosca_file, hot_files, params):
+    def compare_tosca_translation_with_hot(tosca_file, hot_files, params,
+                                           nested_resources=False):
         '''Verify tosca translation against the given hot specification.
 
         inputs:
@@ -247,6 +248,12 @@ class TranslationUtils(object):
 
         basename = os.path.basename(hot_files[0])
         output_hot_templates = translate.translate_to_yaml_files_dict(basename)
+
+        if nested_resources:
+            basename = os.path.basename(hot_files[0])
+            output_hot_templates =\
+                translate.translate_to_yaml_files_dict(basename, True)
+
         output_dict = {}
         for output_hot_template_name in output_hot_templates:
             output_dict[output_hot_template_name] = \
