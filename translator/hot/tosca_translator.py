@@ -71,8 +71,7 @@ class TOSCATranslator(object):
 
         return yaml_files["output.yaml"]
 
-    def translate_to_yaml_files_dict(self, base_filename,
-                                     nested_resources=False):
+    def translate_to_yaml_files_dict(self, base_filename):
         """Translate to HOT YAML
 
         This method produces a translated output containing main and
@@ -83,7 +82,7 @@ class TOSCATranslator(object):
         self._translate_to_hot_yaml()
         return self.hot_template.output_to_yaml_files_dict(
             base_filename,
-            self.node_translator.hot_template_version, nested_resources)
+            self.node_translator.hot_template_version)
 
     def _translate_inputs(self):
         translator = TranslateInputs(self.tosca.inputs, self.parsed_params,

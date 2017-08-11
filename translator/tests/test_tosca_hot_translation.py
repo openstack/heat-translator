@@ -26,15 +26,14 @@ from translator.tests.base import TestCase
 
 class ToscaHotTranslationTest(TestCase):
 
-    def _test_successful_translation(self, tosca_file, hot_files, params=None,
-                                     nested_resources=False):
+    def _test_successful_translation(self, tosca_file, hot_files, params=None):
         if not params:
             params = {}
         if not isinstance(hot_files, list):
             hot_files = [hot_files]
-        diff =\
-            TranslationUtils.compare_tosca_translation_with_hot(
-                tosca_file, hot_files, params, nested_resources)
+        diff = TranslationUtils.compare_tosca_translation_with_hot(tosca_file,
+                                                                   hot_files,
+                                                                   params)
         self.assertEqual({}, diff, '<difference> : ' +
                          json.dumps(diff, indent=4, separators=(', ', ': ')))
 
@@ -527,15 +526,6 @@ class ToscaHotTranslationTest(TestCase):
             ]
         params = {}
         self._test_successful_translation(tosca_file, hot_files, params)
-
-    def test_hot_translate_scaling_nested_plate(self):
-        tosca_file = '../tests/data/autoscaling/tosca_autoscaling.yaml'
-        hot_files = [
-            '../tests/data/hot_output/autoscaling/asg_res.yaml'
-        ]
-        params = {}
-        self._test_successful_translation(tosca_file, hot_files, params,
-                                          nested_resources=True)
 
     def test_translate_unsupported_tosca_type(self):
         tosca_file = '../tests/data/test_tosca_unsupported_type.yaml'
