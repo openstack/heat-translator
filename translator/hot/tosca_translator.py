@@ -65,7 +65,7 @@ class TOSCATranslator(object):
             "output.yaml",
             self.node_translator.hot_template_version)
         for name, content in six.iteritems(yaml_files):
-            if name != "output.yaml" and "_res.yaml" not in name:
+            if name != "output.yaml":
                 with open(name, 'w+') as f:
                     f.write(content)
 
