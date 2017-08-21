@@ -65,7 +65,10 @@ other required arguments.
 
 """
 conf_file = ConfigProvider.get_translator_logging_file()
-logging.config.fileConfig(conf_file)
+try:
+    logging.config.fileConfig(conf_file)
+except Exception:
+    pass
 log = logging.getLogger("heat-translator")
 
 
