@@ -46,8 +46,7 @@ class HotTemplate(object):
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
 
     def output_to_yaml_files_dict(self, base_filename,
-                                  hot_template_version=LATEST,
-                                  embed_substack_templates=False):
+                                  hot_template_version=LATEST):
         yaml_files_dict = {}
         base_filename, ext = os.path.splitext(base_filename)
 
@@ -56,9 +55,9 @@ class HotTemplate(object):
             yaml_files_dict.update(
                 resource.extract_substack_templates(base_filename,
                                                     hot_template_version))
-        if not embed_substack_templates:
-            yaml_files_dict[base_filename + ext] = \
-                self.output_to_yaml(hot_template_version, False)
+
+        yaml_files_dict[base_filename + ext] = \
+            self.output_to_yaml(hot_template_version, False)
 
         return yaml_files_dict
 
