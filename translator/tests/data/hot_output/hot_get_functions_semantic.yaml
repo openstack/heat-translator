@@ -16,8 +16,6 @@ resources:
         get_resource: myapp_configure_config
       server:
         get_resource: server
-    depends_on:
-    - mysql_database
   server:
     type: OS::Nova::Server
     properties:
