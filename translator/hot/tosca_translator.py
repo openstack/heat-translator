@@ -98,7 +98,8 @@ class TOSCATranslator(object):
     def _resolve_input(self):
         for n in self.tosca.nodetemplates:
             for node_prop in n.get_properties_objects():
-                if isinstance(node_prop.value, dict):
+                if isinstance(node_prop.value, dict) \
+                        and 'get_input' in node_prop.value:
                     try:
                         self.parsed_params[node_prop.value['get_input']]
                     except Exception:
