@@ -414,7 +414,7 @@ class TranslateNodeTemplates(object):
                                             tosca_template)
             if tosca_target:
                 prop_value = tosca_target.get_property_value(prop_name)
-                if prop_value:
+                if prop_value is not None:
                     prop_value = self.translate_param_value(
                         prop_value, resource)
                     return self._unfold_value(prop_value, prop_arg)
