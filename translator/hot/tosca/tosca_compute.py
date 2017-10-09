@@ -141,6 +141,9 @@ class ToscaCompute(HotResource):
             return None
 
     def _best_image(self, properties):
+        if 'image' in properties:
+            return properties['image']
+
         # Check whether user exported all required environment variables.
         images = glance_images.get_images()
         match_all = images.keys()
