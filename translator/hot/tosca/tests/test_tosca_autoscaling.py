@@ -71,9 +71,11 @@ class AutoscalingTest(TestCase):
                   description: trigger
                   condition:
                     constraint: utilization greater_than 50%
-                    period: 60
+                    granularity: 60
                     evaluations: 1
-                    method: average
+                    aggregation_method: mean
+                    resource_type: instance
+                    comparison_operator: gt
               properties:
                 min_instances: 2
                 max_instances: 10

@@ -31,12 +31,13 @@ resources:
       scaling_adjustment: -1
       cooldown: 60
   asg_alarm:
-    type: OS::Aodh::Alarm
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
     properties:
-      meter_name: cpu_util
+      metric: cpu_util
       description: Simple node autoscaling
-      period: 60
-      statistic: avg
+      granularity: 60
+      aggregation_method: mean
       threshold: 1
+      resource_type: instance
       comparison_operator: gt
 outputs: {}

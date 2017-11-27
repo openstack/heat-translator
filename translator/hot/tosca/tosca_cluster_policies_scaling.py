@@ -26,7 +26,9 @@ ALARM_METER_NAME = {'utilization': 'cpu_util'}
 ALARM_COMPARISON_OPERATOR = {'greater_than': 'gt', 'gerater_equal': 'ge',
                              'less_than': 'lt', 'less_equal': 'le',
                              'equal': 'eq', 'not_equal': 'ne'}
-ALARM_STATISTIC = {'average': 'avg'}
+ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
+                   'maximum': 'max', 'minimum': 'min', 'last': 'last',
+                   'std': 'std', 'first': 'first', 'count': 'count'}
 
 
 class ToscaClusterAutoscaling(HotResource):
@@ -62,6 +64,7 @@ class ToscaClusterAutoscaling(HotResource):
 
     def handle_expansion(self):
         hot_resources = []
+        hot_type = 'OS::Aodh::GnocchiAggregationByResourcesAlarm'
         trigger_receivers = defaultdict(list)
         for node in self.policy.targets:
             for trigger in self.policy.entity_tpl['triggers']:
@@ -95,12 +98,15 @@ class ToscaClusterAutoscaling(HotResource):
             threshold = threshold.strip("%")
             alarm_prop = {}
             alarm_prop["description"] = self.policy.entity_tpl['description']
-            alarm_prop["meter_name"] = self.policy.\
-                entity_tpl['triggers'][trigger]['event_type']['metrics']
-            alarm_prop["statistic"] = ALARM_STATISTIC[sample['method']]
-            alarm_prop["period"] = sample["period"]
+            alarm_prop["metric"] = self.policy.\
+                entity_tpl['triggers'][trigger]['event_type']['metric']
+            alarm_prop["aggregation_method"] = \
+                ALARM_STATISTIC[sample['aggregation_method']]
+            alarm_prop["granularity"] = sample["granularity"]
             alarm_prop["evaluation_periods"] = sample["evaluations"]
             alarm_prop["threshold"] = threshold
+            alarm_prop["resource_type"] = sample.get("resource_type",
+                                                     "instance")
             alarm_prop["comparison_operator"] = \
                 ALARM_COMPARISON_OPERATOR[comparison_operator]
             alarm_prop["repeat_actions"] = "True"
@@ -111,7 +117,7 @@ class ToscaClusterAutoscaling(HotResource):
                                          'channel',
                                          'alarm_url']})
             ceilometer_resources = HotResource(self.nodetemplate,
-                                               type='OS::Aodh::Alarm',
+                                               type=hot_type,
                                                name=trigger + '_alarm',
                                                properties=alarm_prop)
             hot_resources.append(ceilometer_resources)

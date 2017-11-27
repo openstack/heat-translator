@@ -20,8 +20,9 @@ TARGET_CLASS_NAME = 'ToscaMonitoring'
 
 log = logging.getLogger('heat-translator')
 
-ALARM_STATISTIC = {'average': 'avg', 'summary': 'sum',
-                   'maximum': 'max', 'minimum': 'min'}
+ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
+                   'maximum': 'max', 'minimum': 'min', 'last': 'last',
+                   'std': 'std', 'first': 'first', 'count': 'count'}
 
 
 class ToscaMonitoring(HotResource):
@@ -30,7 +31,7 @@ class ToscaMonitoring(HotResource):
     toscatype = 'tosca.policies.Monitoring'
 
     def __init__(self, policy, csar_dir=None):
-        hot_type = "OS::Aodh::Alarm"
+        hot_type = "OS::Aodh::GnocchiAggregationByResourcesAlarm"
         super(ToscaMonitoring, self).__init__(policy,
                                               type=hot_type,
                                               csar_dir=csar_dir)
@@ -39,6 +40,7 @@ class ToscaMonitoring(HotResource):
 
     def handle_expansion(self):
         '''handle monitoring resources in case of multiple triggers'''
+        hot_type = 'OS::Aodh::GnocchiAggregationByResourcesAlarm'
         extra_resources = list()
         extra_triggers = self.policy.entity_tpl["triggers"]
         for trigger_name, trigger_dict in extra_triggers.items():
@@ -46,7 +48,7 @@ class ToscaMonitoring(HotResource):
                 self.filter.append(trigger_name)
                 prop = self._get_monitoring_prop(trigger_dict)
                 mon_resources = HotResource(self.nodetemplate,
-                                            type='OS::Aodh::Alarm',
+                                            type=hot_type,
                                             name=trigger_name,
                                             properties=prop)
                 extra_resources.append(mon_resources)
@@ -66,14 +68,16 @@ class ToscaMonitoring(HotResource):
         sample = trigger.get('condition')
         prop = dict()
         prop["description"] = sample.get('constraint')
-        prop["meter_name"] = trigger.get('meter_name')
-        if sample.get('method') not in ALARM_STATISTIC:
+        prop["metric"] = trigger.get('metric')
+        if sample.get('aggregation_method') not in ALARM_STATISTIC:
             msg = _('method should be one of given statistics')
             log.error(msg)
             raise InvalidPropertyValueError(what=msg)
-        prop["statistic"] = ALARM_STATISTIC[sample["method"]]
-        prop["period"] = sample.get("period")
+        prop["aggregation_method"] = \
+            ALARM_STATISTIC[sample["aggregation_method"]]
+        prop["granularity"] = sample.get("granularity")
         prop["threshold"] = sample.get("threshold")
+        prop["resource_type"] = sample.get("resource_type", "instance")
         prop["comparison_operator"] = sample.get('comparison_operator')
         prop['evaluation_periods'] = sample.get('evaluations')
         return prop

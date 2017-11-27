@@ -21,9 +21,11 @@ TARGET_CLASS_NAME = 'ToscaAutoscaling'
 HEAT_TEMPLATE_BASE = """
 heat_template_version: 2013-05-23
 """
-ALARM_STATISTIC = {'average': 'avg'}
+ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
+                   'maximum': 'max', 'minimum': 'min', 'last': 'last',
+                   'std': 'std', 'first': 'first', 'count': 'count'}
 SCALING_RESOURCES = ["OS::Heat::ScalingPolicy", "OS::Heat::AutoScalingGroup",
-                     "OS::Aodh::Alarm"]
+                     "OS::Aodh::GnocchiAggregationByResourcesAlarm"]
 
 
 class ToscaAutoscaling(HotResource):
@@ -40,20 +42,23 @@ class ToscaAutoscaling(HotResource):
 
     def handle_expansion(self):
         if self.policy.entity_tpl.get('triggers'):
+            hot_type = 'OS::Aodh::GnocchiAggregationByResourcesAlarm'
             sample = self.policy.\
                 entity_tpl["triggers"]["resize_compute"]["condition"]
             prop = {}
             prop["description"] = self.policy.entity_tpl.get('description')
-            prop["meter_name"] = "cpu_util"
+            prop["metric"] = "cpu_util"
             if sample:
-                prop["statistic"] = ALARM_STATISTIC[sample["method"]]
-                prop["period"] = sample["period"]
+                prop["aggregation_method"] = \
+                    ALARM_STATISTIC[sample["aggregation_method"]]
+                prop["granularity"] = sample["granularity"]
                 prop["threshold"] = sample["evaluations"]
+                prop["resource_type"] = sample.get("resource_type", "instance")
             prop["comparison_operator"] = "gt"
             alarm_name = self.name.replace('_scale_in', '').\
                 replace('_scale_out', '')
             ceilometer_resources = HotResource(self.nodetemplate,
-                                               type='OS::Aodh::Alarm',
+                                               type=hot_type,
                                                name=alarm_name + '_alarm',
                                                properties=prop)
             hot_resources = [ceilometer_resources]

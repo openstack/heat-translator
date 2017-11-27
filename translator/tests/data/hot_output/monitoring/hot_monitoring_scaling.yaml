@@ -14,15 +14,16 @@ resources:
       scaling_adjustment: 1
       cooldown: 60
   low_cpu_usage:
-    type: OS::Aodh::Alarm
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
     properties:
-      meter_name: cpu_util
+      metric: cpu_util
       description: utilization less_than 20%
       evaluation_periods: 1
-      period: 600
-      statistic: avg
+      granularity: 600
+      aggregation_method: mean
       threshold: 20
-      comparison_operator: gt
+      resource_type: instance
+      comparison_operator: lt
   asg_group:
     type: OS::Heat::AutoScalingGroup
     properties:
@@ -41,13 +42,14 @@ resources:
       scaling_adjustment: -1
       cooldown: 60
   high_cpu_usage:
-    type: OS::Aodh::Alarm
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
     properties:
-      meter_name: cpu_util
+      metric: cpu_util
       description: utilization greater_than 60%
       evaluation_periods: 1
-      period: 600
-      statistic: avg
+      granularity: 600
+      aggregation_method: mean
       threshold: 60
+      resource_type: instance
       comparison_operator: gt
 outputs: {}

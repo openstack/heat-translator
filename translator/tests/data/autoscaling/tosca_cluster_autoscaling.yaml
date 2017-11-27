@@ -44,13 +44,15 @@ topology_template:
             description: trigger
             event_type:
               type: tosca.events.resource.cpu.utilization
-              metrics: cpu_util
+              metric: cpu_util
               implementation: Ceilometer
             condition:
               constraint: utilization greater_than 50%
-              period: 60
+              granularity: 60
               evaluations: 1
-              method: average
+              aggregation_method: mean
+              resource_type: instance
+              comparison_operator: gt
             action:
               scale_out:
                 type: SCALE_OUT

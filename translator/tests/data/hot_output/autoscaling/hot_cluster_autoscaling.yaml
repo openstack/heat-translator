@@ -42,9 +42,9 @@ resources:
         get_resource: my_server_1_cluster
       type: webhook
   scale_out_alarm:
-    type: OS::Aodh::Alarm
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
     properties:
-      meter_name: cpu_util
+      metric: cpu_util
       alarm_actions:
       - get_attr:
         - my_server_1_scale_out_receiver
@@ -53,8 +53,9 @@ resources:
       description: Cluster node autoscaling
       evaluation_periods: 1
       repeat_actions: True
-      period: 60
-      statistic: avg
+      granularity: 60
+      aggregation_method: mean
       threshold: 50
+      resource_type: instance
       comparison_operator: gt
 outputs: {}
