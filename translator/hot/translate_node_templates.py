@@ -390,6 +390,11 @@ class TranslateNodeTemplates(object):
         for resource in to_remove:
             self.hot_resources.remove(resource)
 
+        for resource in self.hot_resources:
+            for removed_resource in to_remove:
+                if removed_resource in resource.depends_on:
+                    resource.depends_on.remove(removed_resource)
+
         return self.hot_resources
 
     def translate_param_value(self, param_value, resource):
