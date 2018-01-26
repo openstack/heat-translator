@@ -1,0 +1,15 @@
+- project:
+    check:
+      jobs:
+        - heat-translator-tox-py27-tp:
+            voting: false
+
+- job:
+    name: heat-translator-tox-py27-tp
+    parent: openstack-tox
+    description: |
+      Run tests for heat-translator project.
+
+      Uses tox with the ``py27-tp`` environment.
+    vars:
+      tox_envlist: py27-tp
