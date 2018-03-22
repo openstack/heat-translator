@@ -3,7 +3,10 @@
       jobs:
         - heat-translator-tox-py27-tp:
             voting: false
-
+        - openstack-tox-lower-constraints
+    gate:
+      jobs:
+        - openstack-tox-lower-constraints
 - job:
     name: heat-translator-tox-py27-tp
     parent: openstack-tox
