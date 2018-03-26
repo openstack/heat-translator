@@ -141,10 +141,10 @@ class HotResource(object):
         if self.nodetemplate.requirements is not None:
             hosting_server = self._get_hosting_server()
 
-        sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
-        server_key = sw_deployment_resouce.server_key
-        servers = sw_deployment_resouce.servers
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        sw_deployment_resource = HOTSoftwareDeploymentResources(hosting_server)
+        server_key = sw_deployment_resource.server_key
+        servers = sw_deployment_resource.servers
+        sw_deploy_res = sw_deployment_resource.software_deployment
 
         # hosting_server is None if requirements is None
         hosting_on_server = hosting_server if hosting_server else None
@@ -248,10 +248,10 @@ class HotResource(object):
         artifacts = self.get_all_artifacts(self.nodetemplate)
         install_roles_script = ''
 
-        sw_deployment_resouce = \
+        sw_deployment_resource = \
             HOTSoftwareDeploymentResources(hosting_on_server)
-        server_key = sw_deployment_resouce.server_key
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        server_key = sw_deployment_resource.server_key
+        sw_deploy_res = sw_deployment_resource.software_deployment
         for artifact_name, artifact in artifacts.items():
             artifact_type = artifact.get('type', '').lower()
             if artifact_type == 'tosca.artifacts.ansiblegalaxy.role':
@@ -296,10 +296,10 @@ class HotResource(object):
         elif config_location == 'source':
             hosting_server = self._get_hosting_server()
             hot_depends = hot_source
-        sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
-        server_key = sw_deployment_resouce.server_key
-        servers = sw_deployment_resouce.servers
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        sw_deployment_resource = HOTSoftwareDeploymentResources(hosting_server)
+        server_key = sw_deployment_resource.server_key
+        servers = sw_deployment_resource.servers
+        sw_deploy_res = sw_deployment_resource.software_deployment
 
         deploy_name = tosca_source.name + '_' + tosca_target.name + \
             '_connect_deploy'
