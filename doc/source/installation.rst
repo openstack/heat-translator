@@ -12,4 +12,4 @@ You can also clone the project and use it without any specific OpenStack environ
 
     git clone https://github.com/openstack/heat-translator
 
-Heat-Translator can be installed via PyPI package as well. Refer to https://pypi.python.org/pypi/heat-translator for available packages.
+Heat-Translator can be installed via PyPI package as well. Refer to https://pypi.org/project/heat-translator for available packages.

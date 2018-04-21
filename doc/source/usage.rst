@@ -10,7 +10,7 @@ Assuming that OpenStackClient (OSC) is available in your environment, you can ea
     cd heat-translator
     sudo python setup.py install
 
-Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
+Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.org/project/heat-translator.
 
 Once installation is complete, Heat-Translator is ready to use. The only required argument is ``--template-file``. By default, the ``--template-type`` is set to ``tosca`` which is the
 only supported template type at present. Currently you can use Heat-Translator in following three ways.
@@ -58,7 +58,7 @@ optional argument. The command below shows an example usage::
 
     python heat_translator.py --template-file=<path to the YAML template> --template-type=<type of template e.g. tosca> --validate-only=true
 
-Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.python.org/pypi/heat-translator.
+Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.org/project/heat-translator.
 In this case, you can simply run translation via CLI entry point::
     heat-translator --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
