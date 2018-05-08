@@ -1,0 +1,26 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template for deploying the nodes based on soft-affinity
+  placement policy.
+
+parameters: {}
+
+resources:
+  my_server:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.medium
+      image: rhel-6.5-test-image
+      scheduler_hints:
+        group:
+          get_resource: my_compute_placement_policy
+      user_data_format: SOFTWARE_CONFIG
+  my_compute_placement_policy:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: my_compute_placement_policy
+      policies:
+      - soft-affinity
+
+outputs: {}

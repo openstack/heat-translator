@@ -486,9 +486,32 @@ class ToscaHotTranslationTest(TestCase):
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 
-    def test_hot_translate_policy(self):
+    def test_hot_translate_placement_policy_default_affinity(self):
         tosca_file = '../tests/data/policies/tosca_policies.yaml'
         hot_file = '../tests/data/hot_output/policies/hot_policies.yaml'
+        params = {}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_translate_placement_policy_affinity(self):
+        tosca_file = ('../tests/data/nfv/'
+                      'tosca_placement_policy_affinity.yaml')
+        hot_file = '../tests/data/hot_output/policies/hot_policies.yaml'
+        params = {}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_translate_placement_policy_anti_affinity(self):
+        tosca_file = ('../tests/data/nfv/'
+                      'tosca_placement_policy_anti_affinity.yaml')
+        hot_file = ('../tests/data/hot_output/nfv/'
+                    'hot_policy_anti_affinity.yaml')
+        params = {}
+        self._test_successful_translation(tosca_file, hot_file, params)
+
+    def test_hot_translate_placement_policy_soft_affinity(self):
+        tosca_file = ('../tests/data/nfv/'
+                      'tosca_placement_policy_soft_affinity.yaml')
+        hot_file = ('../tests/data/hot_output/nfv/'
+                    'hot_policy_soft_affinity.yaml')
         params = {}
         self._test_successful_translation(tosca_file, hot_file, params)
 

@@ -273,6 +273,9 @@ class TranslateNodeTemplates(object):
             if policy.is_derived_from('tosca.policies.Monitoring'):
                 TOSCA_TO_HOT_TYPE[policy_type.type] = \
                     TOSCA_TO_HOT_TYPE['tosca.policies.Monitoring']
+            if policy.is_derived_from('tosca.policies.Placement'):
+                TOSCA_TO_HOT_TYPE[policy_type.type] = \
+                    TOSCA_TO_HOT_TYPE['tosca.policies.Placement']
             if not policy.is_derived_from('tosca.policies.Monitoring') and \
                     not policy.is_derived_from('tosca.policies.Scaling') and \
                     policy_type.type not in TOSCA_TO_HOT_TYPE:
