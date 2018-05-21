@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
+
+description: >
+  Template for deploying the nodes based on given policies.
+
+imports:
+  - tacker_defs.yaml
+  - tacker_nfv_defs.yaml
+topology_template:
+  node_templates:
+    my_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        # Host container properties
+        host:
+         properties:
+           num_cpus: 2
+           disk_size: 10 GB
+           mem_size: 512 MB
+        # Guest Operating System properties
+        os:
+          properties:
+            # host Operating System image properties
+            architecture: x86_64
+            type: Linux
+            distribution: RHEL
+            version: 6.5
+  policies:
+     - my_compute_abc_policy:
+         type: tosca.policies.tacker.ABC
+         description: Apply my ABC policy to my application's servers
+         targets: [ my_server ]

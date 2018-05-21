@@ -563,6 +563,20 @@ class ToscaHotTranslationTest(TestCase):
                                 .translate)
         self.assertEqual(expected_msg, err.__str__())
 
+    def test_translate_unsupported_tosca_policy_type(self):
+        tosca_file = ('../tests/data/nfv/'
+                      'test_tosca_unsupported_policy_type.yaml')
+        tosca_tpl = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), tosca_file))
+        params = {}
+        expected_msg = _('Type "tosca.policies.tacker.ABC" is valid TOSCA '
+                         'type but translation support is not yet available.')
+        tosca = ToscaTemplate(tosca_tpl, params, True)
+        err = self.assertRaises(UnsupportedTypeError,
+                                TOSCATranslator(tosca, params)
+                                .translate)
+        self.assertEqual(expected_msg, err.__str__())
+
     def test_hot_translate_cluster_scaling_policy(self):
         tosca_file = '../tests/data/autoscaling/tosca_cluster_autoscaling.yaml'
         hot_file = '../tests/data/hot_output/autoscaling/' \
