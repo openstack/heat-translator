@@ -60,6 +60,7 @@ optional argument. The command below shows an example usage::
 
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.org/project/heat-translator.
 In this case, you can simply run translation via CLI entry point::
+
     heat-translator --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 Things To Consider
@@ -82,7 +83,9 @@ Things To Consider
   This can be achieved by providing ``--deploy`` argument to the Heat-Translator. You can provide desired stack name by providing it as ``--stack-name <name>``
   argument. If you do not provide ``--stack-name``, an unique name will be created and used.
   Below is an example command to deploy translated template with a desired stack name::
+
       heat-translator --template-file translator/tests/data/tosca_helloworld.yaml --stack-name mystack --deploy
+
 * The Heat-Translator supports translation of TOSCA templates to Heat Senlin
   resources (e.g. ``OS::Senlin::Cluster``) but that requires to use a specific
   TOSCA node type called ``tosca.policies.Scaling.Cluster``.

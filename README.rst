@@ -2,8 +2,8 @@
 Team and repository tags
 ========================
 
-.. image:: http://governance.openstack.org/badges/heat-translator.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/tc/badges/heat-translator.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 .. Change things from this point on
 
@@ -48,7 +48,7 @@ Project Info
 ------------
 
 * License: Apache License, Version 2.0
-* Documentation: http://docs.openstack.org/developer/heat-translator/
+* Documentation: http://docs.openstack.org/heat-translator/
 * Launchpad: https://launchpad.net/heat-translator
 * Blueprints: https://blueprints.launchpad.net/heat-translator
 * Bugs: https://bugs.launchpad.net/heat-translator

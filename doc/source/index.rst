@@ -13,6 +13,7 @@ to HOT. However, the tool can be easily extended to support any non-heat
 template format to produce HOT.
 
 Contents:
+---------
 
 .. toctree::
    :maxdepth: 2
@@ -22,7 +23,7 @@ Contents:
    contributing
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
