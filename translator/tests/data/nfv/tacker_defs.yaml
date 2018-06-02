@@ -76,7 +76,21 @@ data_types:
 
 policy_types:
   tosca.policies.tacker.Placement:
-    derived_from: tosca.policies.Root
+    derived_from: tosca.policies.Placement
+    description: Defines placement policy for VNF's.
+    properties:
+      policy:
+        type: string
+        required: false
+        default: affinity
+        description: Placement policy for target VDU's.
+      strict:
+        type: boolean
+        required: false
+        default: true
+        description: >
+          If the policy is not strict, it is allowed to continue even if the
+          nova-scheduler fails to assign hosts under the policy.
 
   tosca.policies.tacker.Failure:
     derived_from: tosca.policies.Root

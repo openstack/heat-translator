@@ -18,7 +18,7 @@ TARGET_CLASS_NAME = 'ToscaPolicies'
 
 
 class ToscaPolicies(HotResource):
-    '''Translate TOSCA policy type tosca.poicies.Placement.'''
+    '''Translate TOSCA policy type tosca.policies.Placement.'''
 
     toscatype = 'tosca.policies.Placement'
 
@@ -29,8 +29,13 @@ class ToscaPolicies(HotResource):
         self.policy = policy
 
     def handle_properties(self, resources):
+        group_policy = "%(soft-prefix)s%(policy)s" % {
+            "soft-prefix": "soft-" if not self.get_tosca_props().get(
+                "strict", True) else "",
+            "policy": self.get_tosca_props().get("policy", "affinity"),
+        }
         self.properties["name"] = self.name
-        self.properties["policies"] = ["affinity"]
+        self.properties["policies"] = [group_policy]
         for resource in resources:
             if resource.name in self.policy.targets:
                 resource.properties["scheduler_hints"] = {
