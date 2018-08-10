@@ -1,0 +1,23 @@
+heat_template_version: 2013-05-23
+
+description: Tacker Scaling template
+
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      user_data_format: SOFTWARE_CONFIG
+      image: cirros-0.4.0-x86_64-disk
+      flavor:
+        get_param: flavor
+      networks:
+      - port: { get_resource: CP1 }
+      config_drive: false
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      anti_spoofing_protection: false
+      management: true
+      network: net_mgmt
+  VL1:
+    type: OS::Neutron::Net

@@ -1,0 +1,44 @@
+heat_template_version: 2013-05-23
+
+description: >
+  VNF TOSCA template with reservation_id input parameters.
+
+parameters:
+  flavor: {type: string, description: Flavor Information}
+  lease_id: {type: string, description: lease id}
+resources:
+  start_actions:
+    type: OS::Aodh::EventAlarm
+    properties:
+      event_type: lease.event.start_lease
+  SP_RSV_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id: {get_resource: SP_RSV_group}
+      adjustment_type: change_in_capacity
+      scaling_adjustment: 2
+      cooldown: 120
+  SP_RSV_group:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 0
+      desired_capacity: 0
+      cooldown: 120
+      resource: {type: SP_RSV_res.yaml}
+      max_size: 3
+  SP_RSV_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id: {get_resource: SP_RSV_group}
+      adjustment_type: change_in_capacity
+      scaling_adjustment: -2
+      cooldown: 120
+  before_end_actions:
+    type: OS::Aodh::EventAlarm
+    properties:
+      event_type: lease.event.before_end_lease
+  end_actions:
+    type: OS::Aodh::EventAlarm
+    properties:
+      event_type: lease.event.end_lease
+outputs: {}

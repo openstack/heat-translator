@@ -25,7 +25,8 @@ ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
                    'maximum': 'max', 'minimum': 'min', 'last': 'last',
                    'std': 'std', 'first': 'first', 'count': 'count'}
 SCALING_RESOURCES = ["OS::Heat::ScalingPolicy", "OS::Heat::AutoScalingGroup",
-                     "OS::Aodh::GnocchiAggregationByResourcesAlarm"]
+                     "OS::Aodh::GnocchiAggregationByResourcesAlarm",
+                     "OS::Aodh::EventAlarm"]
 
 
 class ToscaAutoscaling(HotResource):

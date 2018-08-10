@@ -601,3 +601,12 @@ class ToscaHotTranslationTest(TestCase):
         ]
         params = {}
         self._test_successful_translation(tosca_file, hot_files, params)
+
+    def test_hot_translate_reservation_policy(self):
+        tosca_file = '../tests/data/reservation/tosca-vnfd-reservation-id.yaml'
+        hot_files = [
+            '../tests/data/hot_output/reservation/'
+            'hot_reservation_scaling.yaml',
+            '../tests/data/hot_output/reservation/SP_RSV_res.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})

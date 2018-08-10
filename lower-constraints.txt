@@ -75,7 +75,7 @@ stevedore==1.20.0
 testrepository==0.0.18
 testscenarios==0.4
 testtools==2.2.0
-tosca-parser==1.0.0
+tosca-parser==1.4.0
 traceback2==1.4.0
 unittest2==1.1.0
 warlock==1.2.0

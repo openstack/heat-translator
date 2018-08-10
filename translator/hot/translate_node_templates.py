@@ -276,6 +276,9 @@ class TranslateNodeTemplates(object):
             if policy.is_derived_from('tosca.policies.Placement'):
                 TOSCA_TO_HOT_TYPE[policy_type.type] = \
                     TOSCA_TO_HOT_TYPE['tosca.policies.Placement']
+            if policy.is_derived_from('tosca.policies.Reservation'):
+                TOSCA_TO_HOT_TYPE[policy_type.type] = \
+                    TOSCA_TO_HOT_TYPE['tosca.policies.Reservation']
             if policy_type.type not in TOSCA_TO_HOT_TYPE:
                 raise UnsupportedTypeError(type=_('%s') % policy_type.type)
             elif policy_type.type == 'tosca.policies.Scaling.Cluster':
