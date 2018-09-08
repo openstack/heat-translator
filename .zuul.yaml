@@ -1,5 +1,7 @@
 - project:
     templates:
+      - openstack-cover-jobs
+      - openstack-lower-constraints-jobs
       - openstack-python-jobs
       - openstack-python35-jobs
       - openstack-python36-jobs
@@ -9,13 +11,7 @@
       jobs:
         - heat-translator-tox-py27-tp:
             voting: false
-        - openstack-tox-lower-constraints
-    gate:
-      jobs:
-        - openstack-tox-lower-constraints
-    post:
-      jobs:
-        - openstack-tox-cover
+
 - job:
     name: heat-translator-tox-py27-tp
     parent: openstack-tox
