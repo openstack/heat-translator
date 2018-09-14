@@ -92,6 +92,9 @@ policy_types:
           If the policy is not strict, it is allowed to continue even if the
           nova-scheduler fails to assign hosts under the policy.
 
+  tosca.policies.tacker.ABC:
+    derived_from: tosca.policies.Root
+
   tosca.policies.tacker.Failure:
     derived_from: tosca.policies.Root
     action:

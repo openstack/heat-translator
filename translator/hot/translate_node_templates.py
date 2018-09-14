@@ -276,9 +276,7 @@ class TranslateNodeTemplates(object):
             if policy.is_derived_from('tosca.policies.Placement'):
                 TOSCA_TO_HOT_TYPE[policy_type.type] = \
                     TOSCA_TO_HOT_TYPE['tosca.policies.Placement']
-            if not policy.is_derived_from('tosca.policies.Monitoring') and \
-                    not policy.is_derived_from('tosca.policies.Scaling') and \
-                    policy_type.type not in TOSCA_TO_HOT_TYPE:
+            if policy_type.type not in TOSCA_TO_HOT_TYPE:
                 raise UnsupportedTypeError(type=_('%s') % policy_type.type)
             elif policy_type.type == 'tosca.policies.Scaling.Cluster':
                 self.hot_template_version = '2016-04-08'
