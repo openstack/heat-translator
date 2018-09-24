@@ -12,25 +12,21 @@
 
 """Translate action implementations"""
 
-import logging
-import logging.config
 import os
 import sys
 
 from cliff import command
+from oslo_log import log as logging
 
 from toscaparser.tosca_template import ToscaTemplate
 from toscaparser.utils.gettextutils import _
 from translator.common import flavors
 from translator.common import images
 from translator.common.utils import UrlUtils
-from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 from translator.osc import utils
 
-conf_file = ConfigProvider.get_translator_logging_file()
-logging.config.fileConfig(conf_file)
-log = logging.getLogger('heat-translator')
+LOG = logging.getLogger('heat-translator')
 
 
 class TranslateTemplate(command.Command):
@@ -71,7 +67,7 @@ class TranslateTemplate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        log.debug(_('Translating the template with input parameters'
+        LOG.debug(_('Translating the template with input parameters'
                     '(%s).'), parsed_args)
         output = None
 
@@ -101,7 +97,7 @@ class TranslateTemplate(command.Command):
                     output = translator.translate()
             else:
                 msg = _('Could not find template file.\n')
-                log.error(msg)
+                LOG.error(msg)
                 sys.stdout.write(msg)
                 raise SystemExit
 
