@@ -283,7 +283,13 @@ class TranslateNodeTemplates(object):
                 raise UnsupportedTypeError(type=_('%s') % policy_type.type)
             elif policy_type.type == 'tosca.policies.Scaling.Cluster':
                 self.hot_template_version = '2016-04-08'
-            policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
+            if policy.is_derived_from('tosca.policies.Scaling') and \
+               policy_type.type != 'tosca.policies.Scaling.Cluster':
+                policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](
+                    policy,
+                    hot_template_parameters=self.hot_template.parameters)
+            else:
+                policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
             self.hot_resources.append(policy_node)
 
         # Handle life cycle operations: this may expand each node

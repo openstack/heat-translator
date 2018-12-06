@@ -1,0 +1,66 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Demo example
+
+parameters:
+  flavor:
+    default: m1.tiny
+    type: string
+    description: Flavor Information
+
+  image_name:
+    default: cirros-0.3.5-x86_64-disk
+    type: string
+    description: Image Name
+
+resources:
+  SP_group:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 1
+      desired_capacity: 1
+      cooldown: 120
+      resource:
+        type: SP_res.yaml
+      max_size: 3
+  SP_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id:
+        get_resource: SP_group
+      adjustment_type: change_in_capacity
+      scaling_adjustment: 1
+      cooldown: 120
+  SP_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      auto_scaling_group_id:
+        get_resource: SP_group
+      adjustment_type: change_in_capacity
+      scaling_adjustment: -1
+      cooldown: 120
+  vdu_hcpu_usage_scaling_out:
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
+    properties:
+      metric: cpu_util
+      description: utilization greater_than 80%
+      evaluation_periods: 1
+      granularity: 60
+      aggregation_method: mean
+      threshold: 80
+      resource_type: instance
+      comparison_operator: gt
+  vdu_lcpu_usage_scaling_in:
+    type: OS::Aodh::GnocchiAggregationByResourcesAlarm
+    properties:
+      metric: cpu_util
+      description: utilization less_than 10%
+      evaluation_periods: 1
+      granularity: 60
+      aggregation_method: mean
+      threshold: 10
+      resource_type: instance
+      comparison_operator: lt
+
+outputs: {}

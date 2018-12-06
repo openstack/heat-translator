@@ -593,6 +593,18 @@ class ToscaHotTranslationTest(TestCase):
         params = {}
         self._test_successful_translation(tosca_file, hot_files, params)
 
+    def test_hot_translate_nfv_scaling_with_params(self):
+        tosca_file = '../tests/data/nfv/test_tosca_nfv_autoscaling_with_' \
+                     'params.yaml'
+        hot_files = [
+            '../tests/data/hot_output/nfv/hot_tosca_nfv_autoscaling_with_'
+            'param.yaml',
+            '../tests/data/hot_output/nfv/SP_res.yaml',
+        ]
+        params = {'image_name': 'cirros-0.3.5-x86_64-disk',
+                  'flavor': 'm1.tiny'}
+        self._test_successful_translation(tosca_file, hot_files, params)
+
     def test_hot_translate_mon_scaling_policy(self):
         tosca_file = '../tests/data/monitoring/tosca_monitoring_scaling.yaml'
         hot_files = [
