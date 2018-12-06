@@ -2,6 +2,10 @@ heat_template_version: 2013-05-23
 
 description: Tacker Scaling template
 
+parameters:
+  flavor: {type: string, description: Flavor Information}
+  lease_id: {type: string, description: lease id}
+
 resources:
   VDU1:
     type: OS::Nova::Server

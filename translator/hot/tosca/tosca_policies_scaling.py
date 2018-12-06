@@ -34,12 +34,13 @@ class ToscaAutoscaling(HotResource):
 
     toscatype = 'tosca.policies.Scaling'
 
-    def __init__(self, policy, csar_dir=None):
+    def __init__(self, policy, csar_dir=None, hot_template_parameters=None):
         hot_type = "OS::Heat::ScalingPolicy"
         super(ToscaAutoscaling, self).__init__(policy,
                                                type=hot_type,
                                                csar_dir=csar_dir)
         self.policy = policy
+        self.hot_template_parameters = hot_template_parameters
 
     def handle_expansion(self):
         if self.policy.entity_tpl.get('triggers'):
@@ -76,6 +77,12 @@ class ToscaAutoscaling(HotResource):
     def _handle_nested_template(self, scale_res):
         template_dict = yaml.safe_load(HEAT_TEMPLATE_BASE)
         template_dict['description'] = 'Tacker Scaling template'
+        if self.hot_template_parameters:
+            all_params = OrderedDict()
+            for parameter in self.hot_template_parameters:
+                all_params.update(parameter.get_dict_output())
+            template_dict.update({'parameters': all_params})
+
         template_dict["resources"] = {}
         dict_res = OrderedDict()
         for res in scale_res:
@@ -87,7 +94,7 @@ class ToscaAutoscaling(HotResource):
         yaml.add_representer(OrderedDict, self.represent_ordereddict)
         yaml.add_representer(dict, self.represent_ordereddict)
         yaml_string = yaml.dump(template_dict, default_flow_style=False)
-        yaml_string = yaml_string.replace('\'', '') .replace('\n\n', '\n')
+        yaml_string = yaml_string.replace('\'', '').replace('\n\n', '\n')
         self.nested_template = {
             self.policy.name + '_res.yaml': yaml_string
         }

@@ -1,0 +1,29 @@
+heat_template_version: 2013-05-23
+description: Tacker Scaling template
+
+parameters:
+  flavor: {type: string, default: m1.tiny, description: Flavor Information}
+  image_name: {type: string, default: cirros-0.3.5-x86_64-disk, description: Image Name}
+
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      user_data_format: SOFTWARE_CONFIG
+      availability_zone: nova
+      flavor: {get_param: flavor}
+      user_data_format: SOFTWARE_CONFIG
+      image: {get_param: image_name}
+      config_drive: False
+      networks:
+      - port: { get_resource: CP1 }
+      metadata:
+        metering.server_group: SG1
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+       anti_spoofing_protection: False
+       management: True
+       network: net_mgmt
+  VL1:
+    type: OS::Neutron::Net
