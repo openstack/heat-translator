@@ -61,10 +61,10 @@ class MemoryUnit(object):
         result = regex.match(str(size)).groups()
         if result[1]:
             unit_size = MemoryUnit.validate_unit(result[1])
-            converted = int(str_to_num(result[0])
-                            * MemoryUnit.UNIT_SIZE_DICT[unit_size]
-                            * math.pow(MemoryUnit.UNIT_SIZE_DICT
-                                       [unit], -1))
+            converted = int(str_to_num(result[0]) *
+                            MemoryUnit.UNIT_SIZE_DICT[unit_size] *
+                            math.pow(MemoryUnit.UNIT_SIZE_DICT
+                                     [unit], -1))
             log.info(_('Given size %(size)s is converted to %(num)s '
                        '%(unit)s.') % {'size': size,
                      'num': converted, 'unit': unit})
@@ -81,8 +81,8 @@ class MemoryUnit(object):
                 if key.upper() == unit.upper():
                     return key
 
-            msg = _('Provided unit "{0}" is not valid. The valid units are'
-                    ' {1}').format(unit, MemoryUnit.UNIT_SIZE_DICT.keys())
+            msg = _('Provided unit "{0}" is not valid. The valid units are '
+                    '{1}').format(unit, MemoryUnit.UNIT_SIZE_DICT.keys())
             log.error(msg)
             raise ValueError(msg)
 
