@@ -79,9 +79,9 @@ def _load_classes(locations, classes):
         abs_path = abs_path.replace('translator/hot', cls_path)
 
         # Grab all the tosca type module files in the given path
-        mod_files = [f for f in os.listdir(abs_path) if f.endswith('.py')
-                     and not f.startswith('__init__')
-                     and f.startswith('tosca_')]
+        mod_files = [f for f in os.listdir(abs_path) if f.endswith('.py') and
+                     not f.startswith('__init__') and
+                     f.startswith('tosca_')]
 
         # For each module, pick out the target translation class
         for f in mod_files:
