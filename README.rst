@@ -50,5 +50,5 @@ Project Info
 * License: Apache License, Version 2.0
 * Documentation: http://docs.openstack.org/heat-translator/
 * Bugs and Blueprints: https://storyboard.openstack.org/#!/project/openstack/heat-translator
-* Source: http://git.openstack.org/cgit/openstack/heat-translator/
+* Source: http://opendev.org/openstack/heat-translator/
 * IRC Channel: #openstack-heat-translator
