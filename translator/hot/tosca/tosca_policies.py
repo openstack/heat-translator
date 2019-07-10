@@ -38,5 +38,7 @@ class ToscaPolicies(HotResource):
         self.properties["policies"] = [group_policy]
         for resource in resources:
             if resource.name in self.policy.targets:
-                resource.properties["scheduler_hints"] = {
-                    "group": {"get_resource": self.name}}
+                if not resource.properties.get("scheduler_hints"):
+                    resource.properties["scheduler_hints"] = {}
+                resource.properties["scheduler_hints"].update(
+                    {"group": {"get_resource": self.name}})

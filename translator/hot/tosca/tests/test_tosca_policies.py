@@ -35,6 +35,11 @@ class ToscaPoicyTest(TestCase):
             toscacompute = ToscaCompute(nodetemplate)
             toscacompute.handle_properties()
 
+            # adding a property to test that
+            # ToscaPolicies.handle_properties does not overwrite this.
+            toscacompute.properties['scheduler_hints'] = {
+                'target_cell': 'cell0'}
+
             policy = Policy(policy_name, tpl, targets,
                             "node_templates")
             toscapolicy = ToscaPolicies(policy)
@@ -73,7 +78,8 @@ class ToscaPoicyTest(TestCase):
                          'scheduler_hints': {
                              'group': {
                                  'get_resource':
-                                 'my_compute_placement_policy'}},
+                                 'my_compute_placement_policy'},
+                             'target_cell': 'cell0'},
                          'user_data_format': 'SOFTWARE_CONFIG'}
         self._tosca_policy_test(
             tpl_snippet,
