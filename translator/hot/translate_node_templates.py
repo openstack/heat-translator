@@ -91,7 +91,7 @@ def _load_classes(locations, classes):
             if f == 'tosca_block_storage_attachment.py':
                 continue
 
-            mod_name = cls_path + '/' + f.strip('.py')
+            mod_name = cls_path + '/' + os.path.splitext(f)[0]
             mod_name = mod_name.replace('/', '.')
             try:
                 mod = importlib.import_module(mod_name)
