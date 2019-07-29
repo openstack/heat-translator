@@ -35,7 +35,6 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'heat-translator'
 copyright = u'2013, OpenStack Foundation'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
@@ -52,15 +51,15 @@ pygments_style = 'sphinx'
 html_theme = 'openstackdocs'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % project
+htmlhelp_basename = 'heat-translatordoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
-     u'%s Documentation' % project,
+     'heat-translator.tex',
+     u'heat-translator Documentation',
      u'OpenStack Foundation', 'manual'),
 ]
 
