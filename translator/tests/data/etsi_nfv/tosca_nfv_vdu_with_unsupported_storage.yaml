@@ -1,0 +1,40 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+description: >
+  Template for VDU with unsupported storage type.
+
+imports:
+  - etsi_nfv_sol001_common_types.yaml
+  - etsi_nfv_sol001_vnfd_types.yaml
+
+topology_template:
+  node_templates:
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        name: VDU1
+        description: VDU1 compute node
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 512 MiB
+            virtual_cpu:
+              num_virtual_cpu: 1
+            virtual_local_storage:
+              - size_of_storage: 1 GiB
+      requirements:
+        - virtual_storage: UnsupportedStorage
+
+    UnsupportedStorage:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        name: UnsupportedStorage
+        description: UnsupportedStorage node
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
