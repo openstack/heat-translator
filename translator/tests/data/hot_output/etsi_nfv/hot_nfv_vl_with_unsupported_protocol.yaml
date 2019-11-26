@@ -1,0 +1,38 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for VirtualLink with unsupported layer_protocols.
+parameters: {}
+resources:
+  VL1:
+    type: OS::Neutron::Net
+    properties:
+      qos_policy: { get_resource: VL1_qospolicy }
+  VL1_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: VL1 }
+      ip_version: 4
+  VL1_bandwidth:
+    type: OS::Neutron::QoSBandwidthLimitRule
+    properties:
+      max_kbps: 1024
+      policy: { get_resource: VL1_qospolicy }
+  VL1_qospolicy:
+    type: OS::Neutron::QoSPolicy
+  VL2:
+    type: OS::Neutron::Net
+    properties:
+      qos_policy: { get_resource: VL2_qospolicy }
+  VL2_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: VL2 }
+      ip_version: 6
+  VL2_bandwidth:
+    type: OS::Neutron::QoSBandwidthLimitRule
+    properties:
+      max_kbps: 1024
+      policy: { get_resource: VL2_qospolicy }
+  VL2_qospolicy:
+    type: OS::Neutron::QoSPolicy
+outputs: {}

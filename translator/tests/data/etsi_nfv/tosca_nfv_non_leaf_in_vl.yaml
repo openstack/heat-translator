@@ -1,0 +1,24 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+description: >
+  Template for deploying one VirtualLink,
+  and omit non required properties
+  which are required in HOT.
+
+imports:
+  - etsi_nfv_sol001_common_types.yaml
+  - etsi_nfv_sol001_vnfd_types.yaml
+
+node_types:
+topology_template:
+  node_templates:
+    VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols: [ ipv4 ]
+        vl_profile:
+          max_bitrate_requirements:
+            root: 1048576
+          min_bitrate_requirements:
+            root: 1048576

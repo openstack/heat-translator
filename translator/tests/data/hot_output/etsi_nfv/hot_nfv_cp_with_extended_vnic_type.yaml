@@ -1,0 +1,32 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying CPs,
+  with several vnic_types.
+parameters: {}
+resources:
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+  CP2:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: normal
+  CP3:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct
+  CP4:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: macvtap
+  CP5:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: baremetal
+outputs: {}

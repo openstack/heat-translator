@@ -1,0 +1,45 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VDU and four CP,
+  and check CP's order.
+  CP3 -> CP2 -> CP4 -> CP1
+parameters: {}
+resources:
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+  CP2:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+  CP3:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+  CP4:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU1_flavor }
+      name: VDU1
+      image: #ADD_YOUR_IMAGE_HERE
+      networks:
+      - port: { get_resource: CP3 }
+      - port: { get_resource: CP2 }
+      - port: { get_resource: CP4 }
+      - port: { get_resource: CP1 }
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+outputs: {}
