@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+description: >
+  Template for deploying one VirtualStorage.
+
+imports:
+  - etsi_nfv_sol001_common_types.yaml
+  - etsi_nfv_sol001_vnfd_types.yaml
+
+topology_template:
+  node_templates:
+    VirtualStorage:
+      type: tosca.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: 30 GiB
+          rdma_enabled: true
+        sw_image_data:
+          name: VrtualStorage
+          version: '0.4.0'
+          checksum:
+            algorithm: sha-256
+            hash: b9c3036539fd7a5f87a1bf38eb05fdde8b556a1a7e664dbeda90ed3cd74b4f9d
+          container_format: bare
+          disk_format: qcow2
+          min_disk: 2 GiB
+          min_ram: 8192 MiB
+          size: 2 GiB
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: cirros-0.4.0-x86_64-disk.qcow2

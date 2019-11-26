@@ -17,7 +17,6 @@ from translator.tests.base import TestCase
 class TranslateNodeTemplatesTest(TestCase):
 
     def test_generate_type_map(self):
-
         expected_type_list = [
             'tosca.nodes.BlockStorage',
             'tosca.nodes.Compute',
@@ -37,6 +36,7 @@ class TranslateNodeTemplatesTest(TestCase):
             'tosca.policies.Scaling.Cluster',
             'tosca.nodes.nfv.VNF',
             'tosca.nodes.nfv.Vdu.Compute',
+            'tosca.nodes.nfv.Vdu.VirtualBlockStorage',
             'tosca.nodes.nfv.VduCp',
             'tosca.nodes.nfv.VnfVirtualLink'
         ]

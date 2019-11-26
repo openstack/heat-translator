@@ -191,3 +191,12 @@ class EtsiToscaHotTranslationTest(TestCase):
                 expected_msg,
                 self.log_fixture.output
             )
+
+    def test_hot_translate_etsi_nfv_blockstorage(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_blockstorage.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_blockstorage.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
