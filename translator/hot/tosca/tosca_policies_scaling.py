@@ -11,16 +11,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from collections import OrderedDict
-import yaml
-
 from translator.hot.syntax.hot_resource import HotResource
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaAutoscaling'
-HEAT_TEMPLATE_BASE = """
-heat_template_version: 2013-05-23
-"""
 ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
                    'maximum': 'max', 'minimum': 'min', 'last': 'last',
                    'std': 'std', 'first': 'first', 'count': 'count'}
@@ -66,39 +59,6 @@ class ToscaAutoscaling(HotResource):
             hot_resources = [ceilometer_resources]
             return hot_resources
 
-    def represent_ordereddict(self, dumper, data):
-        nodes = []
-        for key, value in data.items():
-            node_key = dumper.represent_data(key)
-            node_value = dumper.represent_data(value)
-            nodes.append((node_key, node_value))
-        return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
-
-    def _handle_nested_template(self, scale_res):
-        template_dict = yaml.safe_load(HEAT_TEMPLATE_BASE)
-        template_dict['description'] = 'Tacker Scaling template'
-        if self.hot_template_parameters:
-            all_params = OrderedDict()
-            for parameter in self.hot_template_parameters:
-                all_params.update(parameter.get_dict_output())
-            template_dict.update({'parameters': all_params})
-
-        template_dict["resources"] = {}
-        dict_res = OrderedDict()
-        for res in scale_res:
-            dict_res = res.get_dict_output()
-            res_name = list(dict_res.keys())[0]
-            template_dict["resources"][res_name] = \
-                dict_res[res_name]
-
-        yaml.add_representer(OrderedDict, self.represent_ordereddict)
-        yaml.add_representer(dict, self.represent_ordereddict)
-        yaml_string = yaml.dump(template_dict, default_flow_style=False)
-        yaml_string = yaml_string.replace('\'', '').replace('\n\n', '\n')
-        self.nested_template = {
-            self.policy.name + '_res.yaml': yaml_string
-        }
-
     def handle_properties(self, resources):
         self.properties = {}
         self.properties["auto_scaling_group_id"] = {
@@ -133,7 +93,11 @@ class ToscaAutoscaling(HotResource):
             if resource.type not in SCALING_RESOURCES:
                 delete_res_names.append(resource.name)
                 scale_res.append(resource)
-        self._handle_nested_template(scale_res)
+        yaml_name = self.policy.name + '_res.yaml'
+        self.nested_template = self._handle_nested_template(
+            scale_res,
+            yaml_name,
+            self.hot_template_parameters)
         resources = [tmp_res
                      for tmp_res in resources
                      if tmp_res.name not in delete_res_names]

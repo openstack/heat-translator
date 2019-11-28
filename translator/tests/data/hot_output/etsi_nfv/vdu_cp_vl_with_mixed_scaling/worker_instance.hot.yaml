@@ -1,0 +1,34 @@
+heat_template_version: 2013-05-23
+description: Scaling template
+parameters:
+  vl1_id:
+    type: string
+  vdu1_flavor_id:
+    type: string
+  vdu2_flavor_id:
+    type: string
+resources:
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: vl1_id }
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_param: vdu1_flavor_id }
+      name: VDU1
+      image: #ADD_YOUR_IMAGE_HERE
+      networks:
+      - port: { get_resource: CP1 }
+  CP2:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+  VDU2:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_param: vdu2_flavor_id }
+      name: VDU2
+      image: #ADD_YOUR_IMAGE_HERE
+      networks:
+      - port: { get_resource: CP2 }

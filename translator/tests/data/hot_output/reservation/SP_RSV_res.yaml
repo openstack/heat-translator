@@ -1,6 +1,6 @@
 heat_template_version: 2013-05-23
 
-description: Tacker Scaling template
+description: Scaling template
 
 parameters:
   flavor: {type: string, description: Flavor Information}

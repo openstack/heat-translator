@@ -138,7 +138,7 @@ class AutoscalingTest(TestCase):
         expected_nested_resource = {'heat_template_version':
                                     datetime.date(2013, 5, 23),
                                     'description':
-                                        'Tacker Scaling template',
+                                        'Scaling template',
                                     'parameters':
                                         {'flavor':
                                          {'default': 'm1.tiny',

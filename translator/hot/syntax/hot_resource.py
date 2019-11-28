@@ -12,6 +12,8 @@
 # under the License.
 
 from collections import OrderedDict
+import yaml
+
 import logging
 import os
 import six
@@ -27,11 +29,20 @@ SECTIONS = (TYPE, PROPERTIES, MEDADATA, DEPENDS_ON, UPDATE_POLICY,
            ('type', 'properties', 'metadata',
             'depends_on', 'update_policy', 'deletion_policy')
 
+HEAT_TEMPLATE_VERSION = '2013-05-23'
+HEAT_DESCRIPTION = 'Scaling template'
+
 policy_type = ['tosca.policies.Placement',
                'tosca.policies.Scaling',
                'tosca.policies.Scaling.Cluster',
                'tosca.policies.Monitoring',
-               'tosca.policies.Reservation']
+               'tosca.policies.Reservation',
+               'tosca.policies.nfv.InstantiationLevels',
+               'tosca.policies.nfv.ScalingAspects',
+               'tosca.policies.nfv.VduInitialDelta',
+               'tosca.policies.nfv.VduInstantiationLevels',
+               'tosca.policies.nfv.VduScalingAspectDeltas',
+               'tosca.policies.nfv.VirtualLinkInstantiationLevels']
 log = logging.getLogger('heat-translator')
 
 
@@ -464,6 +475,47 @@ class HotResource(object):
             else:
                 tosca_props[prop.name] = prop.value
         return tosca_props
+
+    def represent_ordereddict(self, dumper, data):
+        nodes = []
+        for key, value in data.items():
+            node_key = dumper.represent_data(key)
+            node_value = dumper.represent_data(value)
+            nodes.append((node_key, node_value))
+        return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
+
+    def _handle_nested_template(self, scale_res, yaml_name,
+                                hot_template_parameters,
+                                parameters=None):
+        template_dict = OrderedDict()
+        template_dict['heat_template_version'] = HEAT_TEMPLATE_VERSION
+        template_dict['description'] = HEAT_DESCRIPTION
+
+        if parameters is not None:
+            template_dict['parameters'] = parameters
+
+        if hot_template_parameters:
+            all_params = OrderedDict()
+            for parameter in hot_template_parameters:
+                all_params.update(parameter.get_dict_output())
+            template_dict.update({'parameters': all_params})
+
+        template_dict["resources"] = {}
+        dict_res = OrderedDict()
+        for res in scale_res:
+            dict_res = res.get_dict_output()
+            res_name = list(dict_res.keys())[0]
+            template_dict["resources"][res_name] = \
+                dict_res[res_name]
+
+        yaml.add_representer(OrderedDict, self.represent_ordereddict)
+        yaml.add_representer(dict, self.represent_ordereddict)
+        yaml_string = yaml.dump(template_dict, default_flow_style=False)
+        yaml_string = yaml_string.replace('\'', '').replace('\n\n', '\n')
+        nested_template = {
+            yaml_name: yaml_string
+        }
+        return nested_template
 
     def remove_depends_on(self, depends_on_set):
         # Remove all depends_on including depends_on_set.

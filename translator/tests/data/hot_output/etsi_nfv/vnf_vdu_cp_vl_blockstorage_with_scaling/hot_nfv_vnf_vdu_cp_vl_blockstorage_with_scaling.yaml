@@ -1,0 +1,59 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VNF and one VDU and one CP and one VirtualLink and BlockStorage with scaling.
+parameters:
+  selected_flavour:
+    type: string
+    description: VNF deployment flavour selected by the consumer. It is provided in
+      the API
+    default: simple
+resources:
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VL1:
+    type: OS::Neutron::Net
+    properties:
+      qos_policy: { get_resource: VL1_qospolicy }
+  VL1_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: VL1 }
+      ip_version: 4
+      cidr: 11.11.0.0/24
+  VL1_bandwidth:
+    type: OS::Neutron::QoSBandwidthLimitRule
+    properties:
+      max_kbps: 1024
+      policy: { get_resource: VL1_qospolicy }
+  VL1_qospolicy:
+    type: OS::Neutron::QoSPolicy
+  worker_instance:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 1
+      max_size: 3
+      resource:
+        type: worker_instance.hot.yaml
+        properties:
+          vl1_id: { get_resource: VL1 }
+          vdu1_flavor_id: { get_resource: VDU1_flavor }
+      desired_capacity: DESIRED_CAPACITY
+  worker_instance_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+      scaling_adjustment: 1
+  worker_instance_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+      scaling_adjustment: -1
+outputs: {}

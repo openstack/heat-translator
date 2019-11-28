@@ -1,0 +1,37 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for scaling which targets is not set in tosca.policies.nfv.VduInitialDelta.
+  The following properties are not set in <aspect_name>.
+  ->min_size
+  ->max_size
+parameters: {}
+resources:
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  worker_instance:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      resource:
+        type: worker_instance.hot.yaml
+        properties:
+          vdu1_flavor_id: { get_resource: VDU1_flavor }
+      desired_capacity: DESIRED_CAPACITY
+  worker_instance_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+      scaling_adjustment: 1
+  worker_instance_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+      scaling_adjustment: -1
+outputs: {}

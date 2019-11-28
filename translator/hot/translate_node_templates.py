@@ -141,8 +141,17 @@ TOSCA_TO_HOT_TYPE = _generate_type_map()
 
 BASE_TYPES = six.string_types + six.integer_types + (dict, OrderedDict)
 
+BASE_POLICY_TYPES = [
+    'tosca.policies.Scaling',
+    'tosca.policies.Monitoring',
+    'tosca.policies.Placement',
+    'tosca.policies.Reservation',
+]
+
 HOT_SCALING_POLICY_TYPE = ["OS::Heat::AutoScalingGroup",
                            "OS::Senlin::Profile"]
+
+TOSCA_SA = 'tosca.policies.nfv.ScalingAspects'
 
 
 class TranslateNodeTemplates(object):
@@ -188,7 +197,8 @@ class TranslateNodeTemplates(object):
                 resource.handle_properties(self.hot_resources)
             extra_hot_resources = []
             for res in self.hot_resources:
-                if res.type == 'OS::Heat::ScalingPolicy':
+                if res.type == 'OS::Heat::ScalingPolicy' and\
+                        res.toscatype != TOSCA_SA:
                     extra_res = copy.deepcopy(res)
                     scaling_adjustment = res.properties['scaling_adjustment']
                     if scaling_adjustment < 0:
@@ -265,30 +275,26 @@ class TranslateNodeTemplates(object):
 
         for policy in self.policies:
             policy_type = policy.type_definition
-            if policy.is_derived_from('tosca.policies.Scaling') and \
-               policy_type.type != 'tosca.policies.Scaling.Cluster':
-                TOSCA_TO_HOT_TYPE[policy_type.type] = \
-                    TOSCA_TO_HOT_TYPE['tosca.policies.Scaling']
-            if policy.is_derived_from('tosca.policies.Monitoring'):
-                TOSCA_TO_HOT_TYPE[policy_type.type] = \
-                    TOSCA_TO_HOT_TYPE['tosca.policies.Monitoring']
-            if policy.is_derived_from('tosca.policies.Placement'):
-                TOSCA_TO_HOT_TYPE[policy_type.type] = \
-                    TOSCA_TO_HOT_TYPE['tosca.policies.Placement']
-            if policy.is_derived_from('tosca.policies.Reservation'):
-                TOSCA_TO_HOT_TYPE[policy_type.type] = \
-                    TOSCA_TO_HOT_TYPE['tosca.policies.Reservation']
-            if policy_type.type not in TOSCA_TO_HOT_TYPE:
-                raise UnsupportedTypeError(type=_('%s') % policy_type.type)
-            elif policy_type.type == 'tosca.policies.Scaling.Cluster':
+            own_policy_type = policy_type.type
+            base_policy_type = self._get_supported_type(policy)
+
+            if base_policy_type in BASE_POLICY_TYPES and \
+                    own_policy_type != 'tosca.policies.Scaling.Cluster':
+                TOSCA_TO_HOT_TYPE[own_policy_type] = \
+                    TOSCA_TO_HOT_TYPE[base_policy_type]
+
+            if own_policy_type == 'tosca.policies.Scaling.Cluster':
                 self.hot_template_version = '2016-04-08'
-            if policy.is_derived_from('tosca.policies.Scaling') and \
-               policy_type.type != 'tosca.policies.Scaling.Cluster':
-                policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](
+
+            if (base_policy_type == 'tosca.policies.Scaling' or
+                    base_policy_type == 'tosca.policies.tacker.Scaling') and \
+                    own_policy_type != 'tosca.policies.Scaling.Cluster':
+                policy_node = TOSCA_TO_HOT_TYPE[own_policy_type](
                     policy,
                     hot_template_parameters=self.hot_template.parameters)
             else:
-                policy_node = TOSCA_TO_HOT_TYPE[policy_type.type](policy)
+                policy_node = TOSCA_TO_HOT_TYPE[own_policy_type](policy)
+
             self.hot_resources.append(policy_node)
 
         # Handle life cycle operations: this may expand each node

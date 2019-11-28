@@ -1,0 +1,67 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VDU and one CP with scaling.
+parameters: {}
+resources:
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  worker_instance1:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 1
+      max_size: 3
+      resource:
+        type: worker_instance1.hot.yaml
+        properties:
+          vdu1_flavor_id: { get_resource: VDU1_flavor }
+      desired_capacity: DESIRED_CAPACITY
+  worker_instance1_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance1
+      scaling_adjustment: 1
+  worker_instance1_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance1
+      scaling_adjustment: -1
+
+  VDU2_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  worker_instance2:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      min_size: 2
+      max_size: 10
+      resource:
+        type: worker_instance2.hot.yaml
+        properties:
+          vdu2_flavor_id: { get_resource: VDU2_flavor }
+      desired_capacity: DESIRED_CAPACITY
+  worker_instance2_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance2
+      scaling_adjustment: 2
+  worker_instance2_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance2
+      scaling_adjustment: -2
+outputs: {}
