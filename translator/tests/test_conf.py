@@ -42,16 +42,16 @@ class ConfTest(TestCase):
         translatorConfig._load_config('fake_file.conf')
         self.assertTrue(translatorConfig._translator_config.read.called)
 
-    def test_get_value(self):
-        ret_value = mock.MagicMock(return_value='hot')
-        translatorConfig._translator_config.get = ret_value
+    @mock.patch.object(translatorConfig._translator_config, 'get')
+    def test_get_value(self, mock_translator_config):
+        mock_translator_config.return_value = 'hot'
         value = translatorConfig.get_value('DEFAULT', 'language')
         self.assertTrue(translatorConfig._translator_config.get.called)
         self.assertEqual(value, 'hot')
 
-    def test_get_all_values(self):
-        ret_value = mock.MagicMock(return_value=['hot'])
-        translatorConfig._translator_config.items = ret_value
+    @mock.patch.object(translatorConfig._translator_config, 'items')
+    def test_get_all_values(self, mock_translator_config):
+        mock_translator_config.return_value = ['hot']
         values = translatorConfig.get_all_values()
         self.assertTrue(translatorConfig._translator_config.items.called)
         self.assertEqual(values[0], 'hot')
