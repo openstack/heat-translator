@@ -1,0 +1,11 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VirtualStorage.
+parameters: {}
+resources:
+  VirtualStorage:
+    type: OS::Cinder::Volume
+    properties:
+      size: 30
+      image: #ADD_YOUR_IMAGE_HERE
+outputs: {}
