@@ -218,9 +218,7 @@ class TranslateNodeTemplates(object):
         suffix = 0
         # Copy the TOSCA graph: nodetemplate
         for node in self.nodetemplates:
-            base_type = HotResource.get_base_type_str(node.type_definition)
-            if base_type not in TOSCA_TO_HOT_TYPE:
-                raise UnsupportedTypeError(type=_('%s') % base_type)
+            base_type = self._get_supported_type(node)
             hot_node = TOSCA_TO_HOT_TYPE[base_type](node,
                                                     csar_dir=self.csar_dir)
             self.hot_resources.append(hot_node)
@@ -407,6 +405,17 @@ class TranslateNodeTemplates(object):
                     resource.depends_on.remove(removed_resource)
 
         return self.hot_resources
+
+    def _get_supported_type(self, original_node):
+        # trace parent types until finding a supported type
+        node = original_node
+        node_type = original_node.type
+        while node_type not in TOSCA_TO_HOT_TYPE:
+            node = node.parent_type
+            if node is None:
+                raise UnsupportedTypeError(type=_('%s') % original_node.type)
+            node_type = node.type
+        return node_type
 
     def translate_param_value(self, param_value, resource):
         tosca_template = None

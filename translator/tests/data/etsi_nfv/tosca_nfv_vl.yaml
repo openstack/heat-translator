@@ -1,0 +1,30 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+description: >
+  Template for deploying one VirtualLink.
+
+imports:
+  - etsi_nfv_sol001_common_types.yaml
+  - etsi_nfv_sol001_vnfd_types.yaml
+
+node_types:
+topology_template:
+  node_templates:
+    VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols: [ ipv4 ]
+        description: Internal Virtual link in the VNF
+        vl_profile:
+          max_bitrate_requirements:
+            root: 1048576
+            leaf: 1048576
+          min_bitrate_requirements:
+            root: 1048576
+            leaf: 1048576
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv4
+              l3_protocol_data:
+                ip_version: ipv4
+                cidr: 11.11.0.0/24

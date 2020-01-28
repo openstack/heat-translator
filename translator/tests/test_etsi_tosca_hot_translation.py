@@ -112,3 +112,82 @@ class EtsiToscaHotTranslationTest(TestCase):
             expected_msg,
             self.log_fixture.output
         )
+
+    def test_hot_translate_etsi_nfv_cp(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_cp.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_cp.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_cp_with_extended_vnic_type(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_cp_with_extended_vnic_type.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_cp_with_extended_vnic_type.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_check_cp_order(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_check_cp_order.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_check_cp_order.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vl(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vl.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_vl.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vl_with_unsupported_protocol(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vl_with_unsupported_protocol.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_vl_with_unsupported_protocol.yaml',
+        ]
+        expected_msgs = (
+            'Unsupported layer_protocols, virtual_link_name:VL3, '
+            'protocol_name:[\'ethernet\']',
+            'Unsupported layer_protocols, virtual_link_name:VL4, '
+            'protocol_name:[\'mpls\']',
+            'Unsupported layer_protocols, virtual_link_name:VL5, '
+            'protocol_name:[\'odu2\']',
+            'Unsupported layer_protocols, virtual_link_name:VL6, '
+            'protocol_name:[\'pseudo-wire\']'
+        )
+        self._test_successful_translation(tosca_file, hot_files, params={})
+        for expected_msg in expected_msgs:
+            self.assertIn(
+                expected_msg,
+                self.log_fixture.output
+            )
+
+    def test_hot_translate_etsi_nfv_non_leaf_in_vl(self):
+        vl_name = 'VL1'
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_non_leaf_in_vl.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_non_leaf_in_vl.yaml',
+        ]
+        expected_msgs = (
+            'Can not set the required properties '
+            'max_kbps on HOT.'
+            'virtual_link_name:%s' % vl_name,)
+        self._test_successful_translation(tosca_file, hot_files, params={})
+        for expected_msg in expected_msgs:
+            self.assertIn(
+                expected_msg,
+                self.log_fixture.output
+            )

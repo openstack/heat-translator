@@ -36,7 +36,9 @@ class TranslateNodeTemplatesTest(TestCase):
             'tosca.policies.Scaling',
             'tosca.policies.Scaling.Cluster',
             'tosca.nodes.nfv.VNF',
-            'tosca.nodes.nfv.Vdu.Compute'
+            'tosca.nodes.nfv.Vdu.Compute',
+            'tosca.nodes.nfv.VduCp',
+            'tosca.nodes.nfv.VnfVirtualLink'
         ]
         actual_type_list = list(_generate_type_map())
 

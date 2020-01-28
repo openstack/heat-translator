@@ -1,0 +1,15 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VirtualLink,
+  and omit non required properties
+  which are required in HOT.
+parameters: {}
+resources:
+  VL1:
+    type: OS::Neutron::Net
+  VL1_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: VL1 }
+      ip_version: 4
+outputs: {}

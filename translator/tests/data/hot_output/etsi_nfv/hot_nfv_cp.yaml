@@ -1,0 +1,11 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one CP.
+parameters: {}
+resources:
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: #ADD_YOUR_NETWORK_HERE
+      binding:vnic_type: direct-physical
+outputs: {}
