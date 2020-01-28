@@ -1,0 +1,18 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VDU,
+  and define capabilities including invalid compute_requirements.
+parameters: {}
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU1_flavor }
+      name: VDU1
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+outputs: {}

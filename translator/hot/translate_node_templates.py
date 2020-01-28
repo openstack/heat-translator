@@ -52,7 +52,8 @@ def _generate_type_map():
     '''
 
     # Base types directory
-    BASE_PATH = 'translator/hot/tosca'
+    BASE_PATHS = ('translator/hot/tosca',
+                  'translator/hot/tosca/etsi_nfv')
 
     # Custom types directory defined in conf file
     custom_path = translatorConfig.get_value('DEFAULT',
@@ -61,7 +62,7 @@ def _generate_type_map():
     # First need to load the parent module, for example 'contrib.hot',
     # for all of the dynamically loaded classes.
     classes = []
-    _load_classes((BASE_PATH, custom_path), classes)
+    _load_classes(BASE_PATHS + (custom_path,), classes)
     try:
         types_map = {clazz.toscatype: clazz for clazz in classes}
     except AttributeError as e:

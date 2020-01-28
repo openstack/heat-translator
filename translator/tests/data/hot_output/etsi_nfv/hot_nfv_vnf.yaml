@@ -1,0 +1,11 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for deploying one VNF.
+parameters:
+  selected_flavour:
+    type: string
+    description: VNF deployment flavour selected by the consumer. It is provided in
+      the API
+    default: simple
+resources: {}
+outputs: {}

@@ -1,0 +1,24 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for VDU with unsupported storage type.
+parameters: {}
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU1_flavor }
+      name: VDU1
+  UnsupportedStorage:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: UnsupportedStorage_flavor }
+      name: UnsupportedStorage
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  UnsupportedStorage_flavor:
+    type: OS::Nova::Flavor
+outputs: {}

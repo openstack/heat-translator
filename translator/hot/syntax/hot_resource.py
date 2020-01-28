@@ -465,6 +465,17 @@ class HotResource(object):
                 tosca_props[prop.name] = prop.value
         return tosca_props
 
+    def remove_depends_on(self, depends_on_set):
+        # Remove all depends_on including depends_on_set.
+        for rel, node in self.nodetemplate.relationships.items():
+            for do in depends_on_set:
+                if rel.is_derived_from(do):
+                    for hot_resource in self.depends_on_nodes:
+                        if node.name == hot_resource.name and \
+                                hot_resource in self.depends_on:
+                            self.depends_on.remove(hot_resource)
+                            break
+
     @staticmethod
     def get_all_artifacts(nodetemplate):
         # workaround bug in the parser
