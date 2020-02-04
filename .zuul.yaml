@@ -2,21 +2,20 @@
     templates:
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
       - openstack-python3-ussuri-jobs
       - publish-openstack-docs-pti
       - check-requirements
     check:
       jobs:
-        - heat-translator-tox-py27-tp:
+        - heat-translator-tox-py37-tp:
             voting: false
 
 - job:
-    name: heat-translator-tox-py27-tp
-    parent: openstack-tox
+    name: heat-translator-tox-py37-tp
+    parent: openstack-tox-py37
     description: |
       Run tests for heat-translator project.
 
-      Uses tox with the ``py27-tp`` environment.
+      Uses tox with the ``py37-tp`` environment.
     vars:
-      tox_envlist: py27-tp
+      tox_envlist: py37-tp
