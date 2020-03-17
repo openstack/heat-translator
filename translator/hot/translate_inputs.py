@@ -53,7 +53,8 @@ TOSCA_TO_HOT_INPUT_TYPES = {'string': 'string',
                             'scalar-unit.size': 'number',
                             'version': 'string',
                             'null': 'string',
-                            'PortDef': 'number'}
+                            'PortDef': 'number',
+                            'list': 'list'}
 
 log = logging.getLogger('heat-translator')
 
