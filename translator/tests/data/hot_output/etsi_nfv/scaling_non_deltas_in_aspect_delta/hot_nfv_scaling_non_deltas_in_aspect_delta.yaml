@@ -1,0 +1,37 @@
+heat_template_version: 2013-05-23
+description: >
+  Template for scaling which deltas is not defined in tosca.policies.nfv.VduScalingAspectDeltas.
+  (Defined delta_2 in tosca.policies.nfv.ScalingAspects,
+  but defined delta_1 in tosca.policies.nfv.VduScalingAspectDeltas.)
+  In Addition, the following properties are not set in
+  <aspect_name>_scale_in and <aspect_name>_scale_out nodes.
+  ->scaling_adjustment
+parameters: {}
+resources:
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  worker_instance:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      resource:
+        type: worker_instance.hot.yaml
+        properties:
+          vdu1_flavor_id: { get_resource: VDU1_flavor }
+      desired_capacity: DESIRED_CAPACITY
+  worker_instance_scale_out:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+  worker_instance_scale_in:
+    type: OS::Heat::ScalingPolicy
+    properties:
+      adjustment_type: change_in_capacity
+      auto_scaling_group_id:
+        get_resource: worker_instance
+outputs: {}

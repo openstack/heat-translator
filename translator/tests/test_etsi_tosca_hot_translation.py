@@ -200,3 +200,134 @@ class EtsiToscaHotTranslationTest(TestCase):
             'hot_nfv_blockstorage.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling(
+            self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'vnf_vdu_cp_vl_blockstorage_with_scaling/'
+            'hot_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'vnf_vdu_cp_vl_blockstorage_with_scaling/'
+            'worker_instance.hot.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vdu_cp_vl_with_mixed_scaling(
+            self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vdu_cp_vl_with_mixed_scaling.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'vdu_cp_vl_with_mixed_scaling/'
+            'hot_nfv_vdu_cp_vl_with_mixed_scaling.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'vdu_cp_vl_with_mixed_scaling/'
+            'worker_instance.hot.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vdu_cp_with_scaling_multi_aspects(
+            self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vdu_cp_with_scaling_multi_aspects.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'vdu_cp_with_scaling_multi_aspects/'
+            'hot_nfv_vdu_cp_with_scaling_multi_aspects.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'vdu_cp_with_scaling_multi_aspects/'
+            'worker_instance1.hot.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'vdu_cp_with_scaling_multi_aspects/'
+            'worker_instance2.hot.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_scaling_non_target_vdu_in_initial_delta(
+            self):
+        aspect_name = 'worker_instance'
+        vdu_name = 'VDU1'
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_scaling_non_target_vdu_in_initial_delta.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_target_vdu_in_initial_delta/'
+            'hot_nfv_scaling_non_target_vdu_in_initial_delta.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_target_vdu_in_initial_delta/'
+            'worker_instance.hot.yaml',
+        ]
+        expected_msgs = (
+            'Can not set the required properties '
+            'min_size and max_size on HOT.'
+            'aspect_name:%s' % aspect_name,
+        )
+        expected_msgs = (
+            'No min_size or(and) max_size is found for '
+            'aspect_name:%s, VDU:%s' % (
+                aspect_name, vdu_name)
+        )
+
+        self._test_successful_translation(tosca_file, hot_files, params={})
+        for expected_msg in expected_msgs:
+            self.assertIn(
+                expected_msg,
+                self.log_fixture.output
+            )
+
+    def test_hot_translate_etsi_nfv_scaling_non_target_vdu_in_aspect_delta(
+            self):
+        aspect_name = 'worker_instance'
+        vdu_name = None
+        delta_name = None
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_scaling_non_target_vdu_in_aspect_delta.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_target_vdu_in_aspect_delta/'
+            'hot_nfv_scaling_non_target_vdu_in_aspect_delta.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_target_vdu_in_aspect_delta/'
+            'worker_instance.hot.yaml',
+        ]
+        expected_msgs = (
+            'Can not create %s node '
+            'because target vdu does not defined.'
+            % aspect_name,
+            'No ScalingAspectDelta for %s of %s, %s is '
+            'found' % (vdu_name, aspect_name, delta_name)
+        )
+        self._test_successful_translation(tosca_file, hot_files, params={})
+        for expected_msg in expected_msgs:
+            self.assertIn(
+                expected_msg,
+                self.log_fixture.output
+            )
+
+    def test_hot_translate_etsi_nfv_scaling_non_deltas_in_aspect_delta(self):
+        aspect_name = 'worker_instance'
+        vdu_name = 'VDU1'
+        delta_name = 'delta_2'
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_scaling_non_deltas_in_aspect_delta.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_deltas_in_aspect_delta/'
+            'hot_nfv_scaling_non_deltas_in_aspect_delta.yaml',
+            '../tests/data/hot_output/etsi_nfv/'
+            'scaling_non_deltas_in_aspect_delta/'
+            'worker_instance.hot.yaml',
+        ]
+        expected_msgs = (
+            'No ScalingAspectDelta for %s of %s, %s is '
+            'found' % (vdu_name, aspect_name, delta_name)
+        )
+        self._test_successful_translation(tosca_file, hot_files, params={})
+        for expected_msg in expected_msgs:
+            self.assertIn(
+                expected_msg,
+                self.log_fixture.output
+            )

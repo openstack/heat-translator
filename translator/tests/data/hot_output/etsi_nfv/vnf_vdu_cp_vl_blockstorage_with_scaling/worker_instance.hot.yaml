@@ -1,0 +1,27 @@
+heat_template_version: 2013-05-23
+description: Scaling template
+parameters:
+  vl1_id:
+    type: string
+  vdu1_flavor_id:
+    type: string
+resources:
+  CP1:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: vl1_id }
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_param: vdu1_flavor_id }
+      name: VDU1
+      image: #ADD_YOUR_IMAGE_HERE
+      networks:
+      - port: { get_resource: CP1 }
+      block_device_mapping_v2:
+      - volume_id: { get_resource: VirtualStorage }
+  VirtualStorage:
+    type: OS::Cinder::Volume
+    properties:
+      size: 30
+      image: #ADD_YOUR_IMAGE_HERE
