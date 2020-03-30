@@ -48,4 +48,4 @@ class TranslateNodeTemplatesTest(TestCase):
         ]
         actual_type_list = list(_generate_type_map())
 
-        self.assertItemsEqual(expected_type_list, actual_type_list)
+        self.assertCountEqual(expected_type_list, actual_type_list)
