@@ -349,3 +349,34 @@ class ToscaTemplateInputValidationTest(TestCase):
                                              ('default', '18.0.1')])}]
         self._translate_input_test(tpl_snippet, input_params, expectedmessage,
                                    expected_hot_params)
+
+    def test_valid_input_vnfm_info(self):
+        tpl_snippet = '''
+        inputs:
+          vnfm_info:
+            type: list
+            entry_schema:
+              type: string
+              constraints: [ valid_values: [ Tacker ] ]
+              default: [ Tacker ]
+        '''
+
+        input_params = {'vnfm_info': ['Tacker']}
+        expected_msg = _("vnfm_info type should be list")
+        self._translate_input_test(tpl_snippet, input_params, expected_msg)
+
+    def test_invalid_input_vnfm_info(self):
+        tpl_snippet = '''
+        inputs:
+          vnfm_info:
+            type: list
+            entry_schema:
+              type: string
+              constraints: [ valid_values: [ Tacker ] ]
+              default: [ Tacker ]
+        '''
+        parameter = 'Tacker'
+        input_params = {'vnfm_info': parameter}
+        expected_msg = _('"%s" is not a list.')
+        self._translate_input_test(tpl_snippet, input_params,
+                                   expected_msg % parameter)
