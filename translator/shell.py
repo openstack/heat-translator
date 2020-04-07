@@ -225,10 +225,9 @@ class TranslatorShell(object):
         files = {}
         if get_files:
             for file in get_files:
-                with codecs.open(file, encoding='utf-8', errors='strict') \
-                    as f:
-                        text = f.read()
-                        files[file] = text
+                with codecs.open(file, encoding='utf-8', errors='strict') as f:
+                    text = f.read()
+                    files[file] = text
         tpl['heat_template_version'] = str(tpl['heat_template_version'])
         self._create_stack(heat_client=heat_client,
                            stack_name=heat_stack_name,
@@ -255,7 +254,7 @@ class TranslatorShell(object):
             # Validate the parameter has both a name and value
             msg = _("'%(param)s' is not a well-formed parameter.") % {
                 'param': param}
-            if keyvalue.__len__() is 2:
+            if keyvalue.__len__() == 2:
                 # Assure parameter name is not zero-length or whitespace
                 stripped_name = keyvalue[0].strip()
                 if not stripped_name:

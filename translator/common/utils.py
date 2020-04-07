@@ -57,7 +57,7 @@ class MemoryUnit(object):
             unit = MemoryUnit.UNIT_SIZE_DEFAULT
             log.info(_('A memory unit is not provided for size; using the '
                        'default unit %(default)s.') % {'default': 'B'})
-        regex = re.compile('(\d*)\s*(\w*)')
+        regex = re.compile(r'(\d*)\s*(\w*)')
         result = regex.match(str(size)).groups()
         if result[1]:
             unit_size = MemoryUnit.validate_unit(result[1])

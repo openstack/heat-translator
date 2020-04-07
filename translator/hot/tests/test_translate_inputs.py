@@ -209,7 +209,7 @@ class ToscaTemplateInputValidationTest(TestCase):
             type: string
             description: Name of the user.
             constraints:
-              - pattern: '^\w+$'
+              - pattern: '^\\w+$'
         '''
 
         input_params = {'user_name': '1-abc'}
