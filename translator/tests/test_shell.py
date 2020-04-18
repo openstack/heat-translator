@@ -12,10 +12,10 @@
 
 
 import json
-import mock
 import os
 import shutil
 import tempfile
+from unittest import mock
 
 from toscaparser.common import exception
 from toscaparser.utils.gettextutils import _

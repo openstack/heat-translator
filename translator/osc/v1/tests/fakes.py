@@ -11,8 +11,7 @@
 #   under the License.
 
 import sys
-
-import mock
+from unittest import mock
 
 
 class FakeApp(object):

@@ -10,8 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
 import os
+from unittest import mock
 
 from translator.conf.config import ConfigProvider as translatorConfig
 from translator.tests.base import TestCase
