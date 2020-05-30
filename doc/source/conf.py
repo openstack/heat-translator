@@ -37,6 +37,10 @@ master_doc = 'index'
 # General information about the project.
 copyright = u'2013, OpenStack Foundation'
 
+# openstackdocstheme options
+openstackdocs_repo_name = 'openstack/heat-translator'
+openstackdocs_use_storyboard = True
+
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
@@ -45,7 +49,7 @@ add_function_parentheses = True
 add_module_names = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # -- Options for HTML output --------------------------------------------------
 html_theme = 'openstackdocs'
