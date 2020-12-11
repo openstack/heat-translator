@@ -12,9 +12,8 @@
 # under the License.
 
 ''' Provide a global configuration for the TOSCA translator'''
+import configparser
 import os
-
-from six.moves import configparser
 
 from toscaparser.utils.gettextutils import _
 import translator.common.exception as exception

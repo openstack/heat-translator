@@ -16,7 +16,6 @@ import codecs
 import logging
 import logging.config
 import os
-import six
 import sys
 import uuid
 import yaml
@@ -289,7 +288,7 @@ class TranslatorShell(object):
         if output_file:
             path, filename = os.path.split(output_file)
             yaml_files = translator.translate_to_yaml_files_dict(filename)
-            for name, content in six.iteritems(yaml_files):
+            for name, content in yaml_files.items():
                 with open(os.path.join(path, name), 'w+') as f:
                     f.write(content)
         else:

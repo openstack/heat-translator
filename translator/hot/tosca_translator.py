@@ -1,4 +1,3 @@
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,7 +11,7 @@
 # under the License.
 
 import logging
-import six
+
 from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_template import HotTemplate
 from translator.hot.translate_inputs import TranslateInputs
@@ -64,7 +63,7 @@ class TOSCATranslator(object):
         yaml_files = self.hot_template.output_to_yaml_files_dict(
             "output.yaml",
             self.node_translator.hot_template_version)
-        for name, content in six.iteritems(yaml_files):
+        for name, content in yaml_files.items():
             if name != "output.yaml":
                 with open(name, 'w+') as f:
                     f.write(content)

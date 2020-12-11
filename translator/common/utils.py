@@ -18,9 +18,8 @@ import numbers
 import os
 import re
 import requests
-import six
-from six.moves.urllib.parse import urlparse
 import tempfile
+from urllib.parse import urlparse
 import yaml
 import zipfile
 
@@ -278,7 +277,7 @@ class UrlUtils(object):
 def str_to_num(value):
     """Convert a string representation of a number into a numeric type."""
     if isinstance(value, numbers.Number) \
-            or isinstance(value, six.integer_types) \
+            or isinstance(value, int) \
             or isinstance(value, float):
         return value
     try:

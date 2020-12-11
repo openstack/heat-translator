@@ -1,4 +1,3 @@
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,11 +11,9 @@
 # under the License.
 
 from collections import OrderedDict
-import yaml
-
 import logging
 import os
-import six
+import yaml
 
 from toscaparser.elements.interfaces import InterfacesDef
 from toscaparser.functions import GetInput
@@ -402,17 +399,17 @@ class HotResource(object):
     def _get_lifecycle_inputs(self, operation):
         # check if this lifecycle operation has input values specified
         # extract and convert to HOT format
-        if isinstance(operation.value, six.string_types):
+        if isinstance(operation.value, str):
             # the operation has a static string
             return {}
-        else:
-            # the operation is a dict {'implemenation': xxx, 'input': yyy}
-            inputs = operation.value.get('inputs')
-            deploy_inputs = {}
-            if inputs:
-                for name, value in inputs.items():
-                    deploy_inputs[name] = value
-            return deploy_inputs
+
+        # the operation is a dict {'implemenation': xxx, 'input': yyy}
+        inputs = operation.value.get('inputs')
+        deploy_inputs = {}
+        if inputs:
+            for name, value in inputs.items():
+                deploy_inputs[name] = value
+        return deploy_inputs
 
     def _get_connect_inputs(self, config_location, operation):
         if config_location == 'target':
@@ -588,19 +585,18 @@ class HotResource(object):
 
     @staticmethod
     def get_base_type_str(node_type):
-        if isinstance(node_type, six.string_types):
+        if isinstance(node_type, str):
             return node_type
         if node_type.parent_type is not None:
             parent_type_str = None
-            if isinstance(node_type.parent_type, six.string_types):
+            if isinstance(node_type.parent_type, str):
                 parent_type_str = node_type.parent_type
             else:
                 parent_type_str = node_type.parent_type.type
 
             if parent_type_str and parent_type_str.endswith('.Root'):
                 return node_type.type
-            else:
-                return HotResource.get_base_type_str(node_type.parent_type)
+            return HotResource.get_base_type_str(node_type.parent_type)
 
         return node_type.type
 

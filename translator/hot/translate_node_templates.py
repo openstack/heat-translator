@@ -15,7 +15,6 @@ import copy
 import importlib
 import logging
 import os
-import six
 
 from collections import OrderedDict
 from toscaparser.functions import Concat
@@ -140,7 +139,7 @@ log = logging.getLogger('heat-translator')
 
 TOSCA_TO_HOT_TYPE = _generate_type_map()
 
-BASE_TYPES = six.string_types + six.integer_types + (dict, OrderedDict)
+BASE_TYPES = (str, int, dict, OrderedDict)
 
 BASE_POLICY_TYPES = [
     'tosca.policies.Scaling',
@@ -326,7 +325,7 @@ class TranslateNodeTemplates(object):
                     else:
                         target = details
                     if (target and relation and
-                            not isinstance(relation, six.string_types)):
+                            not isinstance(relation, str)):
                         interfaces = relation.get('interfaces')
                         connectsto_resources += \
                             self._create_connect_configs(node,

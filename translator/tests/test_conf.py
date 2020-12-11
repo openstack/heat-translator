@@ -36,7 +36,7 @@ def reload_config(func):
 class ConfTest(TestCase):
 
     @reload_config
-    @mock.patch('six.moves.configparser.ConfigParser')
+    @mock.patch('configparser.ConfigParser')
     def test_load_config(self, mock_config_parser):
         translatorConfig._translator_config.read = mock.MagicMock()
         translatorConfig._load_config('fake_file.conf')
