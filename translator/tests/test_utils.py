@@ -48,8 +48,7 @@ class CommonUtilsTest(TestCase):
         try:
             self.MemoryUnit.validate_unit(unit)
         except Exception as err:
-            self.assertTrue(
-                isinstance(err, ValueError))
+            self.assertIsInstance(err, ValueError)
             self.assertEqual(exp_msg, err.__str__())
 
     def test_unit_size_conversion_to_GNU_standard(self):
