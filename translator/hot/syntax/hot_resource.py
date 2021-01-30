@@ -479,7 +479,7 @@ class HotResource(object):
             node_key = dumper.represent_data(key)
             node_value = dumper.represent_data(value)
             nodes.append((node_key, node_value))
-        return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
+        return yaml.nodes.MappingNode('tag:yaml.org,2002:map', nodes)
 
     def _handle_nested_template(self, scale_res, yaml_name,
                                 hot_template_parameters,

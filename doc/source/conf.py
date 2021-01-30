@@ -35,7 +35,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2013, OpenStack Foundation'
+copyright = '2013, OpenStack Foundation'
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'openstack/heat-translator'
@@ -63,8 +63,8 @@ htmlhelp_basename = 'heat-translatordoc'
 latex_documents = [
     ('index',
      'heat-translator.tex',
-     u'heat-translator Documentation',
-     u'OpenStack Foundation', 'manual'),
+     'heat-translator Documentation',
+     'OpenStack Foundation', 'manual'),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.

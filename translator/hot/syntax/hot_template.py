@@ -43,7 +43,7 @@ class HotTemplate(object):
             node_key = dumper.represent_data(key)
             node_value = dumper.represent_data(value)
             nodes.append((node_key, node_value))
-        return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', nodes)
+        return yaml.nodes.MappingNode('tag:yaml.org,2002:map', nodes)
 
     def output_to_yaml_files_dict(self, base_filename,
                                   hot_template_version=LATEST):
