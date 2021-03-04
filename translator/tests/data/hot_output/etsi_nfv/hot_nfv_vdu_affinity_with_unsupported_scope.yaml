@@ -1,0 +1,80 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Template for deploying six VDUs with unsupported scope type.
+
+parameters: {}
+resources:
+  VDU1:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU1_flavor }
+      name: VDU1
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU2:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU2_flavor }
+      name: VDU2
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU3:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU3_flavor }
+      name: VDU3
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU4:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU4_flavor }
+      name: VDU4
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU5:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU5_flavor }
+      name: VDU5
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU6:
+    type: OS::Nova::Server
+    properties:
+      flavor: { get_resource: VDU6_flavor }
+      name: VDU6
+      image: #ADD_YOUR_IMAGE_HERE
+  VDU1_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VDU2_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VDU3_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VDU4_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VDU5_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+  VDU6_flavor:
+    type: OS::Nova::Flavor
+    properties:
+      ram: 512
+      vcpus: 1
+      disk: 1
+outputs: {}
