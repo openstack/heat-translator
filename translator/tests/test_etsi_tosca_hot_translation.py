@@ -331,3 +331,30 @@ class EtsiToscaHotTranslationTest(TestCase):
                 expected_msg,
                 self.log_fixture.output
             )
+
+    def test_hot_translate_etsi_nfv_vdu_with_scope_nfvi(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vdu_affinity_with_scope_nfvi.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_vdu_affinity_with_scope_nfvi.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vdu_with_unsupported_scope(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vdu_affinity_with_unsupported_scope.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_vdu_affinity_with_unsupported_scope.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
+
+    def test_hot_translate_etsi_nfv_vdu_with_unsupported_targets(self):
+        tosca_file = '../tests/data/etsi_nfv/' \
+            'tosca_nfv_vdu_affinity_with_unsupported_targets.yaml'
+        hot_files = [
+            '../tests/data/hot_output/etsi_nfv/'
+            'hot_nfv_vdu_affinity_with_unsupported_targets.yaml',
+        ]
+        self._test_successful_translation(tosca_file, hot_files, params={})
