@@ -5,6 +5,8 @@ description: >
 
 imports:
   - ../custom_types/senlin_cluster_policies.yaml
+  - ../nfv/tacker_defs.yaml
+  - ../nfv/tacker_nfv_defs.yaml
 
 topology_template:
   node_templates:
@@ -38,7 +40,13 @@ topology_template:
     - cluster_scaling:
         type: tosca.policies.Scaling.Cluster
         description: Cluster node autoscaling
-        targets: [my_server_1]
+        properties:
+          targets: [my_server_1]
+          min_instances: 2
+          max_instances: 10
+          default_instances: 3
+          increment: 1
+          cooldown: 60
         triggers:
           scale_out:
             description: trigger
@@ -57,8 +65,3 @@ topology_template:
               scale_out:
                 type: SCALE_OUT
                 implementation: Senlin.webhook
-        properties:
-          min_instances: 2
-          max_instances: 10
-          default_instances: 3
-          increment: 1

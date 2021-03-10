@@ -72,23 +72,23 @@ class ToscaAutoscaling(HotResource):
         delete_res_names = []
         scale_res = []
         for index, resource in enumerate(resources):
-            if resource.name in self.policy.targets and \
-                resource.type != 'OS::Heat::AutoScalingGroup':
+            if resource.type != 'OS::Heat::AutoScalingGroup':
                 temp = self.policy.entity_tpl["properties"]
-                props = {}
-                res = {}
-                res["min_size"] = temp["min_instances"]
-                res["max_size"] = temp["max_instances"]
-                res["desired_capacity"] = temp["default_instances"]
-                res["cooldown"] = temp["cooldown"]
-                props['type'] = resource.type
-                props['properties'] = resource.properties
-                res['resource'] = {'type': self.policy.name + '_res.yaml'}
-                scaling_resources = \
-                    HotResource(resource,
-                                type='OS::Heat::AutoScalingGroup',
-                                name=self.policy.name + '_group',
-                                properties=res)
+                if resource.name in temp.get("targets"):
+                    props = {}
+                    res = {}
+                    res["min_size"] = temp["min_instances"]
+                    res["max_size"] = temp["max_instances"]
+                    res["desired_capacity"] = temp["default_instances"]
+                    res["cooldown"] = temp["cooldown"]
+                    props['type'] = resource.type
+                    props['properties'] = resource.properties
+                    res['resource'] = {'type': self.policy.name + '_res.yaml'}
+                    scaling_resources = \
+                        HotResource(resource,
+                                    type='OS::Heat::AutoScalingGroup',
+                                    name=self.policy.name + '_group',
+                                    properties=res)
 
             if resource.type not in SCALING_RESOURCES:
                 delete_res_names.append(resource.name)

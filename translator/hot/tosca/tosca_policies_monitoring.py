@@ -28,6 +28,12 @@ ALARM_STATISTIC = {'mean': 'mean', 'median': 'median', 'summary': 'sum',
 class ToscaMonitoring(HotResource):
     '''Translate TOSCA node type tosca.policies.Monitoring'''
 
+    # NOTE: This file implements extended conversion logic other than
+    # the section defined at 'tosca.policies.Monitoring' in
+    # TOSCA_definition_1_0.yaml. Therefore, it is necessary to define
+    # and use toscatype that inherits this toscatype with 'derived_from'.
+    # This is because validation fails due to an error that an undefined
+    # key exists when validating using tosca-parser.
     toscatype = 'tosca.policies.Monitoring'
 
     def __init__(self, policy, csar_dir=None):

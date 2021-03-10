@@ -66,7 +66,7 @@ class ToscaClusterAutoscaling(HotResource):
         hot_resources = []
         hot_type = 'OS::Aodh::GnocchiAggregationByResourcesAlarm'
         trigger_receivers = defaultdict(list)
-        for node in self.policy.targets:
+        for node in self.policy.properties['targets']:
             for trigger in self.policy.entity_tpl['triggers']:
                 for action in self.policy.\
                     entity_tpl['triggers'][trigger]['action']:
@@ -137,7 +137,7 @@ class ToscaClusterAutoscaling(HotResource):
                 remove_resources.append(resource)
             elif resource.type == 'OS::Neutron::Net':
                 remove_resources.append(resource)
-            elif resource.name in self.policy.targets and \
+            elif resource.name in self.policy.properties['targets'] and \
                 resource.type != 'OS::Senlin::Policy':
                 props = {}
                 del resource.properties['user_data_format']
@@ -155,11 +155,11 @@ class ToscaClusterAutoscaling(HotResource):
             resources.remove(remove_resource)
 
         for index, resource in enumerate(resources):
-            if resource.name in self.policy.targets:
+            if resource.name in self.policy.properties['targets']:
                 resource.properties['properties']['networks'] = \
                     networks[resource.name]
 
-        for node in self.policy.targets:
+        for node in self.policy.properties['targets']:
             props = {}
             props["profile"] = {'get_resource': '%s' % node}
             temp = self.policy.entity_tpl["properties"]
@@ -181,7 +181,7 @@ class ToscaClusterAutoscaling(HotResource):
                 entity_tpl['triggers'][trigger]['action']:
                 scale_type = self.policy.\
                     entity_tpl['triggers'][trigger]['action'][action]['type']
-            for node in self.policy.targets:
+            for node in self.policy.properties['targets']:
                 target_cluster_nodes.\
                     append({"get_resource": "%s_cluster" % node})
             cluster_scale_type = SCALE_TYPE[scale_type]

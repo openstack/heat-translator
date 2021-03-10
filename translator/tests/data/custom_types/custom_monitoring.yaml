@@ -1,0 +1,31 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+description: >
+  The TOSCA Policy Type definition that is used to expand
+      the monitoring policy.
+
+policy_types:
+  tosca.policies.Monitoring.Custom:
+    derived_from: tosca.policies.Monitoring
+    description: The TOSCA Policy Type definition that is used to expand
+      the monitoring policy.
+    triggers:
+      resize_compute:
+        event_type:
+          type: map
+          entry_schema:
+            type: string
+          required: true
+        metrics:
+          type: string
+          required: true
+        condition:
+          type: map
+          entry_schema:
+            type: string
+          required: false
+        action:
+          type: map
+          entry_schema:
+            type: string
+          required: true

@@ -3,6 +3,11 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 description: >
   Template for deploying servers based on policies.
 
+imports:
+  - ../custom_types/custom_monitoring.yaml
+  - ../nfv/tacker_defs.yaml
+  - ../nfv/tacker_nfv_defs.yaml
+
 topology_template:
   node_templates:
     my_server_1:
@@ -22,22 +27,27 @@ topology_template:
             version: 6.5
   policies:
     - asg:
-        type: tosca.policies.Scaling
+        type: tosca.policies.tacker.Scaling
         description: Simple node autoscaling
-        targets: [my_server_1]
-        triggers:
-          resize_compute:
-            description: trigger
-            condition:
-              constraint: utilization greater_than 50%
-              granularity: 60
-              evaluations: 1
-              aggregation_method: mean
-              resource_type: instance
-              comparison_operator: gt
         properties:
+          targets: [my_server_1]
           min_instances: 2
           max_instances: 10
           default_instances: 3
           increment: 1
           cooldown: 60
+
+    - cpu_monitoring:
+        type: tosca.policies.Monitoring.Custom
+        description: Simple node monitoring
+        triggers:
+          high_cpu_usage:
+            description: trigger
+            metric: cpu_util
+            condition:
+              constraint: utilization greater_than 60%
+              threshold: 60
+              granularity: 600
+              evaluations: 1
+              aggregation_method: mean
+              comparison_operator: gt
