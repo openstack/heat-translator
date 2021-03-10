@@ -4,8 +4,32 @@ description: >
   The TOSCA Policy Type definition that is used to govern
       Senlin Policy of TOSCA nodes or groups of nodes
 
+imports:
+  - ../nfv/tacker_defs.yaml
+  - ../nfv/tacker_nfv_defs.yaml
+
 policy_types:
   tosca.policies.Scaling.Cluster:
-    derived_from: tosca.policies.Scaling
+    derived_from: tosca.policies.tacker.Scaling
     description: The TOSCA Policy Type definition that is used to govern
       scaling of TOSCA nodes or groups of nodes.
+    triggers:
+      resize_compute:
+        event_type:
+          type: map
+          entry_schema:
+            type: string
+          required: true
+        metrics:
+          type: string
+          required: true
+        condition:
+          type: map
+          entry_schema:
+            type: string
+          required: false
+        action:
+          type: map
+          entry_schema:
+            type: string
+          required: true

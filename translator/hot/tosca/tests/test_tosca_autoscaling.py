@@ -37,8 +37,8 @@ class AutoscalingTest(TestCase):
         policy_name = list(policies[0].keys())[0]
         for policy in policies:
             tpl = policy[policy_name]
-            targets = tpl["targets"]
             properties = tpl["properties"]
+            targets = properties["targets"]
         try:
             nodetemplate = NodeTemplate(name, nodetemplates)
             toscacompute = ToscaCompute(nodetemplate)
@@ -82,7 +82,6 @@ class AutoscalingTest(TestCase):
           - asg:
               type: tosca.policies.Scaling
               description: Simple node autoscaling
-              targets: [my_server_1]
               triggers:
                 resize_compute:
                   description: trigger
@@ -94,6 +93,7 @@ class AutoscalingTest(TestCase):
                     resource_type: instance
                     comparison_operator: gt
               properties:
+                targets: [my_server_1]
                 min_instances: 2
                 max_instances: 10
                 default_instances: 3
@@ -126,8 +126,8 @@ class AutoscalingTest(TestCase):
         policies:
           - SP1:
               type: tosca.policies.Scaling
-              targets: [VDU1]
               properties:
+                targets: [VDU1]
                 increment: 1
                 cooldown: 120
                 min_instances: 1

@@ -30,14 +30,15 @@ resources:
       adjustment_type: change_in_capacity
       scaling_adjustment: -1
       cooldown: 60
-  asg_alarm:
+  high_cpu_usage:
     type: OS::Aodh::GnocchiAggregationByResourcesAlarm
     properties:
       metric: cpu_util
-      description: Simple node autoscaling
-      granularity: 60
+      description: utilization greater_than 60%
+      evaluation_periods: 1
+      granularity: 600
       aggregation_method: mean
-      threshold: 1
+      threshold: 60
       resource_type: instance
       comparison_operator: gt
 outputs: {}
