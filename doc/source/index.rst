@@ -22,6 +22,16 @@ Contents:
    usage
    contributing
 
+For Contributors
+================
+
+* If you are a new contributor to heat-translator please refer: :doc:`contributor/contributing`
+
+  .. toctree::
+     :hidden:
+
+     contributor/contributing
+
 Indices and tables
 ------------------
 
