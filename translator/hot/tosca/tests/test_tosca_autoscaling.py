@@ -43,15 +43,14 @@ class AutoscalingTest(TestCase):
             nodetemplate = NodeTemplate(name, nodetemplates)
             toscacompute = ToscaCompute(nodetemplate)
             toscacompute.handle_properties()
-            policy = Policy(policy_name, tpl, targets,
-                            properties, "node_templates")
+            policy = Policy(policy_name, tpl, targets, properties, {})
             toscascaling = ToscaAutoscaling(
                 policy, hot_template_parameters=hot_template_parameters)
             parameters = toscascaling.handle_properties([toscacompute])
             if hot_template_parameters:
                 substack_template = toscascaling.extract_substack_templates(
                     "output.yaml", HOT_TEMPLATE_VERSION)
-                actual_nested_resource = yaml.load(
+                actual_nested_resource = yaml.safe_load(
                     substack_template['SP1_res.yaml'])
                 self.assertEqual(expectedprops,
                                  actual_nested_resource)
@@ -135,50 +134,32 @@ class AutoscalingTest(TestCase):
                 default_instances: 1
             '''
 
-        expected_nested_resource = {'heat_template_version':
-                                    datetime.date(2013, 5, 23),
-                                    'description':
-                                        'Scaling template',
-                                    'parameters':
-                                        {'flavor':
-                                         {'default': 'm1.tiny',
-                                          'type': 'string',
-                                          'description':
-                                              'Flavor Information'
-                                          },
-                                         'image_name':
-                                             {'default':
-                                              'cirros-0.3.5-x86_64-disk',
-                                              'type': 'string',
-                                              'description': 'Image Name'
-                                              }
-                                         },
-                                    'resources':
-                                        {'VDU1':
-                                             {'type':
-                                              'OS::Nova::Server',
-                                              'properties':
-                                                  {'flavor': None,
-                                                   'user_data_format':
-                                                       'SOFTWARE_CONFIG'
-                                                   }
-                                              }
-                                         }
-                                    }
+        expected = {
+            'heat_template_version': datetime.date(2013, 5, 23),
+            'description': 'Scaling template',
+            'parameters': {
+                'flavor': {
+                    'default': 'm1.tiny',
+                    'type': 'string',
+                    'description': 'Flavor Information'},
+                'image_name': {
+                    'default': 'cirros-0.3.5-x86_64-disk',
+                    'type': 'string',
+                    'description': 'Image Name'}},
+            'resources': {
+                'VDU1': {
+                    'type': 'OS::Nova::Server',
+                    'properties': {
+                        'flavor': None,
+                        'user_data_format': 'SOFTWARE_CONFIG'}}}}
 
-        flavor = HotParameter('flavor', 'string',
-                              label=None,
+        flavor = HotParameter('flavor', 'string', label=None,
                               description='Flavor Information',
                               default='m1.tiny',
-                              hidden=None,
-                              constraints=[])
-        image = HotParameter('image_name', 'string',
-                             label=None,
+                              hidden=None, constraints=[])
+        image = HotParameter('image_name', 'string', label=None,
                              description='Image Name',
                              default='cirros-0.3.5-x86_64-disk',
-                             hidden=None,
-                             constraints=[])
-        hot_template_parameters = [flavor, image]
-        self._tosca_scaling_test(tpl_snippet,
-                                 expected_nested_resource,
-                                 hot_template_parameters)
+                             hidden=None, constraints=[])
+        hot_tpl_params = [flavor, image]
+        self._tosca_scaling_test(tpl_snippet, expected, hot_tpl_params)

@@ -7,7 +7,6 @@ cmd2==0.8.0
 coverage==4.0
 cryptography==2.7
 debtcollector==1.2.0
-decorator==3.4.0
 deprecation==1.0
 docutils==0.11
 dogpile.cache==0.6.2
@@ -53,7 +52,6 @@ python-mimeparse==1.6.0
 python-novaclient==9.1.0
 python-subunit==1.0.0
 python-swiftclient==3.2.0
-pytz==2013.6
 PyYAML==3.13
 requests==2.18.0
 requestsexceptions==1.2.0
