@@ -10,11 +10,11 @@
             voting: false
 
 - job:
-    name: heat-translator-tox-py37-tp
-    parent: openstack-tox-py37
+    name: heat-translator-tox-py310-tp
+    parent: openstack-tox-py310
     description: |
       Run tests for heat-translator project.
 
-      Uses tox with the ``py37-tp`` environment.
+      Uses tox with the ``py310-tp`` environment.
     vars:
-      tox_envlist: py37-tp
+      tox_envlist: py310-tp
