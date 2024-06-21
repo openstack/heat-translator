@@ -10,19 +10,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 from toscaparser.tests.base import TestCase
 from toscaparser.tosca_template import ToscaTemplate
 import toscaparser.utils.yamlparser
 from translator.hot.tosca_translator import TOSCATranslator
+from translator.tests import utils
 
 
 class ToscaTemplateOutputTest(TestCase):
 
     def test_translate_output(self):
-        tosca_tpl = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "../../tests/data/"
+        tosca_tpl = utils.test_sample(
             "tosca_nodejs_mongodb_two_instances.yaml")
         tosca = ToscaTemplate(tosca_tpl)
         translate = TOSCATranslator(tosca, [])

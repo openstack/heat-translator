@@ -13,7 +13,20 @@
 import os
 
 
-def get_template_path(path):
-    data_folder = "../../../tests/data/"
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        data_folder + path)
+def sample_root():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                        '../../samples/'))
+
+
+def test_sample_root():
+    # {heat-translator}/samples/tests
+    return os.path.join(sample_root(), 'tests/')
+
+
+def test_sample_data_root():
+    # {heat-translator}/samples/tests/data
+    return os.path.join(test_sample_root(), 'data/')
+
+
+def test_sample(*p):
+    return os.path.join(test_sample_data_root(), *p)
