@@ -14,7 +14,7 @@
 import logging
 
 try:
-    import glanceclient.client
+    import openstack
     client_available = True
 except ImportError:
     client_available = False
@@ -80,13 +80,13 @@ def get_images():
 
     if SESSION is not None and client_available:
         try:
-            client = glanceclient.client.Client("2", session=SESSION)
+            client = openstack.connection.Connection(session=SESSION)
         except Exception as e:
             # Handles any exception coming from openstack
             log.warn(_('Choosing predefined images since received '
                        'Openstack Exception: %s') % str(e))
         else:
-            for image in client.images.list():
+            for image in client.image.images():
                 image_id = image.id.encode('ascii', 'ignore')
                 metadata = ["architecture", "type", "distribution", "version",
                             "os_distro", "os_type", "os_version"]
