@@ -21,12 +21,11 @@ from toscaparser.common import exception
 from toscaparser.utils.gettextutils import _
 import translator.shell as shell
 from translator.tests.base import TestCase
+from translator.tests import utils
 
 
 class ShellTest(TestCase):
-    tosca_helloworld = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "data/tosca_helloworld.yaml")
+    tosca_helloworld = utils.test_sample("tosca_helloworld.yaml")
     template_file = '--template-file=' + tosca_helloworld
     template_type = '--template-type=tosca'
     template_validation = "--validate-only"
@@ -58,9 +57,8 @@ class ShellTest(TestCase):
             self.fail(self.failure_msg)
 
     def test_valid_template_with_parameters(self):
-        tosca_single_instance_wordpress = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/tosca_single_instance_wordpress.yaml")
+        tosca_single_instance_wordpress = utils.test_sample(
+            "tosca_single_instance_wordpress.yaml")
         parameters = '--parameters="cpus=2;db_name=wpdb;db_user=test;'\
                      'db_port=2000;db_root_pwd=fun2test;db_pwd=fun2test"'
         template = '--template-file=' + tosca_single_instance_wordpress
@@ -76,9 +74,7 @@ class ShellTest(TestCase):
         except Exception:
             self.fail(self.failure_msg)
 
-        template = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "data/tosca_helloworld_invalid.yaml")
+        template = utils.test_sample("tosca_helloworld_invalid.yaml")
         invalid_template = '--template-file=' + template
         self.assertRaises(exception.ValidationError, shell.main,
                           [invalid_template, self.template_type,

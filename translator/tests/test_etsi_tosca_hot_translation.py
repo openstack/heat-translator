@@ -21,6 +21,8 @@ from translator.tests.base import TestCase
 
 class EtsiToscaHotTranslationTest(TestCase):
 
+    test_data_relative_path = "../../samples/tests/data/"
+
     def _test_successful_translation(self, tosca_file, hot_files, params=None):
         if not params:
             params = {}
@@ -45,38 +47,38 @@ class EtsiToscaHotTranslationTest(TestCase):
         ExceptionCollector.assertExceptionMessage(error_collect, msg)
 
     def test_hot_translate_etsi_nfv_vnf(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vnf.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vnf.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
-            'hot_nfv_vnf.yaml',
+            f'{self.test_data_relative_path}hot_output/'
+            'etsi_nfv/hot_nfv_vnf.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
-            'hot_nfv_vdu.yaml',
+            f'{self.test_data_relative_path}hot_output/'
+            'etsi_nfv/hot_nfv_vdu.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu_with_compute_requirements(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_with_compute_requirements.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_with_compute_requirements.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_with_compute_requirements.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu_with_invalid_compute_requirements(
             self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_with_invalid_compute_requirements.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_with_invalid_compute_requirements.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_with_invalid_compute_requirements.yaml',
         ]
         expected_msg = _('Unsupported format of '
@@ -89,19 +91,19 @@ class EtsiToscaHotTranslationTest(TestCase):
         )
 
     def test_hot_translate_etsi_nfv_vdu_with_logical_node(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_with_logical_node.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_with_logical_node.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_with_logical_node.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu_with_unsupported_storage(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_with_unsupported_storage.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_with_unsupported_storage.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_with_unsupported_storage.yaml',
         ]
         expected_msg = _('Unsupported virtual_storage, '
@@ -114,46 +116,46 @@ class EtsiToscaHotTranslationTest(TestCase):
         )
 
     def test_hot_translate_etsi_nfv_cp(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_cp.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_cp.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_cp.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_cp_with_extended_vnic_type(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_cp_with_extended_vnic_type.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_cp_with_extended_vnic_type.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_cp_with_extended_vnic_type.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_check_cp_order(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_check_cp_order.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_check_cp_order.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_check_cp_order.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vl(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vl.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vl.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vl.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vl_with_unsupported_protocol(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vl_with_unsupported_protocol.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vl_with_unsupported_protocol.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vl_with_unsupported_protocol.yaml',
         ]
         expected_msgs = (
@@ -175,10 +177,10 @@ class EtsiToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_etsi_nfv_non_leaf_in_vl(self):
         vl_name = 'VL1'
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_non_leaf_in_vl.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_non_leaf_in_vl.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_non_leaf_in_vl.yaml',
         ]
         expected_msgs = (
@@ -193,23 +195,23 @@ class EtsiToscaHotTranslationTest(TestCase):
             )
 
     def test_hot_translate_etsi_nfv_blockstorage(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_blockstorage.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_blockstorage.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_blockstorage.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling(
             self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vnf_vdu_cp_vl_blockstorage_with_scaling/'
             'hot_nfv_vnf_vdu_cp_vl_blockstorage_with_scaling.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vnf_vdu_cp_vl_blockstorage_with_scaling/'
             'worker_instance.hot.yaml',
         ]
@@ -217,13 +219,13 @@ class EtsiToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_etsi_nfv_vdu_cp_vl_with_mixed_scaling(
             self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_cp_vl_with_mixed_scaling.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_cp_vl_with_mixed_scaling.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vdu_cp_vl_with_mixed_scaling/'
             'hot_nfv_vdu_cp_vl_with_mixed_scaling.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vdu_cp_vl_with_mixed_scaling/'
             'worker_instance.hot.yaml',
         ]
@@ -231,16 +233,16 @@ class EtsiToscaHotTranslationTest(TestCase):
 
     def test_hot_translate_etsi_nfv_vdu_cp_with_scaling_multi_aspects(
             self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_cp_with_scaling_multi_aspects.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_cp_with_scaling_multi_aspects.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vdu_cp_with_scaling_multi_aspects/'
             'hot_nfv_vdu_cp_with_scaling_multi_aspects.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vdu_cp_with_scaling_multi_aspects/'
             'worker_instance1.hot.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'vdu_cp_with_scaling_multi_aspects/'
             'worker_instance2.hot.yaml',
         ]
@@ -250,13 +252,13 @@ class EtsiToscaHotTranslationTest(TestCase):
             self):
         aspect_name = 'worker_instance'
         vdu_name = 'VDU1'
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_scaling_non_target_vdu_in_initial_delta.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_scaling_non_target_vdu_in_initial_delta.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'scaling_non_target_vdu_in_initial_delta/'
             'hot_nfv_scaling_non_target_vdu_in_initial_delta.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'scaling_non_target_vdu_in_initial_delta/'
             'worker_instance.hot.yaml',
         ]
@@ -283,15 +285,14 @@ class EtsiToscaHotTranslationTest(TestCase):
         aspect_name = 'worker_instance'
         vdu_name = None
         delta_name = None
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_scaling_non_target_vdu_in_aspect_delta.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_scaling_non_target_vdu_in_aspect_delta.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'scaling_non_target_vdu_in_aspect_delta/'
             'hot_nfv_scaling_non_target_vdu_in_aspect_delta.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
-            'scaling_non_target_vdu_in_aspect_delta/'
-            'worker_instance.hot.yaml',
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
+            'scaling_non_target_vdu_in_aspect_delta/worker_instance.hot.yaml',
         ]
         expected_msgs = (
             'Can not create %s node '
@@ -311,13 +312,13 @@ class EtsiToscaHotTranslationTest(TestCase):
         aspect_name = 'worker_instance'
         vdu_name = 'VDU1'
         delta_name = 'delta_2'
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_scaling_non_deltas_in_aspect_delta.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_scaling_non_deltas_in_aspect_delta.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'scaling_non_deltas_in_aspect_delta/'
             'hot_nfv_scaling_non_deltas_in_aspect_delta.yaml',
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'scaling_non_deltas_in_aspect_delta/'
             'worker_instance.hot.yaml',
         ]
@@ -333,28 +334,28 @@ class EtsiToscaHotTranslationTest(TestCase):
             )
 
     def test_hot_translate_etsi_nfv_vdu_with_scope_nfvi(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_affinity_with_scope_nfvi.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_affinity_with_scope_nfvi.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_affinity_with_scope_nfvi.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu_with_unsupported_scope(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_affinity_with_unsupported_scope.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_affinity_with_unsupported_scope.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_affinity_with_unsupported_scope.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})
 
     def test_hot_translate_etsi_nfv_vdu_with_unsupported_targets(self):
-        tosca_file = '../tests/data/etsi_nfv/' \
-            'tosca_nfv_vdu_affinity_with_unsupported_targets.yaml'
+        tosca_file = (f'{self.test_data_relative_path}etsi_nfv/'
+                      'tosca_nfv_vdu_affinity_with_unsupported_targets.yaml')
         hot_files = [
-            '../tests/data/hot_output/etsi_nfv/'
+            f'{self.test_data_relative_path}hot_output/etsi_nfv/'
             'hot_nfv_vdu_affinity_with_unsupported_targets.yaml',
         ]
         self._test_successful_translation(tosca_file, hot_files, params={})

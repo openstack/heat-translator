@@ -10,9 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 from toscaparser.tosca_template import ToscaTemplate
 from translator.tests.base import TestCase
+from translator.tests import utils
 
 
 class ToscaMongoNodejsTest(TestCase):
@@ -21,9 +21,7 @@ class ToscaMongoNodejsTest(TestCase):
                      'storage_size': '1'}
 
     '''TOSCA template with nodejs, app and mongodb on 2 servers.'''
-    tosca_tpl = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "../tests/data/tosca_nodejs_mongodb_two_instances.yaml")
+    tosca_tpl = utils.test_sample('tosca_nodejs_mongodb_two_instances.yaml')
     tosca = ToscaTemplate(tosca_tpl, parsed_params)
 
     def test_relationship_def(self):

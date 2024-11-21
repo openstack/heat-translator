@@ -10,9 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
 from toscaparser.tests.base import TestCase
 import translator.common.utils
+from translator.tests import utils
 
 
 class CommonUtilsTest(TestCase):
@@ -170,9 +170,7 @@ class CommonUtilsTest(TestCase):
         self.assertIsNone(self.yamlUtils.get_dict('./no_file.yaml'))
 
     def test_yamlutils_get_dict(self):
-        yaml_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../tests/data/custom_types/rsyslog.yaml')
+        yaml_file = utils.test_sample('custom_types/rsyslog.yaml')
         dict = \
             {'tosca_definitions_version': 'tosca_simple_yaml_1_0',
              'description':
@@ -188,22 +186,14 @@ class CommonUtilsTest(TestCase):
         self.assertEqual(dict, self.yamlUtils.get_dict(yaml_file))
 
     def test_yamlutils_compare_yamls(self):
-        yaml_file1 = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../tests/data/custom_types/kibana.yaml')
-        yaml_file2 = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../tests/data/custom_types/collectd.yaml')
+        yaml_file1 = utils.test_sample('custom_types/kibana.yaml')
+        yaml_file2 = utils.test_sample('custom_types/collectd.yaml')
         self.assertTrue(self.yamlUtils.compare_yamls(yaml_file1, yaml_file1))
         self.assertFalse(self.yamlUtils.compare_yamls(yaml_file1, yaml_file2))
 
     def test_yamlutils_compare_yaml_dict(self):
-        yaml_file1 = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../tests/data/custom_types/rsyslog.yaml')
-        yaml_file2 = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../tests/data/custom_types/collectd.yaml')
+        yaml_file1 = utils.test_sample('custom_types/rsyslog.yaml')
+        yaml_file2 = utils.test_sample('custom_types/collectd.yaml')
         dict = \
             {'tosca_definitions_version': 'tosca_simple_yaml_1_0',
              'description':

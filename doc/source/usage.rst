@@ -17,15 +17,15 @@ only supported template type at present. Currently you can use Heat-Translator i
 
 Translate and get output on command line. For example: ::
 
-    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca
+    openstack translate template --template-file /home/openstack/heat-translator/samples/tests/data/tosca_helloworld.yaml --template-type tosca
 
 Translate and save output of translated file to a desired destination. For example: ::
 
-    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca --output-file /tmp/hot_hello_world.yaml
+    openstack translate template --template-file /home/openstack/heat-translator/samples/tests/data/tosca_helloworld.yaml --template-type tosca --output-file /tmp/hot_hello_world.yaml
 
 Do not translate but only validate template file. For example: ::
 
-    openstack translate template --template-file /home/openstack/heat-translator/translator/tests/data/tosca_helloworld.yaml --template-type tosca --validate-only=true
+    openstack translate template --template-file /home/openstack/heat-translator/samples/tests/data/tosca_helloworld.yaml --template-type tosca --validate-only=true
 
 You can learn more about available options by running following help command::
 
@@ -46,12 +46,12 @@ system or via URL.
 
 For example, a TOSCA hello world template can be translated by running the following command from the project location::
 
-    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml
+    python heat_translator.py --template-file=samples/tests/data/tosca_helloworld.yaml
 
 This should produce a translated Heat Orchestration Template on the command line. The translated content can be saved to a desired file by setting --output-file=<path>.
 For example: ::
 
-    python heat_translator.py --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca --output-file=/tmp/hot_helloworld.yaml
+    python heat_translator.py --template-file=samples/tests/data/tosca_helloworld.yaml --template-type=tosca --output-file=/tmp/hot_helloworld.yaml
 
 An optional argument can be provided to handle user inputs parameters. Also, a template file can only be validated instead of translation by using --validate-only=true
 optional argument. The command below shows an example usage::
@@ -61,7 +61,7 @@ optional argument. The command below shows an example usage::
 Alternatively, you can install a particular release of Heat-Translator as available at https://pypi.org/project/heat-translator.
 In this case, you can simply run translation via CLI entry point::
 
-    heat-translator --template-file=translator/tests/data/tosca_helloworld.yaml --template-type=tosca
+    heat-translator --template-file=samples/tests/data/tosca_helloworld.yaml --template-type=tosca
 
 Things To Consider
 ------------------
@@ -77,14 +77,14 @@ Things To Consider
 * The ``flavor`` and ``image`` properties of ``OS::Nova::Server`` resource is irrelevant to the TOSCA specification and can not be used in the TOSCA
   template as such. Heat-Translator sets these properties in the translated template based on constraints defined per TOSCA Compute OS and HOST
   capabilities. However, user may required to use these properties in template in certain circumstances, so in that case, TOSCA Compute can be extended
-  with these properties and later used in the node template. For a good example, refer to the ``translator/tests/data/test_tosca_flavor_and_image.yaml`` test
+  with these properties and later used in the node template. For a good example, refer to the ``samples/tests/data/test_tosca_flavor_and_image.yaml`` test
   template.
 * The Heat-Translator can be used to automatically deploy translated TOSCA template given that your environment has python-heatclient and python-keystoneclient.
   This can be achieved by providing ``--deploy`` argument to the Heat-Translator. You can provide desired stack name by providing it as ``--stack-name <name>``
   argument. If you do not provide ``--stack-name``, an unique name will be created and used.
   Below is an example command to deploy translated template with a desired stack name::
 
-      heat-translator --template-file translator/tests/data/tosca_helloworld.yaml --stack-name mystack --deploy
+      heat-translator --template-file samples/tests/data/tosca_helloworld.yaml --stack-name mystack --deploy
 
 * The Heat-Translator supports translation of TOSCA templates to Heat Senlin
   resources (e.g. ``OS::Senlin::Cluster``) but that requires to use a specific
@@ -92,8 +92,8 @@ Things To Consider
   The ``tosca.policies.Scaling.Cluster`` is a custom type that derives from
   ``tosca.policies.Scaling``. For example usage, refer to the
   ``tosca_cluster_autoscaling.yaml`` and ``hot_cluster_autoscaling.yaml``
-  provided under the ``translator/tests/data/autoscaling`` and
-  ``translator/tests/data/hot_output/autoscaling`` directories respectively in
+  provided under the ``samples/tests/data/autoscaling`` and
+  ``samples/tests/data/hot_output/autoscaling`` directories respectively in
   the heat-translator project (``https://github.com/openstack/heat-translator``).
   When you use ``tosca.policies.Scaling`` normative node type, the
   Heat-Translator will translate it to ``OS::Heat::AutoScalingGroup`` Heat
@@ -118,4 +118,4 @@ Things To Consider
 
   Below is an example of how to use this on the command line::
 
-      heat-translator --template-file translator/tests/data/autoscaling/tosca_autoscaling.yaml --output-file /tmp/hot.yaml
+      heat-translator --template-file samples/tests/data/autoscaling/tosca_autoscaling.yaml --output-file /tmp/hot.yaml
