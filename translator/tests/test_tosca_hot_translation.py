@@ -12,7 +12,9 @@
 
 import json
 import os
+from unittest import mock
 
+import toscaparser
 from toscaparser.common.exception import ExceptionCollector
 from toscaparser.common.exception import URLException
 from toscaparser.common.exception import ValidationError
@@ -264,7 +266,8 @@ class ToscaHotTranslationTest(TestCase):
         params = {'cpus': '2', 'context_root': 'my_web_app'}
         self._test_successful_translation(tosca_file, hot_file, params)
 
-    def test_hot_translate_template_with_url_import(self):
+    @mock.patch.object(ToscaTemplate, '_tpl_imports')
+    def test_hot_translate_template_with_url_import(self, mock_tpl_imports):
         tosca_file = '../tests/data/' \
                      'tosca_single_instance_wordpress_with_url_import.yaml'
         hot_file = '../tests/data/hot_output/' \
@@ -275,12 +278,16 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
+        import_file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/custom_types/wordpress.yaml"))
+        mock_tpl_imports.return_value = [import_file_path]
         self._test_successful_translation(tosca_file, hot_file, params)
 
-    def test_hot_translate_template_by_url_with_local_import(self):
-        tosca_file = 'https://raw.githubusercontent.com/openstack/' \
-                     'heat-translator/master/translator/tests/data/' \
-                     'tosca_single_instance_wordpress.yaml'
+    @mock.patch.object(toscaparser.tosca_template, 'ToscaTemplate')
+    def test_hot_translate_template_by_url_with_local_import(
+        self, mock_tosca_template):
+        tosca_file = "https://example.com/tosca_single_instance_wordpress.yaml"
         hot_file = '../tests/data/hot_output/' \
                    'hot_single_instance_wordpress.yaml'
         params = {'db_name': 'wordpress',
@@ -289,13 +296,20 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
+        file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/tosca_single_instance_wordpress.yaml"))
+        mock_tosca_template.return_value = ToscaTemplate(
+            file_path, params, True)
         self._test_successful_translation(tosca_file, hot_file, params)
 
-    def test_hot_translate_template_by_url_with_local_abspath_import(self):
-        tosca_file = 'https://raw.githubusercontent.com/openstack/' \
-                     'heat-translator/master/translator/tests/data/' \
-                     'tosca_single_instance_wordpress_with_local_abspath' \
-                     '_import.yaml'
+    @mock.patch.object(toscaparser.utils.urlutils.UrlUtils, 'validate_url')
+    @mock.patch.object(os.path, 'isfile')
+    @mock.patch.object(ToscaTemplate, '_get_path')
+    def test_hot_translate_template_by_url_with_local_abspath_import(
+        self, mock_get_path, mock_isfile, mock_validate_url):
+        tosca_file = ("https://example.com/tosca_single_instance_wordpress_"
+                      "with_local_abspath_import.yaml")
         hot_file = '../tests/data/hot_output/' \
                    'hot_single_instance_wordpress.yaml'
         params = {'db_name': 'wordpress',
@@ -304,20 +318,27 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
-        expected_msg = _('Absolute file name "/tmp/wordpress.yaml" cannot be '
-                         'used in a URL-based input template "https://raw.'
-                         'githubusercontent.com/openstack/heat-translator/'
-                         'master/translator/tests/data/tosca_single_instance_'
-                         'wordpress_with_local_abspath_import.yaml".')
+        file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/tosca_single_instance_wordpress_with_local_"
+            "abspath_import.yaml"))
+        mock_get_path.return_value = file_path
+        mock_isfile.return_value = True
+        mock_validate_url.side_effect = [False, True, False, True]
+
+        expected_msg = ('Absolute file name "/tmp/wordpress.yaml" cannot be '
+                        f'used in a URL-based input template "{file_path}".')
         msg_path = False
         self._test_failed_translation(tosca_file, hot_file, params,
                                       expected_msg, msg_path, ValidationError,
                                       ImportError)
 
-    def test_hot_translate_template_by_url_with_url_import(self):
-        tosca_url = 'https://raw.githubusercontent.com/openstack/' \
-                    'heat-translator/master/translator/tests/data/' \
-                    'tosca_single_instance_wordpress_with_url_import.yaml'
+    @mock.patch.object(ToscaTemplate, '_tpl_imports')
+    @mock.patch.object(toscaparser.tosca_template, 'ToscaTemplate')
+    def test_hot_translate_template_by_url_with_url_import(
+        self, mock_tosca_template, mock_tpl_imports):
+        tosca_url = ("https://example.com/tosca_single_instance_wordpress_"
+                     "with_url_import.yaml")
         hot_file = '../tests/data/hot_output/' \
                    'hot_single_instance_wordpress.yaml'
         params = {'db_name': 'wordpress',
@@ -326,6 +347,16 @@ class ToscaHotTranslationTest(TestCase):
                   'db_root_pwd': 'passw0rd',
                   'db_port': 3366,
                   'cpus': 8}
+        file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/tosca_single_instance_wordpress_with_url_"
+            "import.yaml"))
+        import_file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/custom_types/wordpress.yaml"))
+        mock_tpl_imports.return_value = [import_file_path]
+        mock_tosca_template.return_value = ToscaTemplate(
+            file_path, params, True)
         self._test_successful_translation(tosca_url, hot_file, params)
 
     def test_translate_hello_world_csar(self):
@@ -345,13 +376,18 @@ class ToscaHotTranslationTest(TestCase):
                   'cpus': 8}
         self._test_successful_translation(tosca_file, hot_file, params)
 
-    def test_translate_elk_csar_from_url(self):
-        tosca_file = 'https://github.com/openstack/heat-translator/raw/' \
-                     'master/translator/tests/data/csar_elk.zip'
+    @mock.patch.object(toscaparser.tosca_template, 'ToscaTemplate')
+    def test_translate_elk_csar_from_url(self, mock_tosca_template):
+        tosca_file = "https://example.com/csar_elk.zip"
         hot_file = '../tests/data/hot_output/hot_elk_from_csar.yaml'
         params = {'github_url':
                   'http://github.com/paypal/rest-api-sample-app-nodejs.git',
                   'my_cpus': 4}
+        zip_file_path = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../tests/data/csar_elk.zip"))
+        mock_tosca_template.return_value = ToscaTemplate(
+            zip_file_path, params, True)
         self._test_successful_translation(tosca_file, hot_file, params)
 
     def test_translate_csar_not_zip(self):
