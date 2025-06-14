@@ -57,6 +57,8 @@ topology_template:
       requirements:
         - host:
             node: logstash_server
+        - search_endpoint:
+            node: elasticsearch_server
       interfaces:
         Standard:
           create: logstash/create.sh
@@ -69,6 +71,14 @@ topology_template:
           properties: *os_capabilities
         host:
           properties: *host_capabilities
+
+    elasticsearch_server:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties: *host_capabilities
+        os:
+          properties: *os_capabilities
 
     logstash_server:
       type: tosca.nodes.Compute

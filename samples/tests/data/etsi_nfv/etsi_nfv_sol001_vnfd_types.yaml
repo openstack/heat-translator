@@ -1210,18 +1210,20 @@ node_types:
       - virtual_link:
           capability: tosca.capabilities.nfv.VirtualLinkable
           relationship: tosca.relationships.nfv.VirtualLinksTo
+          occurrences: [0, 1]
       - virtual_binding:
           capability: tosca.capabilities.nfv.VirtualBindable
           relationship: tosca.relationships.nfv.VirtualBindsTo
           node: tosca.nodes.nfv.Vdu.Compute
+          occurrences: [0, 1]
 
   tosca.nodes.nfv.VnfVirtualLink:
     derived_from: tosca.nodes.Root
-    description: Describes the information about an internal VNF VL 
+    description: Describes the information about an internal VNF VL
     properties:
       connectivity_type:
         type: tosca.datatypes.nfv.ConnectivityType
-        description: Specifies the protocol exposed by the VL and the flow pattern supported by the VL 
+        description: Specifies the protocol exposed by the VL and the flow pattern supported by the VL
         required: true
       description:
         type: string

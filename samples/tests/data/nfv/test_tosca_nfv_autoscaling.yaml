@@ -26,8 +26,12 @@ topology_template:
       requirements:
         - virtualLink:
             node: VL1
+        - link:
+          node: VL1
         - virtualBinding:
             node: VDU1
+        - binding:
+            node: VDU1 
 
     VDU2:
       type: tosca.nodes.nfv.VDU.Tacker
@@ -46,7 +50,11 @@ topology_template:
       requirements:
         - virtualLink:
             node: VL1
+        - link:
+            node: VL1
         - virtualBinding:
+            node: VDU2
+        - binding:
             node: VDU2
 
     VL1:

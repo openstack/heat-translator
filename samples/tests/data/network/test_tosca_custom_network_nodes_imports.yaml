@@ -29,7 +29,11 @@ topology_template:
       requirements:
         - virtualLink:
             node: VL1
+        - link:
+            node: VL1
         - virtualBinding:
+            node: VDU1
+        - binding:
             node: VDU1
 
     VL1:

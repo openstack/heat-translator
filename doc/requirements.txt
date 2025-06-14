@@ -1,2 +1,2 @@
-openstackdocstheme>=2.2.1 # Apache-2.0
-sphinx>=2.0.0,!=2.1.0 # BSD
+openstackdocstheme>=3.4.1 # Apache-2.0
+sphinx>=8.1.3 # BSD

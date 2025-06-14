@@ -11,9 +11,11 @@
 #    under the License.
 
 
+import importlib
 import json
 import os
 import shutil
+import sys
 import tempfile
 from unittest import mock
 
@@ -30,6 +32,24 @@ class ShellTest(TestCase):
     template_type = '--template-type=tosca'
     template_validation = "--validate-only"
     failure_msg = _('The program raised an exception unexpectedly.')
+
+    def tearDown(self):
+        """Ensure all mocks are properly cleaned up after each test"""
+        super().tearDown()
+        mock.patch.stopall()
+        modules_to_clear = [
+            'translator.common.flavors',
+            'translator.common.images',
+            'novaclient.client',
+            'keystoneauth1.adapter',
+            'novaclient.v2.flavors'
+        ]
+        for module in modules_to_clear:
+            if module in sys.modules:
+                try:
+                    importlib.reload(sys.modules[module])
+                except (ImportError, AttributeError):
+                    sys.modules.pop(module, None)
 
     def test_invalid_file_value(self):
         error = self.assertRaises(ValueError,

@@ -61,7 +61,12 @@ topology_template:
         - virtualLink:
             node: VL1
 #           relationship: tosca.relationships.nfv.VirtualLinksTo
+        - link:
+            node: VL1
         - virtualBinding:
+            node: VDU1
+            relationship: tosca.relationships.nfv.VirtualBindsTo
+        - binding:
             node: VDU1
             relationship: tosca.relationships.nfv.VirtualBindsTo
 
@@ -73,7 +78,12 @@ topology_template:
         - virtualLink:
             node: VL1
 #           relationship: tosca.relationships.nfv.VirtualLinksTo
+        - link:
+            node: VL1
         - virtualBinding:
+            node: VDU2
+            relationship: tosca.relationships.nfv.VirtualBindsTo
+        - binding:
             node: VDU2
             relationship: tosca.relationships.nfv.VirtualBindsTo
 

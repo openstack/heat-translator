@@ -26,6 +26,7 @@ pip-log.txt
 .tox
 nosetests.xml
 .testrepository
+.stestr
 
 # Translations
 *.mo
@@ -51,3 +52,4 @@ ChangeLog
 .*.swp
 .idea
 *.iml
+
