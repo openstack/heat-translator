@@ -8,16 +8,16 @@ metadata:
 data_types:
   tosca.datatypes.nfv.L2AddressData:
     derived_from: tosca.datatypes.Root
-    description: Describes the information on the MAC addresses to be assigned to a connection point. 
+    description: Describes the information on the MAC addresses to be assigned to a connection point.
     properties:
       mac_address_assignment:
         type: boolean
         description: Specifies if the address assignment is the responsibility of management and orchestration function or not. If it is set to True, it is the management and orchestration function responsibility
-        required: true 
-  
+        required: true
+
   tosca.datatypes.nfv.L3AddressData:
     derived_from: tosca.datatypes.Root
-    description: Provides information about Layer 3 level addressing scheme and parameters applicable to a CP 
+    description: Provides information about Layer 3 level addressing scheme and parameters applicable to a CP
     properties:
       ip_address_assignment:
         type: boolean
@@ -25,7 +25,7 @@ data_types:
         required: true
       floating_ip_activated:
         type: boolean
-        description: Specifies if the floating IP scheme is activated on the Connection Point or not 
+        description: Specifies if the floating IP scheme is activated on the Connection Point or not
         required: true
       ip_address_type:
         type: string
@@ -35,14 +35,14 @@ data_types:
           - valid_values: [ ipv4, ipv6 ]
       number_of_ip_address:
         type: integer
-        description: Minimum number of IP addresses to be assigned 
+        description: Minimum number of IP addresses to be assigned
         required: false
         constraints:
           - greater_than: 0
 
   tosca.datatypes.nfv.AddressData:
     derived_from: tosca.datatypes.Root
-    description: Describes information about the addressing scheme and parameters applicable to a CP 
+    description: Describes information about the addressing scheme and parameters applicable to a CP
     properties:
       address_type:
         type: string
@@ -56,12 +56,12 @@ data_types:
         required: false
       l3_address_data:
         type: tosca.datatypes.nfv.L3AddressData
-        description: Provides the information on the IP addresses to be assigned to a connection point 
+        description: Provides the information on the IP addresses to be assigned to a connection point
         required: false
 
   tosca.datatypes.nfv.ConnectivityType:
     derived_from: tosca.datatypes.Root
-    description: describes additional connectivity information of a virtualLink 
+    description: describes additional connectivity information of a virtualLink
     properties:
       layer_protocols:
         type: list
@@ -80,7 +80,7 @@ data_types:
 
   tosca.datatypes.nfv.LinkBitrateRequirements:
     derived_from: tosca.datatypes.Root
-    description: describes the requirements in terms of bitrate for a virtual link 
+    description: describes the requirements in terms of bitrate for a virtual link
     properties:
       root:
         type: integer # in bits per second
@@ -102,13 +102,13 @@ data_types:
       associated_layer_protocol:
         type: string
         required: true
-        description: One of the values of the property layer_protocols of the CP 
+        description: One of the values of the property layer_protocols of the CP
         constraints:
           - valid_values: [ ethernet, mpls, odu2, ipv4, ipv6, pseudo-wire ]
       address_data:
         type: list
         description: Provides information on the addresses to be assigned to the CP
-        entry_schema: 
+        entry_schema:
           type: tosca.datatypes.nfv.AddressData
         required: false
 
@@ -135,23 +135,23 @@ data_types:
 
   tosca.datatypes.nfv.Qos:
     derived_from: tosca.datatypes.Root
-    description: describes QoS data for a given VL used in a VNF deployment flavour 
+    description: describes QoS data for a given VL used in a VNF deployment flavour
     properties:
       latency:
         type: scalar-unit.time #Number
-        description: Specifies the maximum latency 
+        description: Specifies the maximum latency
         required: true
-        constraints: 
+        constraints:
           - greater_than: 0 s
       packet_delay_variation:
         type: scalar-unit.time #Number
-        description: Specifies the maximum jitter  
+        description: Specifies the maximum jitter
         required: true
-        constraints: 
+        constraints:
           - greater_or_equal: 0 s
       packet_loss_ratio:
         type: float
-        description: Specifies the maximum packet loss ratio 
+        description: Specifies the maximum packet loss ratio
         required: false
         constraints:
            - in_range: [ 0.0, 1.0 ]
@@ -160,21 +160,21 @@ capability_types:
   tosca.capabilities.nfv.VirtualLinkable:
     derived_from: tosca.capabilities.Node
     description: A node type that includes the VirtualLinkable capability indicates that it can be pointed by tosca.relationships.nfv.VirtualLinksTo relationship type
- 
+
 relationship_types:
   tosca.relationships.nfv.VirtualLinksTo:
     derived_from: tosca.relationships.DependsOn
-    description: Represents an association relationship between the VduCp and VnfVirtualLink node types 
+    description: Represents an association relationship between the VduCp and VnfVirtualLink node types
     valid_target_types: [ tosca.capabilities.nfv.VirtualLinkable ]
-    
+
 node_types:
   tosca.nodes.nfv.Cp:
     derived_from: tosca.nodes.Root
-    description:  Provides information regarding the purpose of the connection point 
+    description:  Provides information regarding the purpose of the connection point
     properties:
       layer_protocols:
         type: list
-        description: Identifies which protocol the connection point uses for connectivity purposes 
+        description: Identifies which protocol the connection point uses for connectivity purposes
         required: true
         entry_schema:
           type: string
@@ -182,17 +182,17 @@ node_types:
             - valid_values: [ ethernet, mpls, odu2, ipv4, ipv6, pseudo-wire ]
       role: #Name in ETSI NFV IFA011 v0.7.3: cpRole
         type: string
-        description: Identifies the role of the port in the context of the traffic flow patterns in the VNF or parent NS 
+        description: Identifies the role of the port in the context of the traffic flow patterns in the VNF or parent NS
         required: false
         constraints:
           - valid_values: [ root, leaf ]
       description:
         type: string
-        description: Provides human-readable information on the purpose of the connection point 
+        description: Provides human-readable information on the purpose of the connection point
         required: false
       protocol:
         type: list
-        description: Provides information on the addresses to be assigned to the connection point(s) instantiated from this Connection Point Descriptor 
+        description: Provides information on the addresses to be assigned to the connection point(s) instantiated from this Connection Point Descriptor
         required: false
         entry_schema:
           type: tosca.datatypes.nfv.CpProtocolData
