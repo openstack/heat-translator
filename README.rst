@@ -1,26 +1,20 @@
-========================
-Team and repository tags
-========================
-
-.. image:: https://governance.openstack.org/tc/badges/heat-translator.svg
-    :target: https://governance.openstack.org/tc/reference/tags/index.html
-
-.. Change things from this point on
-
 ===============
 Heat-Translator
 ===============
 
+.. image:: https://governance.openstack.org/tc/badges/heat-translator.svg
+
+.. Change things from this point on
+
 Overview
 --------
 
-Heat-Translator is an Openstack project and licensed under Apache 2. It is a
-command line tool which takes non-Heat templates as an input and produces a
-Heat Orchestration Template (HOT) which can be deployed by Heat. Currently the
-development and testing is done with an aim to translate OASIS Topology and
-Orchestration Specification for Cloud Applications (TOSCA) templates to
-HOT. However, the tool is designed to be easily extended to use with any
-format other than TOSCA.
+It is a command line tool which takes non-Heat templates as an input and
+produces a Heat Orchestration Template (HOT) which can be deployed by Heat.
+Currently the development and testing is done with an aim to translate
+OASIS Topology and Orchestration Specification for Cloud Applications (TOSCA)
+templates to HOT. However, the tool is designed to be easily extended to
+use with any format other than TOSCA.
 
 Architecture
 ------------
@@ -33,7 +27,8 @@ and then produces a Heat Orchestration Template (HOT) as an output.
 
 How To Use
 ----------
-Please refer to `doc/source/usage.rst <https://github.com/openstack/heat-translator/blob/master/doc/source/usage.rst>`_
+
+Please refer to `doc/source/usage.rst <https://opendev.org/openstack/heat-translator/src/branch/master/doc/source/usage.rst>`_
 
 Directory Structure
 -------------------
