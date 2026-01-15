@@ -10,7 +10,7 @@ tosca-parser>=2.12.0 # Apache-2.0
 keystoneauth1>=5.11.0 # Apache-2.0
 python-novaclient>=18.9.0 # Apache-2.0
 python-heatclient>=4.2.0 # Apache-2.0
-python-glanceclient>=4.8.0 # Apache-2.0
+openstacksdk>=4.1.0 # Apache-2.0
 requests>=2.32.2 # Apache-2.0
 
 oslo.log>=7.1.0 # Apache-2.0
