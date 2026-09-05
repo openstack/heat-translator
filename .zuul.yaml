@@ -6,15 +6,15 @@
       - check-requirements
     check:
       jobs:
-        - heat-translator-tox-py37-tp:
+        - heat-translator-tox-py311-tp:
             voting: false
 
 - job:
-    name: heat-translator-tox-py310-tp
-    parent: openstack-tox-py310
+    name: heat-translator-tox-py311-tp
+    parent: openstack-tox-py311
     description: |
       Run tests for heat-translator project.
 
-      Uses tox with the ``py310-tp`` environment.
+      Uses tox with the ``py311-tp`` environment.
     vars:
-      tox_envlist: py310-tp
+      tox_envlist: py311-tp
